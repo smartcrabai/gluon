@@ -1,0 +1,8 @@
+use gluon::prelude::*;
+
+#[derive(serde::Serialize)]
+pub struct HomeProps;
+
+pub async fn get() -> gluon::Result<View<HomeProps>> {
+    Ok(View::new(HomeProps))
+}

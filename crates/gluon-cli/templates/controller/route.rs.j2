@@ -1,0 +1,5 @@
+use gluon::prelude::*;
+
+pub async fn get() -> gluon::Result<axum::Json<serde_json::Value>> {
+    Ok(axum::Json(serde_json::json!({"ok": true})))
+}

@@ -1,0 +1,21 @@
+use crate::domain::{{ snake_name }}::*;
+use async_trait::async_trait;
+
+pub struct Mock{{ pascal_name }}Repository {}
+
+impl Mock{{ pascal_name }}Repository {
+    #[must_use]
+    pub fn new() -> Self { Self {} }
+}
+
+impl Default for Mock{{ pascal_name }}Repository {
+    fn default() -> Self { Self::new() }
+}
+
+#[async_trait]
+impl {{ pascal_name }}Repository for Mock{{ pascal_name }}Repository {
+    async fn list(&self, _limit: u32) -> Result<Vec<{{ pascal_name }}>, gluon::AppError> { Ok(vec![]) }
+    async fn find(&self, _id: &{{ pascal_name }}Id) -> Result<Option<{{ pascal_name }}>, gluon::AppError> { Ok(None) }
+    async fn save(&self, _entity: &{{ pascal_name }}) -> Result<(), gluon::AppError> { Ok(()) }
+    async fn delete(&self, _id: &{{ pascal_name }}Id) -> Result<(), gluon::AppError> { Ok(()) }
+}

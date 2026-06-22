@@ -1,0 +1,10 @@
+use gluon::prelude::*;
+
+#[derive(serde::Serialize)]
+pub struct {{ pascal_name }}Props {
+    // TODO: fill props
+}
+
+pub async fn get() -> gluon::Result<View<{{ pascal_name }}Props>> {
+    Ok(View::new({{ pascal_name }}Props {}))
+}

@@ -1,0 +1,9 @@
+use super::value_objects::*;
+
+#[derive(Debug, Clone)]
+pub struct {{ pascal_name }} {
+    pub id: {{ pascal_name }}Id,
+{%- for field in fields %}
+    pub {{ field.name }}: {{ field.ty }},
+{%- endfor %}
+}

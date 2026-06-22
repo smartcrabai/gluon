@@ -1,0 +1,23 @@
+[package]
+description = "build.rs helpers for the gluon framework"
+edition.workspace = true
+license.workspace = true
+name = "gluon-build"
+repository.workspace = true
+version.workspace = true
+
+[lib]
+
+[dependencies]
+proc-macro2.workspace = true
+quote.workspace = true
+syn.workspace = true
+walkdir.workspace = true
+
+[dev-dependencies]
+insta.workspace = true
+serial_test.workspace = true
+tempfile.workspace = true
+
+[lints]
+workspace = true

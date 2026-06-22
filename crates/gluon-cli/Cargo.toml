@@ -1,0 +1,33 @@
+[package]
+description = "CLI for the gluon framework"
+edition.workspace = true
+license.workspace = true
+name = "gluon-cli"
+repository.workspace = true
+version.workspace = true
+
+[[bin]]
+name = "gluon"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+clap.workspace = true
+gluon-build = { path = "../gluon-build", version = "0.1" }
+heck.workspace = true
+minijinja.workspace = true
+notify.workspace = true
+regex.workspace = true
+rust-embed.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+reqwest.workspace = true
+serial_test.workspace = true
+tempfile.workspace = true
+
+[lints]
+workspace = true

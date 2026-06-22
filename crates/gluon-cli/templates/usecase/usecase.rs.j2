@@ -1,0 +1,45 @@
+use async_trait::async_trait;
+
+#[async_trait]
+pub trait {{ pascal_name }}: Send + Sync {
+    async fn execute(&self, input: {{ pascal_name }}Input) -> Result<{{ pascal_name }}Output, {{ pascal_name }}Error>;
+}
+
+pub struct {{ pascal_name }}Impl {}
+
+impl {{ pascal_name }}Impl {
+    #[must_use]
+    pub fn new() -> Self { Self {} }
+}
+
+impl Default for {{ pascal_name }}Impl {
+    fn default() -> Self { Self::new() }
+}
+
+#[async_trait]
+impl {{ pascal_name }} for {{ pascal_name }}Impl {
+    async fn execute(&self, _input: {{ pascal_name }}Input) -> Result<{{ pascal_name }}Output, {{ pascal_name }}Error> {
+        todo!("implement {{ snake_name }}")
+    }
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct {{ pascal_name }}Input;
+
+#[derive(Debug, Clone, serde::Serialize, ts_rs::TS)]
+#[ts(export, export_to = "app/")]
+pub struct {{ pascal_name }}Output;
+
+#[derive(Debug)]
+pub enum {{ pascal_name }}Error {}
+
+impl std::fmt::Display for {{ pascal_name }}Error {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { Ok(()) }
+}
+impl std::error::Error for {{ pascal_name }}Error {}
+
+impl From<{{ pascal_name }}Error> for gluon::AppError {
+    fn from(_e: {{ pascal_name }}Error) -> Self {
+        gluon::AppError::Internal(Box::new(std::io::Error::other("{{ snake_name }} failed")))
+    }
+}

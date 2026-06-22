@@ -1,0 +1,45 @@
+[package]
+description = "Rails-like web framework for Rust, built on Axum and jsxrs"
+edition.workspace = true
+license.workspace = true
+name = "gluon"
+repository.workspace = true
+version.workspace = true
+
+[lib]
+
+[dev-dependencies]
+reqwest.workspace = true
+serial_test.workspace = true
+tempfile.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+async-trait.workspace = true
+axum.workspace = true
+axum-test.workspace = true
+form_urlencoded.workspace = true
+gluon-macros = { path = "../gluon-macros", version = "0.1" }
+http.workspace = true
+jsxrs.workspace = true
+opentelemetry.workspace = true
+opentelemetry-otlp.workspace = true
+opentelemetry_sdk.workspace = true
+rand.workspace = true
+serde = { workspace = true }
+subtle.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+thiserror.workspace = true
+time.workspace = true
+tokio.workspace = true
+tower.workspace = true
+tower-cookies.workspace = true
+tower-http.workspace = true
+tower-sessions.workspace = true
+tracing.workspace = true
+tracing-opentelemetry.workspace = true
+tracing-subscriber.workspace = true
+
+[lints]
+workspace = true

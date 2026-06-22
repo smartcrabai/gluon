@@ -1,0 +1,6 @@
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct {{ pascal_name }}Id(pub uuid::Uuid);
+{% for vo in value_objects %}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct {{ vo }}(pub String);
+{% endfor %}
