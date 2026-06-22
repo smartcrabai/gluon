@@ -55,7 +55,7 @@ tracing = "0.1"
 tracing-opentelemetry = "0.33"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 trybuild = "1"
-ts-rs = "11"
+ts-rs = "12"
 walkdir = "2"
 
 [workspace.metadata.dist]
