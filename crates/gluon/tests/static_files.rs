@@ -13,7 +13,7 @@ use tempfile::TempDir;
 fn server_for(public_dir: &std::path::Path) -> TestServer {
     let service = static_files::service(public_dir.to_path_buf());
     let app = Router::new().nest_service("/public", service);
-    TestServer::new(app).expect("test server boots")
+    TestServer::new(app)
 }
 
 #[tokio::test]

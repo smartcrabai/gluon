@@ -63,7 +63,7 @@ fn build_app() -> Router {
 }
 
 fn server() -> TestServer {
-    let mut server = TestServer::new(build_app()).unwrap();
+    let mut server = TestServer::new(build_app());
     server.save_cookies();
     server
 }
