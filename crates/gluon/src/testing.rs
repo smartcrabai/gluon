@@ -22,7 +22,7 @@ impl TestClient {
     /// be initialised.
     pub fn new(router: Router<Arc<Container>>, container: Container) -> anyhow::Result<Self> {
         let app = router.with_state(Arc::new(container));
-        let server = TestServer::new(app)?;
+        let server = TestServer::try_new(app)?;
         Ok(Self { server })
     }
 

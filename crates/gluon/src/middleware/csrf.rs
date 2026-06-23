@@ -16,7 +16,7 @@ use axum::extract::Request;
 use axum::http::{HeaderMap, Method, StatusCode, header};
 use axum::middleware::Next;
 use axum::response::Response;
-use rand::RngCore;
+use rand::RngExt;
 use subtle::ConstantTimeEq;
 use tower_sessions::Session;
 
@@ -159,7 +159,7 @@ fn constant_time_eq(lhs: &[u8], rhs: &[u8]) -> bool {
 /// Generates a 32-byte CSPRNG-backed token encoded as lowercase hexadecimal.
 fn generate_token() -> String {
     let mut bytes = [0u8; 32];
-    rand::thread_rng().fill_bytes(&mut bytes);
+    rand::rng().fill(&mut bytes);
     encode_hex(&bytes)
 }
 

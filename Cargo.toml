@@ -29,9 +29,9 @@ opentelemetry-otlp = { version = "0.32", features = ["trace", "grpc-tonic"] }
 opentelemetry_sdk = { version = "0.32", features = ["trace", "rt-tokio"] }
 proc-macro2 = "1"
 quote = "1"
-rand = "0.8"
+rand = "0.10"
 regex = "1"
-reqwest = { version = "=0.13.1", default-features = false, features = [
+reqwest = { version = "=0.13.4", default-features = false, features = [
   "rustls",
   "json",
   "cookies",
@@ -40,7 +40,7 @@ rust-embed = "8"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serial_test = "3"
-sqlx = { version = "0.8", features = ["postgres", "runtime-tokio"] }
+sqlx = { version = "0.9", features = ["postgres", "runtime-tokio"] }
 subtle = "2"
 syn = { version = "2", features = ["full"] }
 tempfile = "3"
@@ -49,8 +49,8 @@ time = { version = "0.3", default-features = false }
 tokio = { version = "1.52", features = ["rt-multi-thread", "macros", "signal"] }
 tower = "0.5"
 tower-cookies = "0.11"
-tower-http = { version = "0.6", features = ["fs"] }
-tower-sessions = "0.14"
+tower-http = { version = "0.7", features = ["fs"] }
+tower-sessions = "0.15"
 tracing = "0.1"
 tracing-opentelemetry = "0.33"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

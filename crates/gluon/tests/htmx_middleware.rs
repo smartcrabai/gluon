@@ -17,7 +17,7 @@ fn server() -> TestServer {
     let app = Router::new()
         .route("/", get(handler))
         .layer(from_fn(htmx_middleware));
-    TestServer::new(app).expect("test server boots")
+    TestServer::new(app)
 }
 
 #[tokio::test]
