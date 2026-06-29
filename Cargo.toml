@@ -59,6 +59,7 @@ ts-rs = "12"
 walkdir = "2"
 
 [workspace.metadata.dist]
+allow-dirty = ["ci"]
 cargo-dist-version = "0.32.0"
 ci = "github"
 install-path = "CARGO_HOME"
