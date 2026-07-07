@@ -32,13 +32,11 @@ jobs:
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
 
-      - name: Install sakoku
-        shell: bash
-        run: cargo install sakoku --locked --version ^0.2
-
-      - name: Check ASCII only (sakoku --strict)
-        shell: bash
-        run: sakoku --strict crates/
+      - name: Run sakoku
+        uses: smartcrabai/sakoku@v0.2.4
+        with:
+          paths: crates
+          strict: 'true'
 
       - name: Check formatting
         shell: bash
