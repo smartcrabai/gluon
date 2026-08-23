@@ -52,14 +52,24 @@ fn spawn_app() -> anyhow::Result<Child> {
     eprintln!("[gluon dev] cargo run");
     Command::new("cargo")
         .arg("run")
+        .env(
+            "GLUON_INSECURE_COOKIE",
+            std::env::var_os("GLUON_INSECURE_COOKIE").unwrap_or_else(|| "1".into()),
+        )
         .spawn()
         .context("spawn cargo run")
 }
 
 pub(crate) fn should_restart(event: &Event) -> bool {
-    event.paths.iter().any(|p| {
-        let s = p.to_string_lossy();
-        !s.ends_with(".ts") && !s.ends_with(".tsx") && !s.contains("/target/")
+    event.paths.iter().any(|path| {
+        let normalized = path.to_string_lossy().replace('\\', "/");
+        let file_name = normalized.rsplit('/').next().unwrap_or_default();
+        let ignored_extension = [".ts", ".tsx", ".j2", ".swp", ".tmp"]
+            .iter()
+            .any(|extension| file_name.ends_with(extension));
+        let editor_backup = file_name.ends_with('~') || file_name.starts_with(".#");
+        let target_artifact = normalized.split('/').any(|segment| segment == "target");
+        !ignored_extension && !editor_backup && !target_artifact
     })
 }
 
@@ -95,16 +105,23 @@ mod tests {
 
     #[test]
     fn no_restart_in_target() {
-        // The implementation looks for the `/target/` substring; use an
-        // absolute-style path so the leading `/` matches.
         assert!(!should_restart(&make_event(&["/repo/target/debug/foo"])));
+        assert!(!should_restart(&make_event(&["target/debug/foo"])));
+        assert!(!should_restart(&make_event(&[
+            r"C:\repo\target\debug\foo.exe",
+        ])));
     }
 
     #[test]
-    fn restart_for_swap_file() {
-        // .swp (Vim swap) is not filtered out; editor temp files still trigger
-        // a restart. This is accepted behaviour for the current implementation.
-        assert!(should_restart(&make_event(&[".swp"])));
+    fn no_restart_for_editor_temporary_files() {
+        for path in [
+            "src/main.rs.swp",
+            "src/main.rs.tmp",
+            "src/main.rs~",
+            "src/.#main.rs",
+        ] {
+            assert!(!should_restart(&make_event(&[path])), "path: {path}");
+        }
     }
 
     #[test]

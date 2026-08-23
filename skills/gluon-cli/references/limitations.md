@@ -16,40 +16,21 @@ MVP として動くが手当てが必要な箇所。フレームワーク側の�
 4. **テンプレ修正は CLI 再ビルドが必要**
    `crates/gluon-cli/templates/` の `.j2` ファイルは `rust-embed` で焼き込まれている。
 
-## HTTP / レンダリング
-
-5. **HTMX fragment mode は middleware で `HX-Request` を検出するが、View<P> 側で fragment 切替がまだ伝搬していない**
-   `HtmxRequest` extractor で flag は取れるが、`jsxrs::RenderConfig.fragment` への接続は未配線。`page.tsx` 側で fragment 出力したい場合は、handler 内で自前に `RenderConfig.fragment = true` を制御するしかない。
-
-6. **`SECRET_KEY_BASE` は framework 側で読まれていない**
-   `.env.example` には書いてあるが、現状 session 署名鍵には接続されていない。signed cookie に依存する設計を書かない。
-
-7. **`Redirect::to(url)` は任意の URL を受け付ける(Open Redirect)**
-   ユーザー入力をそのまま渡すと別ドメインへのリダイレクトが書ける。allowlist は呼び出し側責任。
+5. **domain repository の自動 CRUD は PostgreSQL 対応型のみ**
+   対応型は `bool`、`String`、`i8/i16/i32/i64`、`u8/u16/u32/u64/usize`、`f32/f64`、`Vec<u8>`、`uuid::Uuid`、生成 value object、およびそれらの `Option<T>`。`Vec<u32>` などその他の型は entity に使えるが、repository method は `todo!()` になる。
 
 ## CLI
 
-8. **`gluon db seed` は未実装**
-   `bail!` する。seed が必要なら `cargo run --bin seed` 等を別途用意。
-
-9. **`gluon dev` のファイル監視フィルタは粗い**
-   `.swp` / `.tmp` / `.tsx` / `.j2` / IDE 一時ファイルでも再起動が走ることがある。Windows パス対応も弱い (`/target/` のみで `\target\` を見ていない)。
-
-10. **`gluon d ...` に `--yes` フラグはない**
+6. **`gluon d ...` に `--yes` フラグはない**
     非対話モードは `yes | gluon d ...` で代用。CI で使うときは pipe 必須。
 
-## DI コンテナ
+7. **migration 名の timestamp は秒単位**
+   同名 migration を同じ秒内に連続生成すると overwrite 防止エラーになる。1秒待つか別名を使う。
 
-11. **Container::resolve は未 bind 時に panic**
-    `Inject<T>` extractor は `Infallible` Rejection なので、未 bind のまま route がヒットすると HTTP リクエスト中に panic する(axum がそれを 500 に変換するので致命ではないが、ログには panic が残る)。
+## DI / Session
 
-12. **`Boot::run()` はカスタム middleware を受け付けない**
-    `session_layer` / `csrf_middleware` / `htmx_middleware` / `ServeDir` は強制的に積まれる。CORS や独自 logging を外側に挟みたい場合は現状 fork が必要。
+8. **`Container::resolve` の直接呼び出しは未 bind 時に panic**
+   HTTP extractor の `Inject<T>` は安全に 500 を返す。composition root 内の直接 `resolve` は必須 binding の fail-fast 用途。
 
-## Tower / 外部依存
-
-13. **`ServeDir` の symlink follow は tower-http 0.6 では off にできない**
-    `public/` 配下に untrusted symlink を置くと辿られる。運用で symlink を作らない前提。
-
-14. **`MemoryStore` ベース session は永続化されない**
-    プロセス再起動で全 session が消える。production で水平スケールするなら別 store(`tower-sessions-redis-store` など)に差し替える必要があるが、framework 側にスイッチはまだない。
+9. **`DATABASE_URL` 未設定時の session は `MemoryStore`**
+   開発用 fallback。プロセス再起動で消える。本番・水平スケールでは `DATABASE_URL` を設定し PostgreSQL session store を使う。

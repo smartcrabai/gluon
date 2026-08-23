@@ -6,7 +6,7 @@
 
 | 変数 | 既定値 | 用途 |
 |---|---|---|
-| `DATABASE_URL` | (未設定) | sqlx `PgPool` の接続先。未設定なら PgPool は Container に登録されない(repository を resolve すると panic)。`connect_lazy` なので接続は最初のクエリまで遅延する |
+| `DATABASE_URL` | (未設定) | sqlx `PgPool` の接続先。設定時は PostgreSQL 永続 session store も有効化。未設定なら PgPool は Container に登録されず session は `MemoryStore` |
 | `GLUON_BIND` | `0.0.0.0:3000` | bind アドレス。dev では `127.0.0.1:3000` を推奨 |
 | `GLUON_TELEMETRY_DISABLED` | (未設定) | `1` / `true` で OpenTelemetry をスキップし fmt subscriber のみを初期化する。OTLP コレクタが動いていない dev / test 環境で必須 |
 | `GLUON_INSECURE_COOKIE` | (未設定) | `1` / `true` でセッション cookie の `Secure` 属性を外す。HTTP な dev サーバで session を維持するときに使う(production では絶対に外さない) |
@@ -23,7 +23,7 @@
 
 | 変数 | 既定値 | 用途 |
 |---|---|---|
-| `SECRET_KEY_BASE` | (`.env.example` に値あり) | **現状フレームワーク側で読まれていない**。将来 signed cookie に接続予定。テンプレが提示するだけのプレースホルダなので、これが効いている前提のコードを書かない |
+| `SECRET_KEY_BASE` | (未設定) | session cookie 署名鍵。64 bytes 以上。secure cookie mode では必須。`GLUON_INSECURE_COOKIE=1` の開発時のみ、未設定ならプロセス固有の一時鍵を生成 |
 
 ## 典型コマンド
 
@@ -37,6 +37,7 @@ production:
 
 ```bash
 DATABASE_URL=postgres://... \
+SECRET_KEY_BASE=<64-bytes-or-longer-random-secret> \
 OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.example.com \
 OTEL_SERVICE_NAME=my-app \
 RUST_LOG=info \
@@ -46,7 +47,7 @@ RUST_LOG=info \
 CI(DB なしで起動だけ確認):
 
 ```bash
-GLUON_TELEMETRY_DISABLED=1 cargo run
+GLUON_TELEMETRY_DISABLED=1 GLUON_INSECURE_COOKIE=1 cargo run
 # DATABASE_URL が未設定なら PgPool は登録されないので、
 # repository を resolve しない route だけならクエリなしで起動できる
 ```

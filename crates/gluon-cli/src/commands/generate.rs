@@ -236,16 +236,33 @@ fn generate_domain(name: &str, fields: &[String]) -> Result<()> {
 
     let parsed_fields = parse_fields(fields)?;
     let value_objects = extract_value_objects(&parsed_fields);
+    let crud_supported = parsed_fields
+        .iter()
+        .all(|field| postgres_crud_supported(&field.ty));
     let fields_json: Vec<Value> = parsed_fields
         .iter()
-        .map(|f| json!({ "name": f.name, "ty": f.ty }))
+        .map(|f| {
+            let integer = postgres_integer_storage(&f.ty);
+            let optional = option_inner(&f.ty);
+            let storage_ty = optional.unwrap_or(f.ty.as_str());
+            json!({
+                "name": f.name,
+                "ty": f.ty,
+                "storage_rust_ty": storage_ty,
+                "is_value_object": is_value_object_type(storage_ty),
+                "optional": optional.is_some(),
+                "sql_storage_ty": integer.map(|(storage, _, _)| storage),
+                "fallible_bind": integer.is_some_and(|(_, fallible, _)| fallible),
+            })
+        })
         .collect();
-
     let ctx = json!({
         "snake_name": snake,
         "pascal_name": pascal,
         "fields": fields_json,
         "value_objects": value_objects,
+        "table_name": format!("{snake}s"),
+        "crud_supported": crud_supported,
     });
 
     let dir = PathBuf::from("src/domain").join(&snake);
@@ -325,7 +342,7 @@ pub(crate) fn parse_fields(raw: &[String]) -> Result<Vec<ParsedField>> {
 pub(crate) fn extract_value_objects(fields: &[ParsedField]) -> Vec<String> {
     let mut seen: Vec<String> = Vec::new();
     for field in fields {
-        let ty = field.ty.trim();
+        let ty = option_inner(&field.ty).unwrap_or_else(|| field.ty.trim());
         if !is_value_object_type(ty) {
             continue;
         }
@@ -367,6 +384,38 @@ pub(crate) fn is_well_known_type(ty: &str) -> bool {
             | "HashSet"
             | "BTreeSet"
     )
+}
+
+fn option_inner(ty: &str) -> Option<&str> {
+    let rest = ty.trim().strip_prefix("Option")?.trim_start();
+    rest.strip_prefix('<')?
+        .strip_suffix('>')
+        .map(str::trim)
+        .filter(|inner| !inner.is_empty())
+}
+
+fn postgres_integer_storage(ty: &str) -> Option<(&'static str, bool, bool)> {
+    let optional = option_inner(ty);
+    let ty = optional.unwrap_or_else(|| ty.trim());
+    match ty {
+        "i8" => Some(("i16", false, optional.is_some())),
+        "u8" | "u16" => Some(("i32", false, optional.is_some())),
+        "u32" => Some(("i64", false, optional.is_some())),
+        "u64" | "usize" => Some(("i64", true, optional.is_some())),
+        _ => None,
+    }
+}
+
+fn postgres_crud_supported(ty: &str) -> bool {
+    if postgres_integer_storage(ty).is_some() {
+        return true;
+    }
+    let ty = option_inner(ty).unwrap_or_else(|| ty.trim());
+    is_value_object_type(ty)
+        || matches!(
+            ty,
+            "bool" | "String" | "i16" | "i32" | "i64" | "f32" | "f64" | "Vec<u8>" | "uuid::Uuid"
+        )
 }
 
 // ---------------------------------------------------------------------------
@@ -508,8 +557,8 @@ mod tests {
 
     use super::{
         ParsedField, extract_value_objects, insert_pub_mod_if_present, is_value_object_type,
-        is_well_known_type, parse_fields, route_to_dir, route_to_pascal, validate_field_type,
-        validate_identifier, validate_route,
+        is_well_known_type, parse_fields, postgres_crud_supported, postgres_integer_storage,
+        route_to_dir, route_to_pascal, validate_field_type, validate_identifier, validate_route,
     };
 
     // -----------------------------------------------------------------------
@@ -932,6 +981,24 @@ mod tests {
         assert_eq!(parsed[0].ty, "std::sync::Arc<T>");
     }
 
+    #[test]
+    fn postgres_integer_storage_maps_unsigned_types_to_supported_sqlx_types() {
+        assert_eq!(postgres_integer_storage("i8"), Some(("i16", false, false)));
+        assert_eq!(postgres_integer_storage("u8"), Some(("i32", false, false)));
+        assert_eq!(postgres_integer_storage("u16"), Some(("i32", false, false)));
+        assert_eq!(postgres_integer_storage("u32"), Some(("i64", false, false)));
+        assert_eq!(postgres_integer_storage("u64"), Some(("i64", true, false)));
+        assert_eq!(
+            postgres_integer_storage("usize"),
+            Some(("i64", true, false))
+        );
+        assert_eq!(
+            postgres_integer_storage("Option<u64>"),
+            Some(("i64", true, true))
+        );
+        assert_eq!(postgres_integer_storage("i32"), None);
+    }
+
     // -----------------------------------------------------------------------
     // is_well_known_type / is_value_object_type / extract_value_objects
     // -----------------------------------------------------------------------
@@ -1000,8 +1067,24 @@ mod tests {
                 name: "d".into(),
                 ty: "String".into(),
             },
+            ParsedField {
+                name: "e".into(),
+                ty: "Option<PhoneNumber>".into(),
+            },
         ];
-        assert_eq!(extract_value_objects(&fields), vec!["Email", "UserName"]);
+        assert_eq!(
+            extract_value_objects(&fields),
+            vec!["Email", "UserName", "PhoneNumber"]
+        );
+    }
+
+    #[test]
+    fn postgres_crud_support_distinguishes_convertible_and_custom_types() {
+        assert!(postgres_crud_supported("Option<u32>"));
+        assert!(postgres_crud_supported("Option<UserName>"));
+        assert!(postgres_crud_supported("Vec<u8>"));
+        assert!(!postgres_crud_supported("Vec<u32>"));
+        assert!(!postgres_crud_supported("u128"));
     }
 
     // -----------------------------------------------------------------------

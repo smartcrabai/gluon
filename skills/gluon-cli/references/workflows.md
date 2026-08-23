@@ -14,7 +14,7 @@ sed -i.bak \
   -e 's|path = "../gluon/crates/gluon"|path = "/Users/takumi/apps/gluon/crates/gluon"|' \
   Cargo.toml && rm Cargo.toml.bak
 
-GLUON_TELEMETRY_DISABLED=1 cargo run
+GLUON_TELEMETRY_DISABLED=1 GLUON_INSECURE_COOKIE=1 cargo run
 # 別シェルで:
 curl http://localhost:3000/    # 200 + <h1>Hello, gluon</h1>
 ```
@@ -43,7 +43,7 @@ gluon g resource users
 
 # 確認
 gluon routes
-cargo run
+GLUON_INSECURE_COOKIE=1 cargo run
 ```
 
 ## C. destroy で巻き戻し

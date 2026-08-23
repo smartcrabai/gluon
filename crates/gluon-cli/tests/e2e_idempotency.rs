@@ -48,6 +48,7 @@ fn run_gluon(app: &Path, args: &[&str]) {
     let output = Command::new(gluon_bin())
         .args(args)
         .current_dir(app)
+        .env_remove("DATABASE_URL")
         .output()
         .expect("spawn gluon");
     assert!(
@@ -62,6 +63,7 @@ fn run_gluon_capture(app: &Path, args: &[&str]) -> (bool, String, String) {
     let output = Command::new(gluon_bin())
         .args(args)
         .current_dir(app)
+        .env_remove("DATABASE_URL")
         .output()
         .expect("spawn gluon");
     (
@@ -199,12 +201,15 @@ fn routes_with_no_app_dir_fails() {
 }
 
 #[test]
-fn db_seed_reports_not_implemented() {
+fn db_seed_requires_database_url() {
     let tmp = tempfile::tempdir().expect("create tempdir");
     let app = fresh_app(tmp.path(), "myapp");
 
     let stderr = run_gluon_expect_failure(&app, &["db", "seed"]);
-    assert!(stderr.contains("not yet implemented"), "stderr: {stderr}");
+    assert!(
+        stderr.contains("DATABASE_URL is required"),
+        "stderr: {stderr}"
+    );
 }
 
 #[test]

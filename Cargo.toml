@@ -40,17 +40,21 @@ rust-embed = "8"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serial_test = "4"
-sqlx = { version = "0.9", features = ["postgres", "runtime-tokio"] }
+sqlx = { version = "0.9", features = ["postgres", "runtime-tokio", "time"] }
 subtle = "2"
 syn = { version = "3", features = ["full"] }
 tempfile = "3"
+testcontainers-modules = { version = "0.15", default-features = false, features = [
+  "postgres",
+  "ring",
+] }
 thiserror = "2"
 time = { version = "0.3", default-features = false }
 tokio = { version = "1.52", features = ["rt-multi-thread", "macros", "signal"] }
 tower = "0.5"
 tower-cookies = "0.11"
 tower-http = { version = "0.7", features = ["fs"] }
-tower-sessions = "0.15"
+tower-sessions = { version = "0.15", features = ["signed"] }
 tracing = "0.1"
 tracing-opentelemetry = "0.33"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

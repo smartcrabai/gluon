@@ -38,6 +38,13 @@ impl Redirect {
 
 impl IntoResponse for Redirect {
     fn into_response(self) -> Response {
+        if !is_local_location(&self.location) {
+            tracing::error!(location = %self.location, "unsafe redirect Location header");
+            return AppError::Internal(Box::new(std::io::Error::other(
+                "redirect location must be an absolute local path",
+            )))
+            .into_response();
+        }
         match HeaderValue::from_str(&self.location) {
             Ok(header) => {
                 let mut response = self.status.into_response();
@@ -54,6 +61,14 @@ impl IntoResponse for Redirect {
             }
         }
     }
+}
+
+fn is_local_location(location: &str) -> bool {
+    location.starts_with('/')
+        && !location.starts_with("//")
+        && !location.chars().any(|character| {
+            character == '\\' || character.is_control() || character.is_whitespace()
+        })
 }
 
 #[cfg(test)]
@@ -89,13 +104,10 @@ mod tests {
     }
 
     #[test]
-    fn empty_url_still_303_with_empty_location() {
+    fn empty_url_is_rejected() {
         let response = Redirect::to("").into_response();
-        assert_eq!(response.status(), StatusCode::SEE_OTHER);
-        assert_eq!(
-            response.headers().get(LOCATION).unwrap().to_str().unwrap(),
-            ""
-        );
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert!(response.headers().get(LOCATION).is_none());
     }
 
     #[test]
@@ -106,5 +118,24 @@ mod tests {
             response.headers().get(LOCATION).unwrap().to_str().unwrap(),
             "/users?page=2"
         );
+    }
+
+    #[test]
+    fn external_locations_are_rejected() {
+        for location in [
+            "https://evil.example/",
+            "//evil.example/",
+            "/\\evil.example/",
+            "/\t/evil.example/",
+            "relative/path",
+        ] {
+            let response = Redirect::to(location).into_response();
+            assert_eq!(
+                response.status(),
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "location: {location}"
+            );
+            assert!(response.headers().get(LOCATION).is_none());
+        }
     }
 }

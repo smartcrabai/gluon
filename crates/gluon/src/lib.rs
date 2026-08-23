@@ -27,7 +27,7 @@ pub use flash::Flash;
 pub use gluon_macros::{Entity, gluon_test};
 pub use inject::Inject;
 pub use redirect::Redirect;
-pub use session::Session;
+pub use session::{PostgresSessionStore, Session};
 pub use view::View;
 
 #[macro_export]

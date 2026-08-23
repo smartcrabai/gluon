@@ -75,7 +75,7 @@ gluon g usecase list_users
 
 ## `gluon g domain <name> [--field NAME:TYPE]*`
 
-1 domain = 1 ディレクトリ (entity / value_objects / repository / error)、`Postgres<Name>Repository` (sqlx 前提、中身 `todo!()`)、mockall ベース mock、`wiring.rs` への bind 行を一括生成。
+1 domain = 1 ディレクトリ (entity / value_objects / repository / error)、sqlx ベースの `Postgres<Name>Repository`、mock repository、`wiring.rs` への bind 行を一括生成する。PostgreSQL テーブル名は `<domain名のsnake_case>s`。PostgreSQL 対応 scalar、生成 value object、それらの `Option<T>` では CRUD も実装済み。その他の型では repository method を `todo!()` として生成する。
 
 ```bash
 gluon g domain user --field name:UserName --field email:Email --field age:u32
@@ -84,7 +84,7 @@ gluon g domain user --field name:UserName --field email:Email --field age:u32
 `Type` 部分の解釈:
 - プリミティブ (`u32`, `String`, `bool`) はそのまま
 - `PascalCase` で他の domain にない型は value object として newtype 生成
-- `Option<T>`, `Vec<T>` も OK(shell escape 注意)
+- `Option<T>`, `Vec<T>` も entity 型として使用可能(shell escape 注意)。自動 CRUD の対応型は [`limitations.md`](limitations.md) を参照
 
 **migration は同時生成しない**。理由は [`conventions.md`](conventions.md) の "Domain と Table" 節。
 
@@ -120,7 +120,7 @@ gluon d migration create_users
 
 ## `gluon db <op>`
 
-`sqlx-cli` ラッパー。`sqlx-cli` を `cargo install sqlx-cli --no-default-features --features rustls,postgres` でインストール済みである必要。
+`DATABASE_URL` 対象の PostgreSQL 操作。create / drop / migrate / rollback / seed は組み込み SQLx 実装。prepare のみ `cargo sqlx prepare` を使うため `sqlx-cli` が必要。
 
 ```bash
 gluon db create     # database create
@@ -128,12 +128,12 @@ gluon db drop       # database drop -y
 gluon db migrate    # migrate run
 gluon db rollback   # migrate revert
 gluon db prepare    # sqlx prepare
-gluon db seed       # 未実装 (bail)
+gluon db seed       # db/seeds.sql を実行
 ```
 
 ## `gluon dev`
 
-`notify` でファイル変更を監視し `cargo run` を再起動する。watch 対象は `app/`, `src/`, `migrations/`。フィルタは粗く、エディタ一時ファイルでも再起動が走ることがある(詳細は [`limitations.md`](limitations.md))。
+`notify` でファイル変更を監視し `cargo run` を再起動する。`GLUON_INSECURE_COOKIE` 未設定時はローカル HTTP 開発用に `1` を設定する。watch 対象は `app/`, `src/`, `migrations/`。TypeScript、target、テンプレート、エディタ一時ファイルは再起動対象外。
 
 ## `gluon build` / `gluon run`
 

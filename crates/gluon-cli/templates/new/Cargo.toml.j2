@@ -16,8 +16,8 @@ axum = "0.8"
 gluon = { path = "../gluon/crates/gluon" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "uuid"] }
+sqlx = { version = "0.9", features = ["postgres", "runtime-tokio", "uuid"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal"] }
-tower-sessions = "0.14"
+tower-sessions = "0.15"
 ts-rs = "11"
 uuid = { version = "1", features = ["v4", "serde"] }

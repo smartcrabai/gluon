@@ -46,3 +46,35 @@ async fn nonexistent_returns_404() {
     let response = server_for(dir.path()).get("/public/").await;
     assert_eq!(response.status_code(), http::StatusCode::NOT_FOUND);
 }
+
+#[tokio::test]
+async fn root_created_after_service_is_available() {
+    let parent = TempDir::new().expect("parent tempdir");
+    let public = parent.path().join("public");
+    let server = server_for(&public);
+    fs::create_dir(&public).expect("create public");
+    fs::write(public.join("late.txt"), "available").expect("write late file");
+
+    let response = server.get("/public/late.txt").await;
+    response.assert_status_ok();
+    response.assert_text("available");
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn symlink_cannot_escape_public_directory() {
+    use std::os::unix::fs::symlink;
+
+    let public = TempDir::new().expect("public tempdir");
+    let private = TempDir::new().expect("private tempdir");
+    fs::write(private.path().join("secret.txt"), "secret").expect("write secret");
+    symlink(
+        private.path().join("secret.txt"),
+        public.path().join("leak.txt"),
+    )
+    .expect("create symlink");
+
+    let response = server_for(public.path()).get("/public/leak.txt").await;
+    assert_eq!(response.status_code(), http::StatusCode::NOT_FOUND);
+    assert!(!response.text().contains("secret"));
+}

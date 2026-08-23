@@ -54,4 +54,23 @@ jobs:
         shell: bash
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
+  platform-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
+
+      - name: Run platform tests
+        run: >-
+          cargo test --workspace --all-features --
+          --skip database_lifecycle_and_seed_work_against_postgres
+          --skip generated_postgres_repository_supports_crud
+          --skip postgres_sessions_persist_across_instances
 

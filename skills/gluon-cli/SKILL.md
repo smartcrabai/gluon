@@ -51,5 +51,5 @@ gluon routes       # app/ をスキャンして登録ルートを表示
 - [`references/validation.md`](references/validation.md) — CLI 入力 (route / identifier / field type) の検証ルールと reject 例。
 - [`references/environment.md`](references/environment.md) — `Boot::run()` が読む環境変数(`DATABASE_URL`、`GLUON_BIND`、`GLUON_TELEMETRY_DISABLED`、`GLUON_INSECURE_COOKIE`、`OTEL_*`、`SECRET_KEY_BASE`)。
 - [`references/workflows.md`](references/workflows.md) — 典型シナリオ:Hello world、Users CRUD、destroy で巻き戻し、CLI 自体の修正 → 検証ループ。
-- [`references/limitations.md`](references/limitations.md) — MVP の既知制約(path 依存、HTMX fragment 未伝搬、`g resource` の GET only、`db seed` 未実装 ほか)。
+- [`references/limitations.md`](references/limitations.md) — MVP の既知制約(path 依存、`g resource` の GET only、destroy の対話確認ほか)。
 - [`references/testing.md`](references/testing.md) — `gluon::testing::TestClient`、`#[gluon::gluon_test]` 属性マクロ、テスト雛形の置き場。
