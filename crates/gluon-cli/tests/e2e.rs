@@ -180,6 +180,8 @@ fn full_lifecycle_builds_after_each_generate() {
             "name:UserName",
             "--field",
             "email:Email",
+            "--field",
+            "samples:Vec<u32>",
         ],
     );
     assert!(app.join("src/domain/user/entity.rs").is_file());

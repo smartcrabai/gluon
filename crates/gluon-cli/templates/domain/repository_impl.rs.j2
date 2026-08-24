@@ -1,6 +1,8 @@
 use crate::domain::{{ snake_name }}::*;
 use async_trait::async_trait;
 use sqlx::PgPool;
+{% if crud_supported %}use sqlx::Row;
+{% endif %}
 use std::sync::Arc;
 
 pub struct Postgres{{ pascal_name }}Repository {
@@ -12,10 +14,104 @@ impl Postgres{{ pascal_name }}Repository {
     pub fn new(pool: Arc<PgPool>) -> Self { Self { pool } }
 }
 
+{% if crud_supported %}fn internal(error: impl std::error::Error + Send + Sync + 'static) -> gluon::AppError {
+    gluon::AppError::Internal(Box::new(error))
+}
+
+fn from_row(row: &sqlx::postgres::PgRow) -> Result<{{ pascal_name }}, gluon::AppError> {
+    Ok({{ pascal_name }} {
+        id: {{ pascal_name }}Id(row.try_get("id").map_err(internal)?),
+{%- for field in fields %}
+{%- if field.is_value_object %}
+{%- if field.optional %}
+        {{ field.name }}: row.try_get::<Option<String>, _>("{{ field.name }}").map_err(internal)?.map({{ field.storage_rust_ty }}),
+{%- else %}
+        {{ field.name }}: {{ field.ty }}(row.try_get("{{ field.name }}").map_err(internal)?),
+{%- endif %}
+{%- elif field.sql_storage_ty %}
+{%- if field.optional %}
+        {{ field.name }}: row.try_get::<Option<{{ field.sql_storage_ty }}>, _>("{{ field.name }}").map_err(internal)?
+            .map({{ field.storage_rust_ty }}::try_from)
+            .transpose()
+            .map_err(internal)?,
+{%- else %}
+        {{ field.name }}: {{ field.ty }}::try_from(row.try_get::<{{ field.sql_storage_ty }}, _>("{{ field.name }}").map_err(internal)?)
+            .map_err(internal)?,
+{%- endif %}
+{%- else %}
+        {{ field.name }}: row.try_get("{{ field.name }}").map_err(internal)?,
+{%- endif %}
+{%- endfor %}
+    })
+}
+{% endif %}
+
 #[async_trait]
 impl {{ pascal_name }}Repository for Postgres{{ pascal_name }}Repository {
+{% if crud_supported %}
+    async fn list(&self, limit: u32) -> Result<Vec<{{ pascal_name }}>, gluon::AppError> {
+        sqlx::query("SELECT \"id\"{% for field in fields %}, \"{{ field.name }}\"{% endfor %} FROM \"{{ table_name }}\" ORDER BY \"id\" LIMIT $1")
+            .bind(i64::from(limit))
+            .fetch_all(self.pool.as_ref())
+            .await
+            .map_err(internal)?
+            .iter()
+            .map(from_row)
+            .collect()
+    }
+
+    async fn find(&self, id: &{{ pascal_name }}Id) -> Result<Option<{{ pascal_name }}>, gluon::AppError> {
+        sqlx::query("SELECT \"id\"{% for field in fields %}, \"{{ field.name }}\"{% endfor %} FROM \"{{ table_name }}\" WHERE \"id\" = $1")
+            .bind(id.0)
+            .fetch_optional(self.pool.as_ref())
+            .await
+            .map_err(internal)?
+            .as_ref()
+            .map(from_row)
+            .transpose()
+    }
+
+    async fn save(&self, entity: &{{ pascal_name }}) -> Result<(), gluon::AppError> {
+        let query = sqlx::query("INSERT INTO \"{{ table_name }}\" (\"id\"{% for field in fields %}, \"{{ field.name }}\"{% endfor %}) VALUES ($1{% for field in fields %}, ${{ loop.index + 1 }}{% endfor %}) ON CONFLICT (\"id\") {% if fields %}DO UPDATE SET {% for field in fields %}\"{{ field.name }}\" = EXCLUDED.\"{{ field.name }}\"{% if not loop.last %}, {% endif %}{% endfor %}{% else %}DO NOTHING{% endif %}").bind(entity.id.0);
+{%- for field in fields %}
+{%- if field.is_value_object %}
+{%- if field.optional %}
+        let query = query.bind(entity.{{ field.name }}.as_ref().map(|value| &value.0));
+{%- else %}
+        let query = query.bind(&entity.{{ field.name }}.0);
+{%- endif %}
+{%- elif field.fallible_bind %}
+{%- if field.optional %}
+        let query = query.bind(entity.{{ field.name }}.map({{ field.sql_storage_ty }}::try_from).transpose().map_err(internal)?);
+{%- else %}
+        let query = query.bind({{ field.sql_storage_ty }}::try_from(entity.{{ field.name }}).map_err(internal)?);
+{%- endif %}
+{%- elif field.sql_storage_ty %}
+{%- if field.optional %}
+        let query = query.bind(entity.{{ field.name }}.map({{ field.sql_storage_ty }}::from));
+{%- else %}
+        let query = query.bind({{ field.sql_storage_ty }}::from(entity.{{ field.name }}));
+{%- endif %}
+{%- else %}
+        let query = query.bind(&entity.{{ field.name }});
+{%- endif %}
+{%- endfor %}
+        query.execute(self.pool.as_ref()).await.map_err(internal)?;
+        Ok(())
+    }
+
+    async fn delete(&self, id: &{{ pascal_name }}Id) -> Result<(), gluon::AppError> {
+        sqlx::query("DELETE FROM \"{{ table_name }}\" WHERE \"id\" = $1")
+            .bind(id.0)
+            .execute(self.pool.as_ref())
+            .await
+            .map_err(internal)?;
+        Ok(())
+    }
+{% else %}
     async fn list(&self, _limit: u32) -> Result<Vec<{{ pascal_name }}>, gluon::AppError> { todo!() }
     async fn find(&self, _id: &{{ pascal_name }}Id) -> Result<Option<{{ pascal_name }}>, gluon::AppError> { todo!() }
     async fn save(&self, _entity: &{{ pascal_name }}) -> Result<(), gluon::AppError> { todo!() }
     async fn delete(&self, _id: &{{ pascal_name }}Id) -> Result<(), gluon::AppError> { todo!() }
+{% endif %}
 }

@@ -7,26 +7,37 @@ use axum::{
 };
 use std::convert::Infallible;
 
+tokio::task_local! {
+    pub(crate) static CURRENT_HTMX_REQUEST: bool;
+}
+
 #[derive(Debug, Clone, Copy, Default)]
 pub struct HtmxRequest {
     pub is_htmx: bool,
 }
 
 pub async fn htmx_middleware(mut request: Request<Body>, next: Next) -> Response {
-    let is_htmx = request.headers().contains_key("hx-request");
+    let is_htmx = request
+        .headers()
+        .get("hx-request")
+        .and_then(|value| value.to_str().ok())
+        .is_some_and(|value| value.eq_ignore_ascii_case("true"));
     request.extensions_mut().insert(HtmxRequest { is_htmx });
-    next.run(request).await
+    CURRENT_HTMX_REQUEST.scope(is_htmx, next.run(request)).await
 }
 
 impl<S: Send + Sync> FromRequestParts<S> for HtmxRequest {
     type Rejection = Infallible;
 
-    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-        Ok(parts
+    fn from_request_parts(
+        parts: &mut Parts,
+        _state: &S,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Rejection>> {
+        std::future::ready(Ok(parts
             .extensions
             .get::<HtmxRequest>()
             .copied()
-            .unwrap_or_default())
+            .unwrap_or_default()))
     }
 }
 
@@ -44,7 +55,11 @@ mod tests {
         }
         let mut request = builder.body(Body::empty()).expect("build request");
 
-        let is_htmx = request.headers().contains_key("hx-request");
+        let is_htmx = request
+            .headers()
+            .get("hx-request")
+            .and_then(|value| value.to_str().ok())
+            .is_some_and(|value| value.eq_ignore_ascii_case("true"));
         request.extensions_mut().insert(HtmxRequest { is_htmx });
 
         request
@@ -63,6 +78,11 @@ mod tests {
     #[test]
     fn flag_is_false_when_header_absent() {
         assert!(!observed_flag(&[]));
+    }
+
+    #[test]
+    fn flag_is_false_when_header_value_is_false() {
+        assert!(!observed_flag(&[("HX-Request", "false")]));
     }
 
     #[tokio::test]

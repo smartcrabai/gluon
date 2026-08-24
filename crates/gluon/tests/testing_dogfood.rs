@@ -6,7 +6,7 @@ use std::any::Any;
 use std::sync::Arc;
 
 use axum::{Router, routing::get};
-use gluon::{Container, ContainerBuilder, testing};
+use gluon::{Container, ContainerBuilder, Inject, testing};
 
 async fn ping() -> &'static str {
     "pong"
@@ -28,4 +28,21 @@ async fn container_helper_returns_empty_builder() {
     let container = testing::container().build();
     // Nothing bound -> `try_resolve` should be `None` for any arbitrary type.
     assert!(container.try_resolve::<dyn Any + Send + Sync>().is_none());
+}
+
+trait MissingDependency: Send + Sync {}
+
+async fn missing_dependency(_dependency: Inject<dyn MissingDependency>) -> &'static str {
+    "unreachable"
+}
+
+#[tokio::test]
+async fn missing_injected_binding_returns_500_without_panicking() {
+    let router: Router<Arc<Container>> = Router::new().route("/missing", get(missing_dependency));
+    let client =
+        testing::TestClient::new(router, ContainerBuilder::new().build()).expect("client boots");
+
+    let response = client.server().get("/missing").await;
+    response.assert_status_internal_server_error();
+    response.assert_text("internal server error");
 }

@@ -6,6 +6,7 @@
 use std::fmt;
 use std::path::PathBuf;
 
+use axum::http::{HeaderValue, header};
 use axum::response::{Html, IntoResponse, Response};
 use serde::Serialize;
 
@@ -76,11 +77,20 @@ impl<P: Serialize> IntoResponse for View<P> {
 
         let config = jsxrs::RenderConfig {
             base_dir: template.parent().map(std::path::Path::to_path_buf),
+            fragment: crate::middleware::htmx::CURRENT_HTMX_REQUEST
+                .try_with(|is_htmx| *is_htmx)
+                .unwrap_or(false),
             ..jsxrs::RenderConfig::default()
         };
 
         match jsxrs::render_file(&template, &props, &config) {
-            Ok(html) => Html(html).into_response(),
+            Ok(html) => {
+                let mut response = Html(html).into_response();
+                response
+                    .headers_mut()
+                    .append(header::VARY, HeaderValue::from_static("HX-Request"));
+                response
+            }
             Err(err) => AppError::Internal(Box::new(ViewError(format!(
                 "failed to render template: {err}"
             ))))
