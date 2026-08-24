@@ -1,4 +1,4 @@
-//! `gluon db` PostgreSQL database management commands.
+//! `gluon db` `PostgreSQL` database management commands.
 
 use std::path::Path;
 use std::process::Command;

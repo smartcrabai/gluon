@@ -509,6 +509,11 @@ pub(crate) fn insert_pub_mod_if_present(
     }
     let original = std::fs::read_to_string(mod_rs_path)
         .with_context(|| format!("failed to read {}", mod_rs_path.display()))?;
+    let newline = if original.contains("\r\n") {
+        "\r\n"
+    } else {
+        "\n"
+    };
     let open_marker = format!("// <gluon:{marker}>");
     let close_marker = format!("// </gluon:{marker}>");
 
@@ -522,8 +527,8 @@ pub(crate) fn insert_pub_mod_if_present(
     let close_at = block_start + close_at_rel;
 
     let inner = &original[block_start..close_at];
-    let new_line = format!("pub mod {name};");
-    if inner.lines().any(|l| l.trim() == new_line) {
+    let module_line = format!("pub mod {name};");
+    if inner.lines().any(|l| l.trim() == module_line) {
         return Ok(());
     }
 
@@ -533,12 +538,12 @@ pub(crate) fn insert_pub_mod_if_present(
         .filter(|l| !l.is_empty())
         .map(String::from)
         .collect();
-    lines.push(new_line);
+    lines.push(module_line);
     lines.sort();
-    let mut rebuilt = String::from("\n");
+    let mut rebuilt = String::from(newline);
     for line in &lines {
         rebuilt.push_str(line);
-        rebuilt.push('\n');
+        rebuilt.push_str(newline);
     }
 
     let mut output = String::with_capacity(original.len() + 32);
@@ -1124,6 +1129,21 @@ mod tests {
         insert_pub_mod_if_present(&mod_rs, "domain-mods", "foo").unwrap();
         let after = std::fs::read_to_string(&mod_rs).unwrap();
         assert_eq!(after.matches("pub mod foo;").count(), 1);
+    }
+
+    #[test]
+    fn insert_pub_mod_preserves_crlf() {
+        let tmp = tempfile::tempdir().unwrap();
+        let mod_rs = write_mod_rs(
+            tmp.path(),
+            "// <gluon:domain-mods>\r\n// </gluon:domain-mods>\r\n",
+        );
+        insert_pub_mod_if_present(&mod_rs, "domain-mods", "foo").unwrap();
+        let after = std::fs::read_to_string(&mod_rs).unwrap();
+        assert_eq!(
+            after,
+            "// <gluon:domain-mods>\r\npub mod foo;\r\n// </gluon:domain-mods>\r\n"
+        );
     }
 
     #[test]
