@@ -13,7 +13,7 @@ mod common;
 use common::{ChildGuard, drain_to_void, pick_port};
 
 /// `CARGO_MANIFEST_DIR` is `<root>/crates/gluon-cli`, so the repo root is fixed
-/// at compile time — no need to probe the filesystem for it.
+/// at compile time; no need to probe the filesystem for it.
 fn repository_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .ancestors()

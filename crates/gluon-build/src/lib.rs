@@ -973,7 +973,7 @@ mod tests {
         assert!(out.contains(r#"route("/users/{id}","#), "out: {out}");
         assert!(
             out.contains(r#"route("/files/{*path}","#),
-            "catch-all must emit {{*name}} — out: {out}"
+            "catch-all must emit {{*name}} - out: {out}"
         );
         assert!(!out.contains(r#"":id""#), "out: {out}");
     }
