@@ -26,6 +26,10 @@ fn workspace_root() -> PathBuf {
         .expect("workspace root")
 }
 
+fn toml_path(path: &Path) -> String {
+    path.to_string_lossy().replace('\\', "/")
+}
+
 /// Rewrites the `path = "../gluon/crates/..."` placeholders in a newly
 /// scaffolded `Cargo.toml` so the temp project actually depends on the local
 /// workspace.
@@ -35,14 +39,8 @@ fn fix_paths(cargo_toml: &Path) {
     let build_path = root.join("crates/gluon-build");
     let content = std::fs::read_to_string(cargo_toml).expect("read Cargo.toml");
     let fixed = content
-        .replace(
-            "../gluon/crates/gluon-build",
-            build_path.to_str().expect("build path utf8"),
-        )
-        .replace(
-            "../gluon/crates/gluon",
-            gluon_path.to_str().expect("gluon path utf8"),
-        );
+        .replace("../gluon/crates/gluon-build", &toml_path(&build_path))
+        .replace("../gluon/crates/gluon", &toml_path(&gluon_path));
     std::fs::write(cargo_toml, fixed).expect("write Cargo.toml");
 }
 

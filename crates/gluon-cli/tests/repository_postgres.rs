@@ -57,14 +57,16 @@ async fn generated_postgres_repository_supports_crud() {
     let cargo_toml = app.join("Cargo.toml");
     let content = std::fs::read_to_string(&cargo_toml).unwrap();
     let root = workspace_root();
+    let build_path = root.join("crates/gluon-build");
+    let gluon_path = root.join("crates/gluon");
     let content = content
         .replace(
             "../gluon/crates/gluon-build",
-            root.join("crates/gluon-build").to_str().unwrap(),
+            &build_path.to_string_lossy().replace('\\', "/"),
         )
         .replace(
             "../gluon/crates/gluon",
-            root.join("crates/gluon").to_str().unwrap(),
+            &gluon_path.to_string_lossy().replace('\\', "/"),
         );
     std::fs::write(&cargo_toml, content).unwrap();
     run(
