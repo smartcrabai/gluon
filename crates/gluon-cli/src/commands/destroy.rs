@@ -285,6 +285,11 @@ fn remove_pub_mod_if_present(mod_rs_path: &Path, marker: &str, name: &str) -> Re
     }
     let original = std::fs::read_to_string(mod_rs_path)
         .with_context(|| format!("failed to read {}", mod_rs_path.display()))?;
+    let newline = if original.contains("\r\n") {
+        "\r\n"
+    } else {
+        "\n"
+    };
     let open_marker = format!("// <gluon:{marker}>");
     let close_marker = format!("// </gluon:{marker}>");
 
@@ -310,10 +315,10 @@ fn remove_pub_mod_if_present(mod_rs_path: &Path, marker: &str, name: &str) -> Re
         return Ok(());
     }
     lines.sort();
-    let mut rebuilt = String::from("\n");
+    let mut rebuilt = String::from(newline);
     for line in &lines {
         rebuilt.push_str(line);
-        rebuilt.push('\n');
+        rebuilt.push_str(newline);
     }
 
     let mut output = String::with_capacity(original.len());
@@ -520,6 +525,19 @@ mod tests {
         assert!(!after.contains("pub mod user;"));
         assert!(after.contains("// <gluon:domain-mods>"));
         assert!(after.contains("// </gluon:domain-mods>"));
+    }
+
+    #[test]
+    fn remove_pub_mod_preserves_crlf() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("mod.rs");
+        let original = "// <gluon:domain-mods>\r\npub mod user;\r\n// </gluon:domain-mods>\r\n";
+        std::fs::write(&path, original).unwrap();
+        remove_pub_mod_if_present(&path, "domain-mods", "user").unwrap();
+        assert_eq!(
+            std::fs::read_to_string(&path).unwrap(),
+            "// <gluon:domain-mods>\r\n// </gluon:domain-mods>\r\n"
+        );
     }
 
     #[test]
