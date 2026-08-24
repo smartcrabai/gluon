@@ -87,7 +87,7 @@ impl Boot {
     /// - `GLUON_INSECURE_COOKIE=1` -- drop `Secure` on the session cookie (dev only).
     /// - `SECRET_KEY_BASE` -- at least 64 bytes; required unless insecure-cookie
     ///   development mode is enabled.
-    /// - `DATABASE_URL` -- when present, a `PgPool` and persistent PostgreSQL
+    /// - `DATABASE_URL` -- when present, a `PgPool` and persistent `PostgreSQL`
     ///   session store are configured; otherwise sessions use memory storage.
     ///
     /// # Errors
