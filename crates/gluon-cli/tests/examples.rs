@@ -75,7 +75,7 @@ async fn try_wait_until_ready(
     client: &reqwest::Client,
     probe_url: &str,
 ) -> Result<(), String> {
-    let deadline = Instant::now() + Duration::from_secs(60);
+    let deadline = Instant::now() + Duration::from_mins(1);
     loop {
         if let Some(status) = child.try_wait().expect("check example process") {
             return Err(format!(
