@@ -17,7 +17,7 @@
   "17": "String",
   "18": "Domain Field Parsing",
   "19": "Project Scaffolding",
-  "20": "E2E Lifecycle Tests",
+  "20": "e2e.rs",
   "21": "Entity Derive Macro",
   "22": "Flash Session Messages",
   "23": "Redirect Response Helper",

@@ -1,7 +1,7 @@
 # Graph Report - gluon  (2026-08-25)
 
 ## Corpus Check
-- 114 files · ~38,839 words
+- 114 files · ~38,848 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `984f5f4e`
+- Built from commit: `b13f173d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

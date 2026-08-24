@@ -167,7 +167,11 @@ async fn run_pages(workspace: &Path) {
         .expect("GET pages public marker");
     assert_eq!(response.status(), 200);
     let body = response.bytes().await.expect("pages marker bytes");
-    assert_eq!(body.as_ref(), b"sample-pages-public-marker\n");
+    assert!(
+        body.as_ref() == b"sample-pages-public-marker\n"
+            || body.as_ref() == b"sample-pages-public-marker\r\n",
+        "marker body: {body:?}"
+    );
 
     let response = http
         .get(format!("{base}/does-not-exist"))

@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "crates/gluon-cli/tests/examples.rs": {
-    "mtime": 1787599245.3946376,
-    "seen": 1787599259.249168,
-    "ast_hash": "c97859a8eee4ff6451e716f78d13ebd4",
+    "mtime": 1787599853.635193,
+    "seen": 1787599880.430393,
+    "ast_hash": "73d5514acef2d9398b88b1c9e571dc65",
     "semantic_hash": ""
   },
   "examples/api/Cargo.toml": {

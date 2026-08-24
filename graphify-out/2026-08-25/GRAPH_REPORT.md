@@ -1,12 +1,12 @@
 # Graph Report - gluon  (2026-08-25)
 
 ## Corpus Check
-- 114 files · ~39,003 words
+- 114 files · ~38,839 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1039 nodes · 1813 edges · 76 communities (67 shown, 9 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 16 edges (avg confidence: 0.83)
+- 1027 nodes · 1787 edges · 76 communities (67 shown, 9 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
@@ -32,7 +32,7 @@
 - String
 - Domain Field Parsing
 - Project Scaffolding
-- E2E Lifecycle Tests
+- e2e.rs
 - Entity Derive Macro
 - Flash Session Messages
 - Redirect Response Helper
@@ -100,12 +100,12 @@
 ## Communities (76 total, 9 thin omitted)
 
 ### Community 0 - "ContainerBuilder"
-Cohesion: 0.07
-Nodes (40): Any, Aloha, bind_instance_short_circuits_factory(), bind_same_type_twice_uses_last(), Container, ContainerBuilder, default_builder_builds_empty_container(), factories_see_prior_bindings_during_build() (+32 more)
+Cohesion: 0.05
+Nodes (44): Any, Aloha, bind_instance_short_circuits_factory(), bind_same_type_twice_uses_last(), Container, ContainerBuilder, default_builder_builds_empty_container(), factories_see_prior_bindings_during_build() (+36 more)
 
 ### Community 2 - "boot.rs"
-Cohesion: 0.06
-Nodes (54): ContainerFactory, add_test_header(), Boot, build_session_layer(), clear(), counter(), init_tracing(), insecure_development_cookie_omits_secure_attribute() (+46 more)
+Cohesion: 0.05
+Nodes (55): ContainerFactory, add_test_header(), Boot, build_session_layer(), clear(), counter(), init_tracing(), insecure_development_cookie_omits_secure_attribute() (+47 more)
 
 ### Community 3 - "csrf.rs"
 Cohesion: 0.13
@@ -144,8 +144,8 @@ Cohesion: 0.12
 Nodes (17): PostgresSessionStore, Error, Option, Result, Self, counter(), postgres_sessions_persist_across_instances(), Key (+9 more)
 
 ### Community 14 - "inject.rs"
-Cohesion: 0.05
-Nodes (35): empty_parts(), Inject, Inject<T>, resolves_arc_when_bound(), returns_internal_error_when_unbound(), Arc, FromRequestParts, Future (+27 more)
+Cohesion: 0.07
+Nodes (31): empty_parts(), Inject, Inject<T>, resolves_arc_when_bound(), returns_internal_error_when_unbound(), Arc, FromRequestParts, Future (+23 more)
 
 ### Community 15 - "BuildError"
 Cohesion: 0.12
@@ -167,9 +167,9 @@ Nodes (19): extract_value_objects(), generate_domain(), is_value_object_type(), 
 Cohesion: 0.19
 Nodes (17): expand_scaffold(), Path, Result, run(), run_cargo_fetch(), run_git_init(), validate_project_name(), load_environment() (+9 more)
 
-### Community 20 - "E2E Lifecycle Tests"
-Cohesion: 0.31
-Nodes (17): destroy_migration_uses_exact_match(), fix_paths(), fresh_app(), full_lifecycle_builds_after_each_generate(), gluon_bin(), routes_command_lists_generated_routes(), Path, PathBuf (+9 more)
+### Community 20 - "e2e.rs"
+Cohesion: 0.09
+Nodes (41): ChildGuard, drain_to_void(), fix_paths(), fresh_app(), gluon_bin(), pick_port(), Child, Client (+33 more)
 
 ### Community 21 - "Entity Derive Macro"
 Cohesion: 0.22
@@ -212,8 +212,8 @@ Cohesion: 0.36
 Nodes (10): smartcrabai/agent-skills (upstream skills repo), ai-antipattern skill (companion), .claude/skills directory, improve-review-from-pr-gap SKILL.md, improve-review-from-session SKILL.md, review-pr SKILL.md, review-uncommitted SKILL.md, code-review skill (companion) (+2 more)
 
 ### Community 31 - "examples.rs"
-Cohesion: 0.06
-Nodes (57): ChildGuard, drain_to_void(), pick_port(), Child, Option, Result, Self, checked_in_examples_match_their_contracts() (+49 more)
+Cohesion: 0.21
+Nodes (20): checked_in_examples_match_their_contracts(), client(), compile_examples(), repository_root(), response_json(), Client, Path, PathBuf (+12 more)
 
 ### Community 32 - "Static File Serving Tests"
 Cohesion: 0.39
@@ -267,17 +267,17 @@ Nodes (4): get(), Json, Result, Value
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `serve_with_shutdown()` connect `boot.rs` to `ContainerBuilder`, `examples.rs`?**
-  _High betweenness centrality (0.063) - this node is a cross-community bridge._
+- **Why does `serve_with_shutdown()` connect `boot.rs` to `ContainerBuilder`?**
+  _High betweenness centrality (0.052) - this node is a cross-community bridge._
 - **Why does `Container` connect `ContainerBuilder` to `boot.rs`?**
-  _High betweenness centrality (0.033) - this node is a cross-community bridge._
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
+- **Why does `CsrfToken` connect `csrf.rs` to `csrf_middleware.rs`?**
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `validate_identifier()` (e.g. with `destroy_domain()` and `destroy_dto()`) actually correct?**
   _`validate_identifier()` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `gluon-build`, `gluon-cli`, `Templates` to the rest of the system?**
   _20 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ContainerBuilder` be split into smaller, more focused modules?**
-  _Cohesion score 0.06654567453115548 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.054274084124830396 - nodes in this community are weakly interconnected._
 - **Should `Value Object Extraction` be split into smaller, more focused modules?**
   _Cohesion score 0.03571428571428571 - nodes in this community are weakly interconnected._
-- **Should `boot.rs` be split into smaller, more focused modules?**
-  _Cohesion score 0.055178652193577565 - nodes in this community are weakly interconnected._
