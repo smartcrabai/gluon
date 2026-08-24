@@ -1,79 +1,79 @@
-# 典型ワークフロー
+# Typical Workflows
 
-具体的なシナリオごとの手順。コマンドの個別仕様は [`commands.md`](commands.md) を参照。
+Step-by-step procedures for each scenario. For per-command specifications, see [`commands.md`](commands.md).
 
-## A. 新規アプリで Hello world まで
+## A. New app up to Hello world
 
 ```bash
 gluon new myapp --no-install
 cd myapp
 
-# MVP の暫定対応: 生成された Cargo.toml の path 依存を実体に合わせる
+# MVP workaround: fix the path dependencies in the generated Cargo.toml to the actual locations
 sed -i.bak \
   -e 's|path = "../gluon/crates/gluon-build"|path = "/Users/takumi/apps/gluon/crates/gluon-build"|' \
   -e 's|path = "../gluon/crates/gluon"|path = "/Users/takumi/apps/gluon/crates/gluon"|' \
   Cargo.toml && rm Cargo.toml.bak
 
 GLUON_TELEMETRY_DISABLED=1 GLUON_INSECURE_COOKIE=1 cargo run
-# 別シェルで:
+# In another shell:
 curl http://localhost:3000/    # 200 + <h1>Hello, gluon</h1>
 ```
 
-## B. Users CRUD を組み立てる
+## B. Assembling Users CRUD
 
 ```bash
-# Domain と Repository
+# Domain and Repository
 gluon g domain user --field name:UserName --field email:Email
 
-# Migration は別コマンド(domain と table は 1:1 ではない)
+# Migration is a separate command (domain and table are not 1:1)
 gluon g migration create_users
-# migrations/<ts>_create_users.up.sql に CREATE TABLE を書く
+# Write the CREATE TABLE in migrations/<ts>_create_users.up.sql
 
 DATABASE_URL=postgres://localhost/myapp_dev gluon db create
 DATABASE_URL=postgres://localhost/myapp_dev gluon db migrate
 
 # UseCase
 gluon g usecase list_users
-# src/usecases/list_users.rs の execute の todo!() を実装する
-# Repository を Inject<dyn UserRepository> で受け取り、結果を Output に詰める
+# Implement the todo!() in execute of src/usecases/list_users.rs
+# Receive the repository via Inject<dyn UserRepository> and fill the result into Output
 
-# Controller (REST 一括)
+# Controller (REST all-in-one)
 gluon g resource users
-# app/users/page.rs の `get` で list_users.execute() を呼び、Output を View::new で返す
+# In app/users/page.rs, call list_users.execute() from `get` and return Output via View::new
 
-# 確認
+# Verify
 gluon routes
 GLUON_INSECURE_COOKIE=1 cargo run
 ```
 
-## C. destroy で巻き戻し
+## C. Rolling back with destroy
 
 ```bash
-gluon d resource users       # app/users と app/api/users を確認付きで削除
+gluon d resource users       # deletes app/users and app/api/users with confirmation
 gluon d usecase list_users
 gluon d domain user
 gluon d migration create_users
 ```
 
-非対話モード:
+Non-interactive mode:
 
 ```bash
 yes | gluon d domain user
 ```
 
-## D. CLI 自体の修正 → 検証ループ
+## D. Modifying the CLI itself -> verification loop
 
-gluon-cli / gluon / gluon-build / gluon-macros を編集したら:
+After editing gluon-cli / gluon / gluon-build / gluon-macros:
 
 ```bash
-# 静的検証
+# Static checks
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo fmt --check
 cargo test --workspace --all-features
 
-# CLI バイナリを再ビルド
+# Rebuild the CLI binary
 cargo build --bin gluon
-# (グローバル install を更新するなら: cargo install --path crates/gluon-cli --force)
+# (To update a global install: cargo install --path crates/gluon-cli --force)
 
 # E2E
 cd /tmp && rm -rf myapp
@@ -83,15 +83,15 @@ sed -i.bak -e 's|path = "../gluon/crates/gluon-build"|path = "/Users/takumi/apps
            -e 's|path = "../gluon/crates/gluon"|path = "/Users/takumi/apps/gluon/crates/gluon"|' \
            Cargo.toml && rm Cargo.toml.bak
 
-# 起動 + HTTP 確認
+# Startup + HTTP check
 GLUON_TELEMETRY_DISABLED=1 GLUON_INSECURE_COOKIE=1 GLUON_BIND=127.0.0.1:13580 cargo run &
 SRV=$!
 sleep 4
 curl -sS -w "STATUS=%{http_code}\n" http://127.0.0.1:13580/
-curl -sS -w "STATUS=%{http_code}\n" -X POST http://127.0.0.1:13580/  # CSRF なし → 403
+curl -sS -w "STATUS=%{http_code}\n" -X POST http://127.0.0.1:13580/  # no CSRF -> 403
 kill $SRV
 ```
 
-## E. テンプレートを修正したい
+## E. Modifying templates
 
-生成ファイルの雛形は `crates/gluon-cli/templates/` 配下に minijinja テンプレ (`.j2`) で置かれており、`rust-embed` で CLI バイナリに焼き込まれる。テンプレを変更したら `cargo build --bin gluon` で焼き直しが必要。
+The generated-file scaffolds live under `crates/gluon-cli/templates/` as minijinja templates (`.j2`) and are baked into the CLI binary via `rust-embed`. After changing a template, re-bake it with `cargo build --bin gluon`.

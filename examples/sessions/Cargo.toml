@@ -1,0 +1,17 @@
+[package]
+name = "sample-sessions"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "sample-sessions"
+path = "src/main.rs"
+
+[build-dependencies]
+gluon-build = { path = "../../crates/gluon-build" }
+
+[dependencies]
+axum = "0.8"
+gluon = { path = "../../crates/gluon" }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal"] }

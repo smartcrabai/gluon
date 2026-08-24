@@ -1,33 +1,33 @@
-# 環境変数
+# Environment Variables
 
-`Boot::run()` が起動時に読む環境変数。`gluon.toml` の値は将来読み込まれる予定だが、現状は env が source of truth。
+Environment variables read by `Boot::run()` at startup. `gluon.toml` values are planned to be read in the future, but currently env is the source of truth.
 
-## アプリ全体
+## Application-wide
 
-| 変数 | 既定値 | 用途 |
+| Variable | Default | Purpose |
 |---|---|---|
-| `DATABASE_URL` | (未設定) | sqlx `PgPool` の接続先。設定時は PostgreSQL 永続 session store も有効化。未設定なら PgPool は Container に登録されず session は `MemoryStore` |
-| `GLUON_BIND` | `0.0.0.0:3000` | bind アドレス。dev では `127.0.0.1:3000` を推奨 |
-| `GLUON_TELEMETRY_DISABLED` | (未設定) | `1` / `true` で OpenTelemetry をスキップし fmt subscriber のみを初期化する。OTLP コレクタが動いていない dev / test 環境で必須 |
-| `GLUON_INSECURE_COOKIE` | (未設定) | `1` / `true` でセッション cookie の `Secure` 属性を外す。HTTP な dev サーバで session を維持するときに使う(production では絶対に外さない) |
+| `DATABASE_URL` | (unset) | Connection target for the sqlx `PgPool`. When set, the PostgreSQL persistent session store is also enabled. If unset, the PgPool is not registered with the Container and sessions use `MemoryStore` |
+| `GLUON_BIND` | `0.0.0.0:3000` | Bind address. `127.0.0.1:3000` is recommended for dev |
+| `GLUON_TELEMETRY_DISABLED` | (unset) | When set to `1` / `true`, skips OpenTelemetry and initializes only the fmt subscriber. Required in dev / test environments where no OTLP collector is running |
+| `GLUON_INSECURE_COOKIE` | (unset) | When set to `1` / `true`, removes the `Secure` attribute from session cookies. Use when maintaining sessions on an HTTP dev server (never disable it in production) |
 
 ## OpenTelemetry
 
-| 変数 | 既定値 | 用途 |
+| Variable | Default | Purpose |
 |---|---|---|
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4317` | OTLP gRPC コレクタの URL |
-| `OTEL_SERVICE_NAME` | `gluon` | `service.name` リソース属性 |
-| `RUST_LOG` | `info` | `EnvFilter` 経由で tracing-subscriber に渡される |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4317` | URL of the OTLP gRPC collector |
+| `OTEL_SERVICE_NAME` | `gluon` | The `service.name` resource attribute |
+| `RUST_LOG` | `info` | Passed to tracing-subscriber via `EnvFilter` |
 
 ## Session
 
-| 変数 | 既定値 | 用途 |
+| Variable | Default | Purpose |
 |---|---|---|
-| `SECRET_KEY_BASE` | (未設定) | session cookie 署名鍵。64 bytes 以上。secure cookie mode では必須。`GLUON_INSECURE_COOKIE=1` の開発時のみ、未設定ならプロセス固有の一時鍵を生成 |
+| `SECRET_KEY_BASE` | (unset) | Session cookie signing key. At least 64 bytes. Required in secure cookie mode. Only when developing with `GLUON_INSECURE_COOKIE=1`: if unset, a process-specific ephemeral key is generated |
 
-## 典型コマンド
+## Typical Commands
 
-dev で OTel を切って `127.0.0.1` バインド + insecure cookie:
+Disable OTel, bind to `127.0.0.1`, and use an insecure cookie for dev:
 
 ```bash
 GLUON_TELEMETRY_DISABLED=1 GLUON_INSECURE_COOKIE=1 GLUON_BIND=127.0.0.1:3000 cargo run
@@ -44,10 +44,10 @@ RUST_LOG=info \
 ./my-app
 ```
 
-CI(DB なしで起動だけ確認):
+CI (startup check only, without a DB):
 
 ```bash
 GLUON_TELEMETRY_DISABLED=1 GLUON_INSECURE_COOKIE=1 cargo run
-# DATABASE_URL が未設定なら PgPool は登録されないので、
-# repository を resolve しない route だけならクエリなしで起動できる
+# If DATABASE_URL is unset, no PgPool is registered, so
+# routes that do not resolve a repository can start without any queries
 ```

@@ -1,36 +1,36 @@
-# 既知の制約・落とし穴
+# Known Limitations and Pitfalls
 
-MVP として動くが手当てが必要な箇所。フレームワーク側の正式対応が入るまで、ユーザー側でワークアラウンドが要る。
+Works as an MVP, but these spots need attention. Until the framework provides official support, users need workarounds.
 
-## テンプレート / 生成
+## Templates / Generation
 
-1. **`gluon new` 後の `Cargo.toml` が `path = "../gluon/crates/gluon{,-build}"` の暫定値**
-   crates.io 公開前なので、生成直後に実体パスや絶対パスに書き換える必要がある。書き換え例は [`workflows.md`](workflows.md) の A 節。
+1. **`Cargo.toml` after `gluon new` has the provisional value `path = "../gluon/crates/gluon{,-build}"`**
+   Before publishing to crates.io, you must rewrite it to real paths or absolute paths right after generation. See section A of [`workflows.md`](workflows.md) for a rewrite example.
 
-2. **`gluon g resource` は GET ハンドラしか生成しない**
-   POST / PUT / DELETE は手で関数を追加する。`api/<name>/route.rs` 側も `get` のみ。
+2. **`gluon g resource` only generates a GET handler**
+   Add POST / PUT / DELETE functions by hand. The `api/<name>/route.rs` side is also `get`-only.
 
-3. **`gluon g domain` は migration を生成しない**
-   集約境界とテーブル境界が独立なので意図的。migration が必要なら `gluon g migration` を別途呼ぶ。詳細は [`conventions.md`](conventions.md) の "Domain と Table" 節。
+3. **`gluon g domain` does not generate a migration**
+   Intentional: aggregate boundaries and table boundaries are independent. If a migration is needed, call `gluon g migration` separately. Details in the "Domain and Table" section of [`conventions.md`](conventions.md).
 
-4. **テンプレ修正は CLI 再ビルドが必要**
-   `crates/gluon-cli/templates/` の `.j2` ファイルは `rust-embed` で焼き込まれている。
+4. **Template fixes require rebuilding the CLI**
+   The `.j2` files under `crates/gluon-cli/templates/` are baked in via `rust-embed`.
 
-5. **domain repository の自動 CRUD は PostgreSQL 対応型のみ**
-   対応型は `bool`、`String`、`i8/i16/i32/i64`、`u8/u16/u32/u64/usize`、`f32/f64`、`Vec<u8>`、`uuid::Uuid`、生成 value object、およびそれらの `Option<T>`。`Vec<u32>` などその他の型は entity に使えるが、repository method は `todo!()` になる。
+5. **Automatic CRUD for domain repositories supports only PostgreSQL-compatible types**
+   Supported types are `bool`, `String`, `i8/i16/i32/i64`, `u8/u16/u32/u64/usize`, `f32/f64`, `Vec<u8>`, `uuid::Uuid`, generated value objects, and their `Option<T>` wrappers. Other types such as `Vec<u32>` can be used for entities, but the repository method becomes `todo!()`.
 
 ## CLI
 
-6. **`gluon d ...` に `--yes` フラグはない**
-    非対話モードは `yes | gluon d ...` で代用。CI で使うときは pipe 必須。
+6. **`gluon d ...` has no `--yes` flag**
+    Use `yes | gluon d ...` as a substitute for non-interactive mode. A pipe is required when using it in CI.
 
-7. **migration 名の timestamp は秒単位**
-   同名 migration を同じ秒内に連続生成すると overwrite 防止エラーになる。1秒待つか別名を使う。
+7. **Migration name timestamps have second-level granularity**
+   Generating same-named migrations consecutively within the same second triggers an overwrite-prevention error. Wait one second or use a different name.
 
 ## DI / Session
 
-8. **`Container::resolve` の直接呼び出しは未 bind 時に panic**
-   HTTP extractor の `Inject<T>` は安全に 500 を返す。composition root 内の直接 `resolve` は必須 binding の fail-fast 用途。
+8. **Direct calls to `Container::resolve` panic on unbound dependencies**
+   The HTTP extractor's `Inject<T>` safely returns a 500 instead. Direct `resolve` inside the composition root is intended for fail-fast of required bindings.
 
-9. **`DATABASE_URL` 未設定時の session は `MemoryStore`**
-   開発用 fallback。プロセス再起動で消える。本番・水平スケールでは `DATABASE_URL` を設定し PostgreSQL session store を使う。
+9. **Sessions fall back to `MemoryStore` when `DATABASE_URL` is unset**
+   A development fallback; it is lost on process restart. In production and horizontal scaling, set `DATABASE_URL` and use the PostgreSQL session store.

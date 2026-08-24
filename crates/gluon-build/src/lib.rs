@@ -85,7 +85,7 @@ pub struct Entry {
 }
 
 impl Entry {
-    /// Returns the URL path this entry serves (`/users/:id`, `/`, ...).
+    /// Returns the URL path this entry serves (`/users/{id}`, `/`, ...).
     #[must_use]
     pub fn url_path(&self) -> String {
         url_path_for(&self.dir_segments)
@@ -337,6 +337,7 @@ fn push_indent(out: &mut String, depth: usize) {
 /// rather than absolute paths so that the generated binary is not tied to the
 /// build machine's filesystem layout.
 fn emit_router_fn(out: &mut String, entries: &[Entry], manifest_dir: &Path) {
+    out.push_str("#[allow(clippy::let_and_return)]\n");
     out.push_str("pub fn __gluon_router() -> axum::Router<std::sync::Arc<gluon::Container>> {\n");
     out.push_str("    let router = axum::Router::new();\n");
 
@@ -403,8 +404,8 @@ fn template_path_expr(abs: &Path, manifest_dir: &Path) -> String {
 /// Compute the URL path for a directory segment list.
 ///
 /// Rules:
-/// - `[id]` -> `:id`
-/// - `[...slug]` -> `*slug`
+/// - `[id]` -> `{id}`
+/// - `[...slug]` -> `{*slug}`
 /// - `(group)` -> removed from URL
 /// - root (empty segments) -> `/`
 fn url_path_for(dir_segments: &[String]) -> String {
@@ -427,9 +428,9 @@ fn url_path_for(dir_segments: &[String]) -> String {
 fn transform_url_segment(seg: &str) -> String {
     if let Some(inner) = strip_brackets(seg) {
         if let Some(rest) = inner.strip_prefix("...") {
-            return format!("*{rest}");
+            return format!("{{*{rest}}}");
         }
-        return format!(":{inner}");
+        return format!("{{{inner}}}");
     }
     seg.to_owned()
 }
@@ -539,7 +540,7 @@ mod tests {
     fn url_path_dynamic() {
         assert_eq!(
             url_path_for(&["users".to_owned(), "[id]".to_owned()]),
-            "/users/:id"
+            "/users/{id}"
         );
     }
 
@@ -547,7 +548,7 @@ mod tests {
     fn url_path_catch_all() {
         assert_eq!(
             url_path_for(&["files".to_owned(), "[...path]".to_owned()]),
-            "/files/*path"
+            "/files/{*path}"
         );
     }
 
@@ -916,7 +917,7 @@ mod tests {
     fn url_path_dynamic_in_group_combined() {
         assert_eq!(
             url_path_for(&["(g)".to_owned(), "users".to_owned(), "[id]".to_owned(),]),
-            "/users/:id"
+            "/users/{id}"
         );
     }
 
@@ -942,14 +943,39 @@ mod tests {
 
     #[test]
     fn transform_url_empty_dynamic() {
-        // "[]" -> inner "" -> ":" (current behavior, pinned by this test)
-        assert_eq!(transform_url_segment("[]"), ":");
+        // "[]" -> inner "" -> "{}" (current behavior, pinned by this test)
+        assert_eq!(transform_url_segment("[]"), "{}");
     }
 
     #[test]
     fn transform_url_empty_catch_all() {
-        // "[...]" -> inner "..." -> strip_prefix("...") = Some("") -> "*"
-        assert_eq!(transform_url_segment("[...]"), "*");
+        // "[...]" -> inner "..." -> strip_prefix("...") = Some("") -> "{*}"
+        assert_eq!(transform_url_segment("[...]"), "{*}");
+    }
+
+    // ---------- emit_router_fn ----------
+
+    /// The generated router must use axum 0.8 path syntax (`{id}`, `{*slug}`);
+    /// axum rejects the old 0.7 syntax (`:id`, `*slug`) at router construction,
+    /// so a wrong emission only surfaces as a boot-time panic in user apps.
+    #[test]
+    fn emit_router_fn_uses_axum08_path_syntax() {
+        let entries = vec![
+            make_entry(&["users", "[id]"], "page", "/tmp/users/[id]/page.rs"),
+            make_entry(
+                &["files", "[...path]"],
+                "route",
+                "/tmp/files/[...path]/route.rs",
+            ),
+        ];
+        let mut out = String::new();
+        emit_router_fn(&mut out, &entries, Path::new("/tmp/proj"));
+        assert!(out.contains(r#"route("/users/{id}","#), "out: {out}");
+        assert!(
+            out.contains(r#"route("/files/{*path}","#),
+            "catch-all must emit {{*name}} - out: {out}"
+        );
+        assert!(!out.contains(r#"":id""#), "out: {out}");
     }
 
     // ---------- rust_string_literal_str extras ----------
