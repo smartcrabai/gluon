@@ -1,73 +1,73 @@
-# gluon CLI コマンド詳細
+# gluon CLI Command Reference
 
-各サブコマンドの引数・生成物・典型呼び出しをまとめる。短縮形 `g` / `d` は Rails 流。
+Arguments, generated artifacts, and typical invocations for each subcommand. The short forms `g` / `d` follow Rails conventions.
 
 ## `gluon new <name>`
 
-新規 gluon アプリを `<name>/` ディレクトリに生成する。
+Generates a new gluon application in the `<name>/` directory.
 
 ```bash
-gluon new myapp                # git init + cargo fetch を実行
-gluon new myapp --no-git       # git init を抑制
-gluon new myapp --no-install   # cargo fetch を抑制
+gluon new myapp                # runs git init + cargo fetch
+gluon new myapp --no-git       # skips git init
+gluon new myapp --no-install   # skips cargo fetch
 ```
 
-生成されるツリー:
+Generated tree:
 
 ```
 myapp/
-├── Cargo.toml         # gluon, gluon-build, axum, sqlx, tower-sessions, ts-rs を依存
-├── gluon.toml         # アプリ設定
-├── build.rs           # gluon_build::run() を呼ぶ
-├── .env.example       # DATABASE_URL / SECRET_KEY_BASE / OTEL_ENABLED
-├── app/               # Presentation: page.rs / page.tsx, route.rs, layout.tsx
-│   ├── page.rs        # GET / handler (View 付き)
-│   ├── page.tsx       # 同階層 View
-│   ├── _error/{404,500}.tsx
-│   └── components/csrf_token.tsx
-├── migrations/        # sqlx 用 SQL ファイル
-├── public/            # 静的アセット (/public 配下にマウント)
-└── src/
-    ├── main.rs        # Boot::new().with_container(...).with_router(__gluon_router()).run()
-    ├── wiring.rs      # DI コンテナの composition root (マーカーコメント方式)
-    ├── domain/        # 1 domain = 1 ディレクトリ
-    ├── usecases/
-    ├── infrastructure/{persistence,mocks}/
-    └── dto/
+|-- Cargo.toml         # depends on gluon, gluon-build, axum, sqlx, tower-sessions, ts-rs
+|-- gluon.toml         # app configuration
+|-- build.rs           # calls gluon_build::run()
+|-- .env.example       # DATABASE_URL / SECRET_KEY_BASE / OTEL_ENABLED
+|-- app/               # Presentation: page.rs / page.tsx, route.rs, layout.tsx
+|   |-- page.rs        # GET / handler (with View)
+|   |-- page.tsx       # View at the same level
+|   |-- _error/{404,500}.tsx
+|   `-- components/csrf_token.tsx
+|-- migrations/        # SQL files for sqlx
+|-- public/            # static assets (mounted under /public)
+`-- src/
+    |-- main.rs        # Boot::new().with_container(...).with_router(__gluon_router()).run()
+    |-- wiring.rs      # DI container composition root (marker comment style)
+    |-- domain/        # 1 domain = 1 directory
+    |-- usecases/
+    |-- infrastructure/{persistence,mocks}/
+    `-- dto/
 ```
 
-`Cargo.toml` の `gluon` / `gluon-build` 依存は `path = "../gluon/crates/gluon{,-build}"` という暫定値。詳細と書き換え例は [`workflows.md`](workflows.md) を参照。
+The `gluon` / `gluon-build` dependencies in `Cargo.toml` are placeholders set to `path = "../gluon/crates/gluon{,-build}"`. See [`workflows.md`](workflows.md) for details and rewrite examples.
 
 ## `gluon g controller <route> [--api]`
 
-`app/<route>/page.rs` と同階層 `page.tsx` を生成する。`--api` は `route.rs` のみ(View 無し)。
+Generates `app/<route>/page.rs` and a `page.tsx` at the same level. With `--api`, only `route.rs` is generated (no View).
 
 ```bash
 gluon g controller users                 # GET /users
-gluon g controller 'users/[id]'          # GET /users/:id (dynamic segment)
+gluon g controller 'users/[id]'          # GET /users/{id} (dynamic segment)
 gluon g controller 'users/[id]/edit'
-gluon g controller 'api/health' --api    # route.rs のみ
+gluon g controller 'api/health' --api    # route.rs only
 ```
 
-zsh では `[id]` が glob 展開されるので **シングルクォート必須**。
+In zsh, `[id]` undergoes glob expansion, so **single quotes are mandatory**.
 
 ## `gluon g resource <name>`
 
-REST 一括生成。`<name>` は単数形・複数形どちらでもユーザー責任(英語 inflection は CLI に無い)。
+Bulk REST generation. Whether `<name>` is singular or plural is up to the user (the CLI has no English inflection logic).
 
 ```bash
 gluon g resource posts
-# → app/posts/{page,new/page,[id]/page,[id]/edit/page}.{rs,tsx}
-# → app/api/posts/{route.rs, [id]/route.rs}
+# -> app/posts/{page,new/page,[id]/page,[id]/edit/page}.{rs,tsx}
+# -> app/api/posts/{route.rs, [id]/route.rs}
 ```
 
-注: 各 `page.rs` には `get` ハンドラのみ生成される。POST / PUT / DELETE が必要なら手で関数を追加する。
+Note: each generated `page.rs` contains only a `get` handler. If you need POST / PUT / DELETE, add the functions manually.
 
 ## `gluon g usecase <name>`
 
-`src/usecases/<name>.rs` に trait + impl + `Input` / `Output` / `Error` を生成。さらに:
-- `src/usecases/mod.rs` のマーカー内に `pub mod <name>;` を sort 済み挿入
-- `src/wiring.rs` のマーカー内に `builder = builder.bind::<dyn ..., _>(...);` 行を挿入
+Generates trait + impl + `Input` / `Output` / `Error` in `src/usecases/<name>.rs`. Additionally:
+- inserts `pub mod <name>;` inside the markers in `src/usecases/mod.rs`, sorted
+- inserts a `builder = builder.bind::<dyn ..., _>(...);` line inside the markers in `src/wiring.rs`
 
 ```bash
 gluon g usecase list_users
@@ -75,26 +75,26 @@ gluon g usecase list_users
 
 ## `gluon g domain <name> [--field NAME:TYPE]*`
 
-1 domain = 1 ディレクトリ (entity / value_objects / repository / error)、sqlx ベースの `Postgres<Name>Repository`、mock repository、`wiring.rs` への bind 行を一括生成する。PostgreSQL テーブル名は `<domain名のsnake_case>s`。PostgreSQL 対応 scalar、生成 value object、それらの `Option<T>` では CRUD も実装済み。その他の型では repository method を `todo!()` として生成する。
+Bulk-generates 1 domain = 1 directory (entity / value_objects / repository / error), an sqlx-based `Postgres<Name>Repository`, a mock repository, and bind lines into `wiring.rs`. The PostgreSQL table name is `<domain name in snake_case>s`. For PostgreSQL-supported scalars, generated value objects, and their `Option<T>` wrappers, CRUD is also implemented. For other types, repository methods are generated as `todo!()`.
 
 ```bash
 gluon g domain user --field name:UserName --field email:Email --field age:u32
 ```
 
-`Type` 部分の解釈:
-- プリミティブ (`u32`, `String`, `bool`) はそのまま
-- `PascalCase` で他の domain にない型は value object として newtype 生成
-- `Option<T>`, `Vec<T>` も entity 型として使用可能(shell escape 注意)。自動 CRUD の対応型は [`limitations.md`](limitations.md) を参照
+Interpretation of the `Type` part:
+- primitives (`u32`, `String`, `bool`) are used as-is
+- `PascalCase` types not found in another domain are generated as value object newtypes
+- `Option<T>`, `Vec<T>` can also be used as entity types (mind shell escaping). See [`limitations.md`](limitations.md) for types supported by auto CRUD
 
-**migration は同時生成しない**。理由は [`conventions.md`](conventions.md) の "Domain と Table" 節。
+**No migration is generated at the same time**. See the "Domain and Table" section of [`conventions.md`](conventions.md) for the reason.
 
 ## `gluon g dto <name>`
 
-`src/dto/<name>.rs` を生成 + `src/dto/mod.rs` にマーカー挿入。
+Generates `src/dto/<name>.rs` + inserts markers into `src/dto/mod.rs`.
 
 ## `gluon g migration <name>`
 
-`migrations/<UTC YYYYMMDDHHMMSS>_<name>.{up,down}.sql` を生成。
+Generates `migrations/<UTC YYYYMMDDHHMMSS>_<name>.{up,down}.sql`.
 
 ```bash
 gluon g migration create_users
@@ -102,25 +102,25 @@ gluon g migration create_users
 
 ## `gluon d <kind> <name>` / `gluon destroy <kind> <name>`
 
-generate の対称操作。
-- 規約パスのファイルを `[y/N]` 確認付きで削除
-- `wiring.rs` の bind block をマーカーコメント方式で確実に削除
-- 該当 `mod.rs` の `pub mod <name>;` 行を削除
-- migration は **timestamp + 完全一致**で削除する(`users` 指定で `add_users` を巻き込まない)
+The inverse of generate.
+- deletes files at conventional paths after a `[y/N]` confirmation
+- removes the bind block from `wiring.rs` reliably via marker comments
+- removes the `pub mod <name>;` line from the relevant `mod.rs`
+- migrations are deleted by **timestamp + exact match** (`users` will not sweep up `add_users`)
 
 ```bash
 gluon d controller users
 gluon d usecase list_users
 gluon d domain user
-gluon d resource posts        # api/ 側も含めて消える
+gluon d resource posts        # removes the api/ side as well
 gluon d migration create_users
 ```
 
-`yes | gluon d ...` で非対話モードに(`--yes` フラグは現状なし)。
+Use `yes | gluon d ...` for non-interactive mode (no `--yes` flag for now).
 
 ## `gluon db <op>`
 
-`DATABASE_URL` 対象の PostgreSQL 操作。create / drop / migrate / rollback / seed は組み込み SQLx 実装。prepare のみ `cargo sqlx prepare` を使うため `sqlx-cli` が必要。
+PostgreSQL operations against `DATABASE_URL`. create / drop / migrate / rollback / seed use the built-in SQLx implementation. Only prepare uses `cargo sqlx prepare`, which requires `sqlx-cli`.
 
 ```bash
 gluon db create     # database create
@@ -128,24 +128,24 @@ gluon db drop       # database drop -y
 gluon db migrate    # migrate run
 gluon db rollback   # migrate revert
 gluon db prepare    # sqlx prepare
-gluon db seed       # db/seeds.sql を実行
+gluon db seed       # runs db/seeds.sql
 ```
 
 ## `gluon dev`
 
-`notify` でファイル変更を監視し `cargo run` を再起動する。`GLUON_INSECURE_COOKIE` 未設定時はローカル HTTP 開発用に `1` を設定する。watch 対象は `app/`, `src/`, `migrations/`。TypeScript、target、テンプレート、エディタ一時ファイルは再起動対象外。
+Watches for file changes with `notify` and restarts `cargo run`. When `GLUON_INSECURE_COOKIE` is unset, it sets it to `1` for local HTTP development. Watch targets are `app/`, `src/`, `migrations/`. TypeScript files, target/, templates, and editor temp files are excluded from restarts.
 
 ## `gluon build` / `gluon run`
 
-`cargo build --release` / `cargo run [--release]` の薄いラッパー。
+Thin wrappers around `cargo build --release` / `cargo run [--release]`.
 
 ## `gluon routes`
 
-`app/` をスキャンして登録ルートを一覧表示する。`gluon-build` が build 時に行う auto-router 構築の dry-run。
+Scans `app/` and lists registered routes. A dry-run of the auto-router construction that `gluon-build` performs at build time.
 
 ```text
 GET     /                              app/page.rs::get
 GET     /api/health                    app/api/health/route.rs::get
 GET     /users                         app/users/page.rs::get
-GET     /users/:id                     app/users/[id]/page.rs::get
+GET     /users/{id}                     app/users/[id]/page.rs::get
 ```

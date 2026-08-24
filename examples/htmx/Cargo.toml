@@ -1,0 +1,17 @@
+[package]
+name = "sample-htmx"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "sample-htmx"
+path = "src/main.rs"
+
+[build-dependencies]
+gluon-build = { path = "../../crates/gluon-build" }
+
+[dependencies]
+axum = "0.8"
+gluon = { path = "../../crates/gluon" }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal"] }

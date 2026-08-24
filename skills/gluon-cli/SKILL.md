@@ -1,19 +1,19 @@
 ---
 name: gluon-cli
-description: gluon (Rails-like Rust web framework on Axum + jsxrs) の CLI バイナリ `gluon` を使ってアプリケーションをスキャフォールド・更新・起動する手順集。`gluon new`、`gluon g/generate`、`gluon d/destroy`、`gluon db {create,drop,migrate,rollback,prepare,seed}`、`gluon dev`、`gluon build`、`gluon run`、`gluon routes` のいずれかを呼ぶ場面・gluon プロジェクトの構造を生成/変更する場面・gluon の DI コンテナ (`src/wiring.rs`) や `app/` ルーティングを触る場面で発動する。trigger 語: "gluon new", "gluon g controller / usecase / domain / dto / migration / resource", "gluon d ...", "gluon dev", "gluon routes", "wiring.rs", "page.rs / page.tsx", `__gluon_router`。
+description: Procedures for scaffolding, updating, and running applications with `gluon`, the CLI binary of gluon (a Rails-like Rust web framework on Axum + jsxrs). Activates whenever you invoke `gluon new`, `gluon g/generate`, `gluon d/destroy`, `gluon db {create,drop,migrate,rollback,prepare,seed}`, `gluon dev`, `gluon build`, `gluon run`, or `gluon routes`; when generating or changing the structure of a gluon project; or when touching the gluon DI container (`src/wiring.rs`) or `app/` routing. Trigger words: "gluon new", "gluon g controller / usecase / domain / dto / migration / resource", "gluon d ...", "gluon dev", "gluon routes", "wiring.rs", "page.rs / page.tsx", `__gluon_router`.
 ---
 
 # gluon CLI
 
-gluon は jsxrs + Axum をベースにした Rails ライク Rust web フレームワーク。CLI バイナリ `gluon` でアプリケーションをスキャフォールドし、コントローラ / UseCase / Domain / DTO / migration を生成/削除し、開発サーバを起動する。
+gluon is a Rails-like Rust web framework built on jsxrs + Axum. The `gluon` CLI binary scaffolds applications, generates/deletes controllers / UseCases / Domains / DTOs / migrations, and starts the dev server.
 
-このスキルは「gluon CLI を使ってプロジェクトを操作するときの正しい手順と落とし穴」を網羅する。具体的な手順は目的別の reference ファイルに分けてある — 必要なものだけ読めばよい。
+This skill covers "the correct procedures and pitfalls when operating a project with the gluon CLI." Concrete procedures are split into per-purpose reference files - read only what you need.
 
-## CLI バイナリ
+## CLI Binary
 
-このリポジトリでは `cargo build --bin gluon` でビルドした `target/debug/gluon` を使う。グローバル install は `cargo install --path crates/gluon-cli`。
+In this repository, use `target/debug/gluon` built with `cargo build --bin gluon`. For a global install: `cargo install --path crates/gluon-cli`.
 
-## サブコマンド早見表
+## Subcommand Quick Reference
 
 ```text
 gluon new <name> [--no-git] [--no-install]
@@ -28,28 +28,28 @@ gluon destroy (d) <kind>
   controller <route>
   resource <name> | usecase <name> | domain <name> | dto <name> | migration <name>
 gluon db <op>      # create / drop / migrate / rollback / prepare / seed
-gluon dev          # notify watch + cargo run の再起動
+gluon dev          # notify watch + cargo run restarts
 gluon build        # cargo build --release
 gluon run          [--release]
-gluon routes       # app/ をスキャンして登録ルートを表示
+gluon routes       # scans app/ and lists registered routes
 ```
 
-短縮形: `g` = `generate`, `d` = `destroy` (Rails 流)。
+Short forms: `g` = `generate`, `d` = `destroy` (Rails style).
 
-## 必ず知っておくこと
+## Must-Know Facts
 
-- **`gluon new` 直後の `Cargo.toml` は `path = "../gluon/crates/..."` の暫定値**。crates.io 公開前なので絶対パスや実体に合わせて書き換える必要がある。詳細は [`references/workflows.md`](references/workflows.md) の Hello world セクション。
-- **生成された name / route / field type は CLI 側で厳格に validate される**。`../`、`;}{`、非 ASCII は弾かれる。仕様は [`references/validation.md`](references/validation.md)。
-- **wiring.rs と `<layer>/mod.rs` はマーカーコメント間が機械編集される領域**。手動編集する場合もマーカーは残すこと。詳細は [`references/conventions.md`](references/conventions.md)。
-- **`gluon g domain` は migration を生成しない**。集約境界とテーブル境界は独立した設計判断。理由は [`references/conventions.md`](references/conventions.md) の "Domain と Table" 節。
-- **`zsh` で `[id]` は glob 展開される**。`gluon g controller 'users/[id]'` のようにシングルクォート必須。
+- **The `Cargo.toml` right after `gluon new` contains provisional `path = "../gluon/crates/..."` values**. Before crates.io publication you must rewrite them to absolute paths or the actual locations. See the Hello world section in [`references/workflows.md`](references/workflows.md).
+- **Generated names / routes / field types are strictly validated by the CLI**. `../`, `;}{`, and non-ASCII are rejected. Spec: [`references/validation.md`](references/validation.md).
+- **wiring.rs and `<layer>/mod.rs` are machine-edited regions between marker comments**. Keep the markers intact even when editing manually. Details: [`references/conventions.md`](references/conventions.md).
+- **`gluon g domain` does not generate a migration**. Aggregate boundaries and table boundaries are independent design decisions. Rationale: the "Domain and Table" section in [`references/conventions.md`](references/conventions.md).
+- **In `zsh`, `[id]` is glob-expanded**. Single quotes are required, e.g. `gluon g controller 'users/[id]'`.
 
-## reference 一覧
+## Reference Index
 
-- [`references/commands.md`](references/commands.md) — 各サブコマンド (`new` / `g` / `d` / `db` / `dev` / `build` / `run` / `routes`) の引数・生成物・挙動の詳細。
-- [`references/conventions.md`](references/conventions.md) — wiring.rs / `mod.rs` のマーカー方式、`app/` のルーティング規約、`View<P>` の template 自動注入、Domain と Table の独立性。
-- [`references/validation.md`](references/validation.md) — CLI 入力 (route / identifier / field type) の検証ルールと reject 例。
-- [`references/environment.md`](references/environment.md) — `Boot::run()` が読む環境変数(`DATABASE_URL`、`GLUON_BIND`、`GLUON_TELEMETRY_DISABLED`、`GLUON_INSECURE_COOKIE`、`OTEL_*`、`SECRET_KEY_BASE`)。
-- [`references/workflows.md`](references/workflows.md) — 典型シナリオ:Hello world、Users CRUD、destroy で巻き戻し、CLI 自体の修正 → 検証ループ。
-- [`references/limitations.md`](references/limitations.md) — MVP の既知制約(path 依存、`g resource` の GET only、destroy の対話確認ほか)。
-- [`references/testing.md`](references/testing.md) — `gluon::testing::TestClient`、`#[gluon::gluon_test]` 属性マクロ、テスト雛形の置き場。
+- [`references/commands.md`](references/commands.md) - details on arguments, generated artifacts, and behavior of each subcommand (`new` / `g` / `d` / `db` / `dev` / `build` / `run` / `routes`).
+- [`references/conventions.md`](references/conventions.md) - wiring.rs / `mod.rs` marker scheme, `app/` routing conventions, automatic template injection for `View<P>`, independence of Domain and Table.
+- [`references/validation.md`](references/validation.md) - validation rules for CLI inputs (route / identifier / field type) with rejection examples.
+- [`references/environment.md`](references/environment.md) - environment variables read by `Boot::run()` (`DATABASE_URL`, `GLUON_BIND`, `GLUON_TELEMETRY_DISABLED`, `GLUON_INSECURE_COOKIE`, `OTEL_*`, `SECRET_KEY_BASE`).
+- [`references/workflows.md`](references/workflows.md) - typical scenarios: Hello world, Users CRUD, rollback via destroy, editing the CLI itself -> verification loop.
+- [`references/limitations.md`](references/limitations.md) - known MVP constraints (path dependencies, GET-only `g resource`, interactive destroy confirmation, etc.).
+- [`references/testing.md`](references/testing.md) - `gluon::testing::TestClient`, the `#[gluon::gluon_test]` attribute macro, where to place test templates.

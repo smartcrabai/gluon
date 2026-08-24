@@ -1,18 +1,18 @@
-# テスト助け
+# Testing Help
 
-## 3 層のテスト規約
+## 3-Layer Test Conventions
 
-| レベル | 場所 | 何をするか |
+| Level | Location | What it does |
 |---|---|---|
-| Domain unit | `tests/domain/<name>.rs` | Entity の等価性・Value Object のバリデーション |
-| UseCase unit | `tests/usecases/<name>.rs` | Mock Repository を組み立てて `execute(input)` を呼び、output / error を assert |
-| Controller integration | `tests/controllers/<route>.rs` | `gluon::testing::TestClient` で axum Router 全体をブートし HTTP request → response 検証 |
+| Domain unit | `tests/domain/<name>.rs` | Entity equality and Value Object validation |
+| UseCase unit | `tests/usecases/<name>.rs` | Assemble a Mock Repository, call `execute(input)`, and assert output / error |
+| Controller integration | `tests/controllers/<route>.rs` | Boot the entire axum Router with `gluon::testing::TestClient` and verify HTTP request -> response |
 
-注: 現状 `gluon g` はテストファイルを生成しない(MVP)。各 generate と一緒に手でテスト雛形を作る。
+Note: `gluon g` does not generate test files yet (MVP). Create test scaffolding by hand alongside each generate.
 
 ## `gluon::testing::TestClient`
 
-`axum-test::TestServer` の薄いラッパー。Container と Router を持ってアプリ全体をインメモリで起動する。
+A thin wrapper around `axum-test::TestServer`. Boots the whole application in-memory with a Container and Router.
 
 ```rust
 use gluon::testing::TestClient;
@@ -22,7 +22,7 @@ use std::sync::Arc;
 #[gluon::gluon_test]
 async fn lists_users() {
     let container = ContainerBuilder::new()
-        // mock を bind
+        // bind a mock
         .bind::<dyn crate::domain::user::UserRepository, _>(|_| {
             Arc::new(crate::infrastructure::mocks::user_repository::MockUserRepository::new())
         })
@@ -35,33 +35,33 @@ async fn lists_users() {
 }
 ```
 
-## `#[gluon::gluon_test]` 属性マクロ
+## The `#[gluon::gluon_test]` Attribute Macro
 
-`#[tokio::test]` を巻きつつ、必要に応じて tracing init を追加できる proc-macro。`#[gluon::gluon_test]` で `async fn` を装飾するだけ。
+A proc-macro that wraps `#[tokio::test]` and optionally adds tracing init. Just decorate an `async fn` with `#[gluon::gluon_test]`.
 
 ```rust
 #[gluon::gluon_test]
 async fn flash_round_trip() { /* ... */ }
 ```
 
-## DB を使うテスト
+## Tests Using the DB
 
-- `DATABASE_URL` を test 用 DB に向ける
-- 各テストで transaction を貼り、終了時に rollback するヘルパを自前で用意するのが現状の推奨(framework 提供の `with_db` ヘルパは未実装)
+- Point `DATABASE_URL` at a test database
+- The current recommendation is to provide your own helper that opens a transaction per test and rolls back on exit (the framework-provided `with_db` helper is not implemented yet)
 
-## CSRF を伴うテスト
+## Testing with CSRF
 
-- `TestClient` は session cookie を維持するため、GET → token を session から取得 → 同じ client で POST する流れ
-- `tower-sessions` の MemoryStore は test プロセス内で完結するので、複数テスト間で session を分けるには TestClient を都度 new する
+- `TestClient` keeps session cookies, so the flow is: GET -> fetch the token from the session -> POST with the same client
+- `tower-sessions`' MemoryStore lives entirely within the test process, so to isolate sessions between tests, create a new TestClient each time
 
-## Container override
+## Container Override
 
 ```rust
 let mut container = ContainerBuilder::new()
     .bind::<dyn UserRepository, _>(|_| Arc::new(PostgresUserRepository::new(...)))
     .build();
-// テスト中だけ差し替えたい場合
+// swap only for this test
 container.override_with::<dyn UserRepository>(Arc::new(MockUserRepository::new()));
 ```
 
-`override_with` は build 後の Container を `&mut` で変更するため、ハンドラから見える Arc<Container> をテスト毎に作り直す必要がある(`Arc::make_mut` は不可)。
+Because `override_with` mutates the built Container via `&mut`, you need to rebuild the Arc<Container> visible to handlers for each test (`Arc::make_mut` cannot be used).

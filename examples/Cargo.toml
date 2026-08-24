@@ -1,0 +1,3 @@
+[workspace]
+members = ["pages", "api", "sessions", "htmx", "di"]
+resolver = "3"
