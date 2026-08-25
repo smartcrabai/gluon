@@ -7,9 +7,12 @@ Arguments, generated artifacts, and typical invocations for each subcommand. The
 Generates a new gluon application in the `<name>/` directory.
 
 ```bash
-gluon new myapp                # runs git init + cargo fetch
-gluon new myapp --no-git       # skips git init
-gluon new myapp --no-install   # skips cargo fetch
+gluon new myapp                         # runs git init + cargo fetch
+gluon new myapp --no-git                # skips git init
+gluon new myapp --no-install            # skips cargo fetch
+gluon new myapp --claude                # adds Claude Code skill and CLAUDE.md
+gluon new myapp --agents                # adds agent skill and AGENTS.md
+gluon new myapp --claude --agents       # shares the agent skill with Claude Code
 ```
 
 Generated tree:

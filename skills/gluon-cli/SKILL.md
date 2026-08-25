@@ -16,7 +16,7 @@ In this repository, use `target/debug/gluon` built with `cargo build --bin gluon
 ## Subcommand Quick Reference
 
 ```text
-gluon new <name> [--no-git] [--no-install]
+gluon new <name> [--no-git] [--no-install] [--claude] [--agents]
 gluon generate (g) <kind>
   controller <route> [--api]
   resource   <name>

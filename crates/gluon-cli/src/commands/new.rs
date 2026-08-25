@@ -19,18 +19,30 @@ use crate::templating;
 /// embedded bundle.
 const SCAFFOLD_PREFIX: &str = "new/";
 
+/// Prefix used to identify the embedded agent skill.
+const SKILL_PREFIX: &str = "skill/gluon/";
+
+/// Embedded skill entry copied into root instruction files.
+const SKILL_FILE: &str = "skill/gluon/SKILL.md";
+
 /// File extension that marks a template that should be processed by minijinja.
 /// Files that do not end with this suffix are copied verbatim.
 const TEMPLATE_SUFFIX: &str = ".j2";
 
-/// Run the `gluon new` subcommand.
-///
+/// Agent integration files requested for the generated application.
+#[derive(Clone, Copy)]
+pub(crate) struct AgentSupport {
+    pub(crate) claude: bool,
+    pub(crate) agents: bool,
+}
+
 /// 1. Create `<name>/` in the current working directory. If it already exists
 ///    we abort with an error rather than overwriting user data.
 /// 2. Expand every embedded asset under `new/` into the new directory,
 ///    rendering `*.j2` files with the project name as the template context.
-/// 3. Optionally run `git init` (skipped if `no_git` is set).
-/// 4. Optionally run `cargo fetch` (skipped if `no_install` is set, and
+/// 3. Optionally add Claude Code and/or agent instructions and skills.
+/// 4. Optionally run `git init` (skipped if `no_git` is set).
+/// 5. Optionally run `cargo fetch` (skipped if `no_install` is set, and
 ///    treated as best-effort: failures only produce a warning).
 ///
 /// # Errors
@@ -38,7 +50,7 @@ const TEMPLATE_SUFFIX: &str = ".j2";
 /// Returns an error when the target directory cannot be created, when an
 /// embedded asset cannot be rendered, or when writing a generated file
 /// fails.
-pub fn run(name: &str, no_git: bool, no_install: bool) -> Result<()> {
+pub fn run(name: &str, no_git: bool, no_install: bool, agent_support: AgentSupport) -> Result<()> {
     validate_project_name(name)?;
 
     let project_dir = PathBuf::from(name);
@@ -56,6 +68,7 @@ pub fn run(name: &str, no_git: bool, no_install: bool) -> Result<()> {
     })?;
 
     expand_scaffold(name, &project_dir)?;
+    install_agent_support(&project_dir, agent_support.claude, agent_support.agents)?;
 
     if !no_git {
         run_git_init(&project_dir);
@@ -138,6 +151,99 @@ fn expand_scaffold(name: &str, project_dir: &Path) -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Install the requested agent integration files.
+fn install_agent_support(project_dir: &Path, claude: bool, agents: bool) -> Result<()> {
+    if !claude && !agents {
+        return Ok(());
+    }
+
+    let skill_dir = if agents {
+        project_dir.join(".agents/skills/gluon")
+    } else {
+        project_dir.join(".claude/skills/gluon")
+    };
+    copy_skill(&skill_dir)?;
+
+    let skill = templating::read_bytes(SKILL_FILE)
+        .with_context(|| format!("failed to read embedded skill: {SKILL_FILE}"))?;
+    if agents {
+        fs::write(project_dir.join("AGENTS.md"), &skill).context("failed to write AGENTS.md")?;
+    }
+
+    if claude {
+        if agents {
+            let link = project_dir.join(".claude/skills/gluon");
+            if let Some(parent) = link.parent() {
+                fs::create_dir_all(parent)
+                    .with_context(|| format!("failed to create directory: {}", parent.display()))?;
+            }
+            if let Err(error) = create_skill_symlink(Path::new("../../.agents/skills/gluon"), &link)
+            {
+                eprintln!(
+                    "warning: failed to link {}; copying skill instead: {error}",
+                    link.display()
+                );
+                copy_skill(&link)?;
+            }
+            fs::write(project_dir.join("CLAUDE.md"), "@AGENTS.md\n")
+                .context("failed to write CLAUDE.md")?;
+        } else {
+            fs::write(project_dir.join("CLAUDE.md"), skill).context("failed to write CLAUDE.md")?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Copy every embedded file under `skill/gluon/` to `skill_dir`.
+fn copy_skill(skill_dir: &Path) -> Result<()> {
+    let mut entries: Vec<String> = Templates::iter()
+        .map(std::borrow::Cow::into_owned)
+        .filter(|path| path.starts_with(SKILL_PREFIX))
+        .collect();
+    entries.sort();
+
+    if entries.is_empty() {
+        return Err(anyhow!(
+            "no gluon skill found under `{SKILL_PREFIX}` in the embedded bundle"
+        ));
+    }
+
+    for template_path in entries {
+        let relative = template_path
+            .strip_prefix(SKILL_PREFIX)
+            .ok_or_else(|| anyhow!("unexpected skill path: {template_path}"))?;
+        let output_path = skill_dir.join(relative);
+        if let Some(parent) = output_path.parent() {
+            fs::create_dir_all(parent)
+                .with_context(|| format!("failed to create directory: {}", parent.display()))?;
+        }
+        let bytes = templating::read_bytes(&template_path)
+            .with_context(|| format!("failed to read embedded skill: {template_path}"))?;
+        fs::write(&output_path, bytes)
+            .with_context(|| format!("failed to write file: {}", output_path.display()))?;
+    }
+
+    Ok(())
+}
+
+#[cfg(unix)]
+fn create_skill_symlink(target: &Path, link: &Path) -> std::io::Result<()> {
+    std::os::unix::fs::symlink(target, link)
+}
+
+#[cfg(windows)]
+fn create_skill_symlink(target: &Path, link: &Path) -> std::io::Result<()> {
+    std::os::windows::fs::symlink_dir(target, link)
+}
+
+#[cfg(not(any(unix, windows)))]
+fn create_skill_symlink(_target: &Path, _link: &Path) -> std::io::Result<()> {
+    Err(std::io::Error::other(
+        "directory symlinks are unsupported on this platform",
+    ))
 }
 
 /// Best-effort `git init` inside the freshly-created project directory.
