@@ -1,11 +1,11 @@
 # Graph Report - gluon  (2026-08-25)
 
 ## Corpus Check
-- 116 files · ~39,714 words
+- 116 files · ~39,772 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1043 nodes · 1812 edges · 78 communities (69 shown, 9 thin omitted)
+- 1043 nodes · 1813 edges · 78 communities (69 shown, 9 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 

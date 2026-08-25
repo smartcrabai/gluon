@@ -60,9 +60,9 @@
     "semantic_hash": "b6eec067c609f8524dc23b966e235858"
   },
   "crates/gluon-cli/src/commands/new.rs": {
-    "mtime": 1787647719.7021675,
-    "seen": 1787647752.3626602,
-    "ast_hash": "f0b95337d19d42b6be26a3fa3a9478df",
+    "mtime": 1787649945.931486,
+    "seen": 1787649954.9952261,
+    "ast_hash": "0cc73d7e0c66742c996a29437487c567",
     "semantic_hash": ""
   },
   "crates/gluon-cli/src/commands/routes.rs": {

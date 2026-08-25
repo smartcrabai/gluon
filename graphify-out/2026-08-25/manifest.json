@@ -60,9 +60,9 @@
     "semantic_hash": "b6eec067c609f8524dc23b966e235858"
   },
   "crates/gluon-cli/src/commands/new.rs": {
-    "mtime": 1787644155.5722735,
-    "seen": 1787644169.988696,
-    "ast_hash": "dec3c23f0aa340949150b651ca5d8b66",
+    "mtime": 1787647719.7021675,
+    "seen": 1787647752.3626602,
+    "ast_hash": "f0b95337d19d42b6be26a3fa3a9478df",
     "semantic_hash": ""
   },
   "crates/gluon-cli/src/commands/routes.rs": {
@@ -168,9 +168,9 @@
     "semantic_hash": "2aae059416b0ff2611610398d29e201b"
   },
   "crates/gluon-cli/tests/e2e.rs": {
-    "mtime": 1787643963.9322865,
-    "seen": 1787644063.6100118,
-    "ast_hash": "3a77d38b074ce1cd8777d9c588e909c3",
+    "mtime": 1787647719.7074318,
+    "seen": 1787647752.3630521,
+    "ast_hash": "bbd58b621f60f08d7feec466f262df3d",
     "semantic_hash": ""
   },
   "crates/gluon-cli/tests/e2e_destroy_loop.rs": {

@@ -179,6 +179,12 @@ fn install_agent_support(project_dir: &Path, claude: bool, agents: bool) -> Resu
                 fs::create_dir_all(parent)
                     .with_context(|| format!("failed to create directory: {}", parent.display()))?;
             }
+
+            #[cfg(windows)]
+            // Directory symlinks require Developer Mode or elevation on Windows.
+            copy_skill(&link)?;
+
+            #[cfg(not(windows))]
             if let Err(error) = create_skill_symlink(Path::new("../../.agents/skills/gluon"), &link)
             {
                 eprintln!(
@@ -187,6 +193,7 @@ fn install_agent_support(project_dir: &Path, claude: bool, agents: bool) -> Resu
                 );
                 copy_skill(&link)?;
             }
+
             fs::write(project_dir.join("CLAUDE.md"), "@AGENTS.md\n")
                 .context("failed to write CLAUDE.md")?;
         } else {
@@ -232,11 +239,6 @@ fn copy_skill(skill_dir: &Path) -> Result<()> {
 #[cfg(unix)]
 fn create_skill_symlink(target: &Path, link: &Path) -> std::io::Result<()> {
     std::os::unix::fs::symlink(target, link)
-}
-
-#[cfg(windows)]
-fn create_skill_symlink(target: &Path, link: &Path) -> std::io::Result<()> {
-    std::os::windows::fs::symlink_dir(target, link)
 }
 
 #[cfg(not(any(unix, windows)))]

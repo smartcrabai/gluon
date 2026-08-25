@@ -3533,7 +3533,7 @@
       "file_type": "code",
       "norm_label": "copy_skill()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L201"
+      "source_location": "L208"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_create_skill_symlink",
@@ -3544,7 +3544,7 @@
       "file_type": "code",
       "norm_label": "create_skill_symlink()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L233"
+      "source_location": "L240"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_expand_scaffold",
@@ -3610,7 +3610,7 @@
       "file_type": "code",
       "norm_label": "run_cargo_fetch()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L267"
+      "source_location": "L269"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_run_git_init",
@@ -3621,7 +3621,7 @@
       "file_type": "code",
       "norm_label": "run_git_init()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L253"
+      "source_location": "L255"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_validate_project_name",
@@ -13854,7 +13854,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L182",
+      "source_location": "L188",
       "weight": 1.0
     },
     {
@@ -20730,7 +20730,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L201",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -20742,7 +20742,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L243",
+      "source_location": "L245",
       "weight": 1.0
     },
     {
@@ -20790,7 +20790,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L267",
+      "source_location": "L269",
       "weight": 1.0
     },
     {
@@ -20802,7 +20802,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L253",
+      "source_location": "L255",
       "weight": 1.0
     },
     {
@@ -23022,7 +23022,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L201",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -23034,7 +23034,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L243",
+      "source_location": "L245",
       "weight": 1.0
     },
     {
@@ -27360,7 +27360,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L201",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -27371,7 +27371,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L243",
+      "source_location": "L245",
       "weight": 1.0
     },
     {
@@ -27382,7 +27382,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L253",
+      "source_location": "L255",
       "weight": 1.0
     },
     {
@@ -27393,7 +27393,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L267",
+      "source_location": "L269",
       "weight": 1.0
     },
     {
@@ -32835,5 +32835,5 @@
       "source_file": ".claude/skills/review-pr/SKILL.md"
     }
   ],
-  "built_at_commit": "ef522ba5bf675301e8e04f3eea06e39261d1f3ff"
+  "built_at_commit": "470dc1018a8b7d4890bbaa3cb13bea15c06d57da"
 }
