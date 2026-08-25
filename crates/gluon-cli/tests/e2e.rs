@@ -131,7 +131,89 @@ fn fresh_app(tmp: &Path, name: &str) -> PathBuf {
     run_gluon(tmp, &["new", name, "--no-git", "--no-install"]);
     let app = tmp.join(name);
     fix_paths(&app.join("Cargo.toml"));
+    for relative in [".claude", ".agents", "CLAUDE.md", "AGENTS.md"] {
+        assert!(
+            !app.join(relative).exists(),
+            "plain scaffold unexpectedly contains {relative}"
+        );
+    }
+
     app
+}
+
+#[test]
+fn new_agent_flags_install_expected_files() {
+    let tmp = tempfile::tempdir().expect("create tempdir");
+    let expected_skill = std::fs::read_to_string(workspace_root().join("skills/gluon/SKILL.md"))
+        .expect("read skill");
+
+    run_gluon(
+        tmp.path(),
+        &["new", "claude_only", "--claude", "--no-git", "--no-install"],
+    );
+    let claude_only = tmp.path().join("claude_only");
+    assert!(claude_only.join(".claude/skills/gluon/SKILL.md").is_file());
+    assert!(!claude_only.join(".agents").exists());
+    assert!(!claude_only.join("AGENTS.md").exists());
+    assert_eq!(
+        std::fs::read_to_string(claude_only.join("CLAUDE.md")).expect("read CLAUDE.md"),
+        expected_skill
+    );
+
+    run_gluon(
+        tmp.path(),
+        &["new", "agents_only", "--agents", "--no-git", "--no-install"],
+    );
+    let agents_only = tmp.path().join("agents_only");
+    assert!(agents_only.join(".agents/skills/gluon/SKILL.md").is_file());
+    assert!(!agents_only.join(".claude").exists());
+    assert_eq!(
+        std::fs::read_to_string(agents_only.join("AGENTS.md")).expect("read AGENTS.md"),
+        expected_skill
+    );
+    assert!(!agents_only.join("CLAUDE.md").exists());
+
+    run_gluon(
+        tmp.path(),
+        &[
+            "new",
+            "both",
+            "--claude",
+            "--agents",
+            "--no-git",
+            "--no-install",
+        ],
+    );
+    let both = tmp.path().join("both");
+    assert!(both.join(".agents/skills/gluon/SKILL.md").is_file());
+    assert_eq!(
+        std::fs::read_to_string(both.join("AGENTS.md")).expect("read AGENTS.md"),
+        expected_skill
+    );
+    assert_eq!(
+        std::fs::read_to_string(both.join(".claude/skills/gluon/SKILL.md"))
+            .expect("read linked skill"),
+        expected_skill
+    );
+    assert_eq!(
+        std::fs::read_to_string(both.join("CLAUDE.md")).expect("read CLAUDE.md"),
+        "@AGENTS.md\n"
+    );
+    let link = both.join(".claude/skills/gluon");
+    #[cfg(unix)]
+    {
+        assert!(
+            std::fs::symlink_metadata(&link)
+                .expect("read skill link")
+                .file_type()
+                .is_symlink()
+        );
+        assert_eq!(
+            std::fs::read_link(&link).expect("read skill link target"),
+            PathBuf::from("../../.agents/skills/gluon")
+        );
+    }
+    assert!(link.join("SKILL.md").is_file());
 }
 
 /// Walks the project through every generator and a full destroy round-trip,

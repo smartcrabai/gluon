@@ -43,6 +43,12 @@ enum Commands {
         /// Skip running the dependency installer.
         #[arg(long)]
         no_install: bool,
+        /// Add Claude Code instructions and skill files.
+        #[arg(long)]
+        claude: bool,
+        /// Add agent instructions and skill files.
+        #[arg(long)]
+        agents: bool,
     },
     /// Generate a new code artifact.
     #[command(alias = "g")]
@@ -175,7 +181,14 @@ fn main() -> ExitCode {
             name,
             no_git,
             no_install,
-        } => commands::new::run(&name, no_git, no_install),
+            claude,
+            agents,
+        } => commands::new::run(
+            &name,
+            no_git,
+            no_install,
+            commands::new::AgentSupport { claude, agents },
+        ),
         Commands::Generate { kind } => commands::generate::run(kind),
         Commands::Destroy { kind } => commands::destroy::run(kind),
         Commands::Db { op } => commands::db::run(op),
@@ -207,10 +220,25 @@ mod tests {
                 name,
                 no_git,
                 no_install,
+                claude,
+                agents,
             } => {
                 assert_eq!(name, "myapp");
                 assert!(no_git);
                 assert!(no_install);
+                assert!(!claude);
+                assert!(!agents);
+            }
+            other => panic!("unexpected: {other:?}"),
+        }
+    }
+    #[test]
+    fn parse_new_with_claude_and_agents() {
+        let cli = Cli::try_parse_from(["gluon", "new", "myapp", "--claude", "--agents"]).unwrap();
+        match cli.command {
+            Commands::New { claude, agents, .. } => {
+                assert!(claude);
+                assert!(agents);
             }
             other => panic!("unexpected: {other:?}"),
         }
