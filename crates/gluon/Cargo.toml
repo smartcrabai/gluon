@@ -20,7 +20,7 @@ async-trait.workspace = true
 axum.workspace = true
 axum-test.workspace = true
 form_urlencoded.workspace = true
-gluon-macros = { path = "../gluon-macros", version = "0.1" }
+gluon-macros = { path = "../gluon-macros", version = "0.1.1" }
 http.workspace = true
 jsxrs.workspace = true
 opentelemetry.workspace = true
