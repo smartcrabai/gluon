@@ -38,7 +38,7 @@ Short forms: `g` = `generate`, `d` = `destroy` (Rails style).
 
 ## Must-Know Facts
 
-- **The `Cargo.toml` right after `gluon new` contains provisional `path = "../gluon/crates/..."` values**. Before crates.io publication you must rewrite them to absolute paths or the actual locations. See the Hello world section in [`references/workflows.md`](references/workflows.md).
+- **The `Cargo.toml` right after `gluon new` uses GitHub dependencies pinned to the exact framework revision used to build the CLI, or to the matching `v<version>` tag when Git metadata is unavailable**. For local CLI/framework development, rewrite them to local paths as described in [`references/workflows.md`](references/workflows.md).
 - **Generated names / routes / field types are strictly validated by the CLI**. `../`, `;}{`, and non-ASCII are rejected. Spec: [`references/validation.md`](references/validation.md).
 - **wiring.rs and `<layer>/mod.rs` are machine-edited regions between marker comments**. Keep the markers intact even when editing manually. Details: [`references/conventions.md`](references/conventions.md).
 - **`gluon g domain` does not generate a migration**. Aggregate boundaries and table boundaries are independent design decisions. Rationale: the "Domain and Table" section in [`references/conventions.md`](references/conventions.md).
@@ -51,5 +51,5 @@ Short forms: `g` = `generate`, `d` = `destroy` (Rails style).
 - [`references/validation.md`](references/validation.md) - validation rules for CLI inputs (route / identifier / field type) with rejection examples.
 - [`references/environment.md`](references/environment.md) - environment variables read by `Boot::run()` (`DATABASE_URL`, `GLUON_BIND`, `GLUON_TELEMETRY_DISABLED`, `GLUON_INSECURE_COOKIE`, `OTEL_*`, `SECRET_KEY_BASE`).
 - [`references/workflows.md`](references/workflows.md) - typical scenarios: Hello world, Users CRUD, rollback via destroy, editing the CLI itself -> verification loop.
-- [`references/limitations.md`](references/limitations.md) - known MVP constraints (path dependencies, GET-only `g resource`, interactive destroy confirmation, etc.).
+- [`references/limitations.md`](references/limitations.md) - known MVP constraints (GET-only `g resource`, interactive destroy confirmation, etc.).
 - [`references/testing.md`](references/testing.md) - `gluon::testing::TestClient`, the `#[gluon::gluon_test]` attribute macro, where to place test templates.

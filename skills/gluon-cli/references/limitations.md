@@ -4,8 +4,8 @@ Works as an MVP, but these spots need attention. Until the framework provides of
 
 ## Templates / Generation
 
-1. **`Cargo.toml` after `gluon new` has the provisional value `path = "../gluon/crates/gluon{,-build}"`**
-   Before publishing to crates.io, you must rewrite it to real paths or absolute paths right after generation. See section A of [`workflows.md`](workflows.md) for a rewrite example.
+1. **Generated framework dependencies use a Git revision**
+   Release builds pin `gluon` and `gluon-build` to the exact framework commit used to build the CLI; builds without Git metadata use the matching `v<version>` tag. Local CLI/framework development may rewrite them to local paths as described in [`workflows.md`](workflows.md).
 
 2. **`gluon g resource` only generates a GET handler**
    Add POST / PUT / DELETE functions by hand. The `api/<name>/route.rs` side is also `get`-only.

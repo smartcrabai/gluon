@@ -9,93 +9,14 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::Command;
 
-/// Path to the freshly-built `gluon` binary, supplied by Cargo as the integration
-/// test runs.
-fn gluon_bin() -> &'static str {
-    env!("CARGO_BIN_EXE_gluon")
-}
+mod common;
 
-/// Repository root (parent of `crates/`).
-fn workspace_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .expect("workspace root")
-}
-
-fn toml_path(path: &Path) -> String {
-    path.to_string_lossy().replace('\\', "/")
-}
-
-/// Rewrites the `path = "../gluon/crates/..."` placeholders in a newly
-/// scaffolded `Cargo.toml` so the temp project actually depends on the local
-/// workspace.
-fn fix_paths(cargo_toml: &Path) {
-    let root = workspace_root();
-    let gluon_path = root.join("crates/gluon");
-    let build_path = root.join("crates/gluon-build");
-    let content = std::fs::read_to_string(cargo_toml).expect("read Cargo.toml");
-    let fixed = content
-        .replace("../gluon/crates/gluon-build", &toml_path(&build_path))
-        .replace("../gluon/crates/gluon", &toml_path(&gluon_path));
-    std::fs::write(cargo_toml, fixed).expect("write Cargo.toml");
-}
-
-fn run_gluon(app: &Path, args: &[&str]) {
-    let output = Command::new(gluon_bin())
-        .args(args)
-        .current_dir(app)
-        .output()
-        .expect("spawn gluon");
-    assert!(
-        output.status.success(),
-        "gluon {args:?} failed\nstdout: {}\nstderr: {}",
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
-fn run_gluon_expect_failure(app: &Path, args: &[&str]) -> String {
-    let output = Command::new(gluon_bin())
-        .args(args)
-        .current_dir(app)
-        .output()
-        .expect("spawn gluon");
-    assert!(
-        !output.status.success(),
-        "gluon {args:?} unexpectedly succeeded\nstdout: {}",
-        String::from_utf8_lossy(&output.stdout)
-    );
-    String::from_utf8_lossy(&output.stderr).into_owned()
-}
-
-/// Feeds 50 `y\n` lines to stdin so the destroy confirmation prompt accepts
-/// the deletions without manual input.
-fn run_gluon_yes(app: &Path, args: &[&str]) {
-    use std::io::Write;
-    let mut child = Command::new(gluon_bin())
-        .args(args)
-        .current_dir(app)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::null())
-        .stderr(Stdio::piped())
-        .spawn()
-        .expect("spawn gluon");
-    if let Some(mut stdin) = child.stdin.take() {
-        for _ in 0..50 {
-            let _ = stdin.write_all(b"y\n");
-        }
-    }
-    let output = child.wait_with_output().expect("wait gluon");
-    assert!(
-        output.status.success(),
-        "gluon {args:?} failed: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
+use common::{
+    fresh_app, gluon_bin, run_cargo_build, run_gluon, run_gluon_expect_failure, run_gluon_yes,
+    workspace_root,
+};
 
 fn run_cargo_check(app: &Path) {
     let output = Command::new("cargo")
@@ -110,35 +31,6 @@ fn run_cargo_check(app: &Path) {
         String::from_utf8_lossy(&output.stdout),
         String::from_utf8_lossy(&output.stderr)
     );
-}
-
-fn run_cargo_build(app: &Path) {
-    let output = Command::new("cargo")
-        .args(["build", "--quiet"])
-        .current_dir(app)
-        .output()
-        .expect("spawn cargo build");
-    assert!(
-        output.status.success(),
-        "cargo build failed in {}\nstdout: {}\nstderr: {}",
-        app.display(),
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
-fn fresh_app(tmp: &Path, name: &str) -> PathBuf {
-    run_gluon(tmp, &["new", name, "--no-git", "--no-install"]);
-    let app = tmp.join(name);
-    fix_paths(&app.join("Cargo.toml"));
-    for relative in [".claude", ".agents", "CLAUDE.md", "AGENTS.md"] {
-        assert!(
-            !app.join(relative).exists(),
-            "plain scaffold unexpectedly contains {relative}"
-        );
-    }
-
-    app
 }
 
 #[test]

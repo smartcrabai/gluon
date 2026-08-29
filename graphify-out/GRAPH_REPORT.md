@@ -1,16 +1,16 @@
-# Graph Report - gluon  (2026-08-25)
+# Graph Report - gluon  (2026-08-29)
 
 ## Corpus Check
-- 116 files · ~39,773 words
+- 117 files · ~39,463 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1043 nodes · 1813 edges · 78 communities (69 shown, 9 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.83)
+- 1019 nodes · 1751 edges · 75 communities (66 shown, 9 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 48 edges (avg confidence: 0.84)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `470dc101`
+- Built from commit: `a95eee97`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -30,27 +30,24 @@
 - gluon application
 - inject.rs
 - BuildError
-- E2E Idempotency Tests
+- fresh_app
 - String
 - Domain Field Parsing
 - new.rs
-- e2e.rs
+- examples.rs
 - Entity Derive Macro
 - Flash Session Messages
 - Redirect Response Helper
 - Result
 - Dev Server File Watcher
-- E2E Destroy Loop Tests
+- git_output
 - scan
 - Mod.rs Insertion Utilities
 - Gluon CLI Skill Docs
 - Review Skills Repo
-- examples.rs
 - Static File Serving Tests
-- Postgres Repository Generation
 - Field Type Validation
 - Entry
-- Postgres DB Lifecycle Test
 - Build Run Command
 - Entity Example Test
 - Release Automation Config
@@ -68,16 +65,16 @@
 - gluon-build
 
 ## God Nodes (most connected - your core abstractions)
-1. `ContainerBuilder` - 20 edges
-2. `validate_identifier()` - 19 edges
-3. `scan()` - 16 edges
-4. `Container` - 16 edges
-5. `AppError` - 16 edges
-6. `serve_with_shutdown()` - 15 edges
-7. `parse_fields()` - 14 edges
-8. `Boot` - 14 edges
-9. `csrf_middleware()` - 14 edges
-10. `PostgresSessionStore` - 14 edges
+1. `fresh_app()` - 21 edges
+2. `ContainerBuilder` - 20 edges
+3. `validate_identifier()` - 19 edges
+4. `scan()` - 16 edges
+5. `Container` - 16 edges
+6. `AppError` - 16 edges
+7. `serve_with_shutdown()` - 15 edges
+8. `parse_fields()` - 14 edges
+9. `Boot` - 14 edges
+10. `csrf_middleware()` - 14 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `build_container()` --references--> `ContainerBuilder`  [EXTRACTED]
@@ -99,11 +96,11 @@
 - **gluon-cli skill + its reference documentation set** — skills_gluon_cli_skill, skills_gluon_cli_references_commands, skills_gluon_cli_references_conventions, skills_gluon_cli_references_environment, skills_gluon_cli_references_limitations, skills_gluon_cli_references_testing, skills_gluon_cli_references_validation, skills_gluon_cli_references_workflows [EXTRACTED 0.90]
 - **Review perspective extraction & consumption ecosystem** — claude_skills_improve_review_from_pr_gap_skill, claude_skills_improve_review_from_session_skill, claude_skills_review_pr_skill, claude_skills_review_uncommitted_skill, dot_review_directory [EXTRACTED 0.90]
 
-## Communities (78 total, 9 thin omitted)
+## Communities (75 total, 9 thin omitted)
 
 ### Community 0 - "ContainerBuilder"
-Cohesion: 0.07
-Nodes (40): Any, Aloha, bind_instance_short_circuits_factory(), bind_same_type_twice_uses_last(), Container, ContainerBuilder, default_builder_builds_empty_container(), factories_see_prior_bindings_during_build() (+32 more)
+Cohesion: 0.05
+Nodes (44): Any, Aloha, bind_instance_short_circuits_factory(), bind_same_type_twice_uses_last(), Container, ContainerBuilder, default_builder_builds_empty_container(), factories_see_prior_bindings_during_build() (+36 more)
 
 ### Community 2 - "boot.rs"
 Cohesion: 0.05
@@ -154,16 +151,16 @@ Cohesion: 0.40
 Nodes (4): CLI, Conventions, gluon application, Verification
 
 ### Community 14 - "inject.rs"
-Cohesion: 0.05
-Nodes (35): empty_parts(), Inject, Inject<T>, resolves_arc_when_bound(), returns_internal_error_when_unbound(), Arc, FromRequestParts, Future (+27 more)
+Cohesion: 0.07
+Nodes (31): empty_parts(), Inject, Inject<T>, resolves_arc_when_bound(), returns_internal_error_when_unbound(), Arc, FromRequestParts, Future (+23 more)
 
 ### Community 15 - "BuildError"
 Cohesion: 0.12
 Nodes (19): BuildError, check_url_collisions(), check_url_collisions_detects_duplicate(), check_url_collisions_detects_group_normalization(), empty_generated(), empty_generated_contains_router_fn(), entry_url_path_delegates_to_url_path_for(), generate_includes_router_call_for_entry() (+11 more)
 
-### Community 16 - "E2E Idempotency Tests"
-Cohesion: 0.26
-Nodes (20): controller_api_flag_skips_tsx(), controller_without_api_creates_both(), db_seed_requires_database_url(), destroy_then_generate_restores_wiring_byte_equal(), destroy_unknown_target_is_idempotent_with_nothing_to_remove(), fix_paths(), fresh_app(), generate_usecase_twice_refuses_overwrite() (+12 more)
+### Community 16 - "fresh_app"
+Cohesion: 0.06
+Nodes (57): ChildGuard, drain_to_void(), fix_paths(), fresh_app(), git_dep(), gluon_bin(), pick_port(), Child (+49 more)
 
 ### Community 17 - "String"
 Cohesion: 0.26
@@ -177,9 +174,9 @@ Nodes (19): extract_value_objects(), generate_domain(), is_value_object_type(), 
 Cohesion: 0.19
 Nodes (21): AgentSupport, copy_skill(), create_skill_symlink(), expand_scaffold(), install_agent_support(), Path, Result, run() (+13 more)
 
-### Community 20 - "e2e.rs"
-Cohesion: 0.09
-Nodes (42): ChildGuard, drain_to_void(), fix_paths(), fresh_app(), gluon_bin(), pick_port(), Child, Client (+34 more)
+### Community 20 - "examples.rs"
+Cohesion: 0.21
+Nodes (20): checked_in_examples_match_their_contracts(), client(), compile_examples(), repository_root(), response_json(), Client, Path, PathBuf (+12 more)
 
 ### Community 21 - "Entity Derive Macro"
 Cohesion: 0.22
@@ -201,9 +198,9 @@ Nodes (19): generate_controller(), generate_dto(), generate_migration(), generat
 Cohesion: 0.20
 Nodes (7): make_event(), Child, Result, run(), should_restart(), spawn_app(), Event
 
-### Community 26 - "E2E Destroy Loop Tests"
-Cohesion: 0.37
-Nodes (13): destroy_resource_cleans_empty_dirs(), fix_paths(), fresh_app(), gluon_bin(), migrations_in_same_second_collide(), Path, PathBuf, String (+5 more)
+### Community 26 - "git_output"
+Cohesion: 0.50
+Nodes (4): git_output(), main(), Option, String
 
 ### Community 27 - "scan"
 Cohesion: 0.29
@@ -221,17 +218,9 @@ Nodes (12): gluon CLI binary, gluon-cli references/commands.md, gluon-cli refere
 Cohesion: 0.36
 Nodes (10): smartcrabai/agent-skills (upstream skills repo), ai-antipattern skill (companion), .claude/skills directory, improve-review-from-pr-gap SKILL.md, improve-review-from-session SKILL.md, review-pr SKILL.md, review-uncommitted SKILL.md, code-review skill (companion) (+2 more)
 
-### Community 31 - "examples.rs"
-Cohesion: 0.21
-Nodes (20): checked_in_examples_match_their_contracts(), client(), compile_examples(), repository_root(), response_json(), Client, Path, PathBuf (+12 more)
-
 ### Community 32 - "Static File Serving Tests"
 Cohesion: 0.39
 Nodes (8): directory_index_disabled(), nonexistent_returns_404(), root_created_after_service_is_available(), Path, TestServer, server_for(), serves_existing_file(), symlink_cannot_escape_public_directory()
-
-### Community 33 - "Postgres Repository Generation"
-Cohesion: 0.39
-Nodes (7): generated_postgres_repository_supports_crud(), gluon_bin(), Option, Path, PathBuf, run(), workspace_root()
 
 ### Community 34 - "Field Type Validation"
 Cohesion: 0.29
@@ -240,10 +229,6 @@ Nodes (7): validate_field_type(), validate_field_type_accepts_box_dyn(), validat
 ### Community 35 - "Entry"
 Cohesion: 0.21
 Nodes (12): BTreeMap, build_mod_tree(), build_mod_tree_merges_page_and_route_at_same_path(), Entry, extract_http_methods(), is_pub_async(), ModNode, ItemFn (+4 more)
-
-### Community 36 - "Postgres DB Lifecycle Test"
-Cohesion: 0.70
-Nodes (4): database_lifecycle_and_seed_work_against_postgres(), gluon_bin(), Path, run_gluon()
 
 ### Community 37 - "Build Run Command"
 Cohesion: 0.67
@@ -278,16 +263,16 @@ Nodes (4): get(), Json, Result, Value
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `serve_with_shutdown()` connect `boot.rs` to `ContainerBuilder`?**
-  _High betweenness centrality (0.047) - this node is a cross-community bridge._
+  _High betweenness centrality (0.054) - this node is a cross-community bridge._
 - **Why does `Container` connect `ContainerBuilder` to `boot.rs`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
-- **Why does `CsrfToken` connect `csrf.rs` to `csrf_middleware.rs`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `PostgresSessionStore` connect `Postgres Session Store` to `boot.rs`?**
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+- **Are the 16 inferred relationships involving `fresh_app()` (e.g. with `destroy_resource_cleans_empty_dirs()` and `migrations_in_same_second_collide()`) actually correct?**
+  _`fresh_app()` has 16 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 5 inferred relationships involving `validate_identifier()` (e.g. with `destroy_domain()` and `destroy_dto()`) actually correct?**
   _`validate_identifier()` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `gluon-build`, `gluon-cli`, `Templates` to the rest of the system?**
   _26 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ContainerBuilder` be split into smaller, more focused modules?**
-  _Cohesion score 0.06654567453115548 - nodes in this community are weakly interconnected._
-- **Should `Value Object Extraction` be split into smaller, more focused modules?**
-  _Cohesion score 0.03571428571428571 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.054274084124830396 - nodes in this community are weakly interconnected._

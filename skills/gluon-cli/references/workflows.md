@@ -8,12 +8,6 @@ Step-by-step procedures for each scenario. For per-command specifications, see [
 gluon new myapp --no-install
 cd myapp
 
-# MVP workaround: fix the path dependencies in the generated Cargo.toml to the actual locations
-sed -i.bak \
-  -e 's|path = "../gluon/crates/gluon-build"|path = "/Users/takumi/apps/gluon/crates/gluon-build"|' \
-  -e 's|path = "../gluon/crates/gluon"|path = "/Users/takumi/apps/gluon/crates/gluon"|' \
-  Cargo.toml && rm Cargo.toml.bak
-
 GLUON_TELEMETRY_DISABLED=1 GLUON_INSECURE_COOKIE=1 cargo run
 # In another shell:
 curl http://localhost:3000/    # 200 + <h1>Hello, gluon</h1>
@@ -79,9 +73,11 @@ cargo build --bin gluon
 cd /tmp && rm -rf myapp
 /Users/takumi/apps/gluon/target/debug/gluon new myapp --no-git --no-install
 cd myapp
-sed -i.bak -e 's|path = "../gluon/crates/gluon-build"|path = "/Users/takumi/apps/gluon/crates/gluon-build"|' \
-           -e 's|path = "../gluon/crates/gluon"|path = "/Users/takumi/apps/gluon/crates/gluon"|' \
-           Cargo.toml && rm Cargo.toml.bak
+# Use local framework crates while testing unpublished CLI/framework changes.
+sed -i.bak -E \
+  -e 's#gluon-build = \{ git = "https://github.com/smartcrabai/gluon", (tag|rev) = "[^"]+" \}#gluon-build = { path = "/Users/takumi/apps/gluon/crates/gluon-build" }#' \
+  -e 's#gluon = \{ git = "https://github.com/smartcrabai/gluon", (tag|rev) = "[^"]+" \}#gluon = { path = "/Users/takumi/apps/gluon/crates/gluon" }#' \
+  Cargo.toml && rm Cargo.toml.bak
 
 # Startup + HTTP check
 GLUON_TELEMETRY_DISABLED=1 GLUON_INSECURE_COOKIE=1 GLUON_BIND=127.0.0.1:13580 cargo run &

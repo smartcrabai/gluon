@@ -787,7 +787,7 @@ dependencies = [
 
 [[package]]
 name = "gluon"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -819,7 +819,7 @@ dependencies = [
 
 [[package]]
 name = "gluon-build"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -829,7 +829,7 @@ dependencies = [
 
 [[package]]
 name = "gluon-macros"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "proc-macro2",
  "quote",

@@ -7,93 +7,9 @@
     clippy::allow_attributes
 )]
 
-use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+mod common;
 
-fn gluon_bin() -> &'static str {
-    env!("CARGO_BIN_EXE_gluon")
-}
-
-fn workspace_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .expect("workspace root")
-}
-
-fn toml_path(path: &Path) -> String {
-    path.to_string_lossy().replace('\\', "/")
-}
-
-fn fix_paths(cargo_toml: &Path) {
-    let root = workspace_root();
-    let gluon_path = root.join("crates/gluon");
-    let build_path = root.join("crates/gluon-build");
-    let content = std::fs::read_to_string(cargo_toml).expect("read Cargo.toml");
-    let fixed = content
-        .replace("../gluon/crates/gluon-build", &toml_path(&build_path))
-        .replace("../gluon/crates/gluon", &toml_path(&gluon_path));
-    std::fs::write(cargo_toml, fixed).expect("write Cargo.toml");
-}
-
-fn run_gluon(app: &Path, args: &[&str]) {
-    let output = Command::new(gluon_bin())
-        .args(args)
-        .current_dir(app)
-        .output()
-        .expect("spawn gluon");
-    assert!(
-        output.status.success(),
-        "gluon {args:?} failed\nstdout: {}\nstderr: {}",
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
-fn run_gluon_expect_failure(app: &Path, args: &[&str]) -> String {
-    let output = Command::new(gluon_bin())
-        .args(args)
-        .current_dir(app)
-        .output()
-        .expect("spawn gluon");
-    assert!(
-        !output.status.success(),
-        "gluon {args:?} unexpectedly succeeded\nstdout: {}",
-        String::from_utf8_lossy(&output.stdout)
-    );
-    String::from_utf8_lossy(&output.stderr).into_owned()
-}
-
-fn run_gluon_yes(app: &Path, args: &[&str]) {
-    use std::io::Write;
-    let mut child = Command::new(gluon_bin())
-        .args(args)
-        .current_dir(app)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .expect("spawn gluon");
-    if let Some(mut stdin) = child.stdin.take() {
-        for _ in 0..50 {
-            let _ = stdin.write_all(b"y\n");
-        }
-    }
-    let output = child.wait_with_output().expect("wait gluon");
-    assert!(
-        output.status.success(),
-        "gluon {args:?} failed: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
-fn fresh_app(tmp: &Path, name: &str) -> PathBuf {
-    run_gluon(tmp, &["new", name, "--no-git", "--no-install"]);
-    let app = tmp.join(name);
-    fix_paths(&app.join("Cargo.toml"));
-    app
-}
+use common::{fresh_app, run_gluon, run_gluon_expect_failure, run_gluon_yes};
 
 #[test]
 fn migrations_in_same_second_collide() {

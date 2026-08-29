@@ -12,35 +12,12 @@
     clippy::allow_attributes
 )]
 
-use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::path::Path;
+use std::process::Command;
 
-fn gluon_bin() -> &'static str {
-    env!("CARGO_BIN_EXE_gluon")
-}
+mod common;
 
-fn workspace_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .expect("workspace root")
-}
-
-fn toml_path(path: &Path) -> String {
-    path.to_string_lossy().replace('\\', "/")
-}
-
-fn fix_paths(cargo_toml: &Path) {
-    let root = workspace_root();
-    let gluon_path = root.join("crates/gluon");
-    let build_path = root.join("crates/gluon-build");
-    let content = std::fs::read_to_string(cargo_toml).expect("read Cargo.toml");
-    let fixed = content
-        .replace("../gluon/crates/gluon-build", &toml_path(&build_path))
-        .replace("../gluon/crates/gluon", &toml_path(&gluon_path));
-    std::fs::write(cargo_toml, fixed).expect("write Cargo.toml");
-}
+use common::{fresh_app, gluon_bin, run_gluon_yes};
 
 fn run_gluon(app: &Path, args: &[&str]) {
     let output = Command::new(gluon_bin())
@@ -78,36 +55,6 @@ fn run_gluon_expect_failure(app: &Path, args: &[&str]) -> String {
         "gluon {args:?} unexpectedly succeeded\nstdout: {stdout}"
     );
     stderr
-}
-
-fn run_gluon_yes(app: &Path, args: &[&str]) {
-    use std::io::Write;
-    let mut child = Command::new(gluon_bin())
-        .args(args)
-        .current_dir(app)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .expect("spawn gluon");
-    if let Some(mut stdin) = child.stdin.take() {
-        for _ in 0..50 {
-            let _ = stdin.write_all(b"y\n");
-        }
-    }
-    let output = child.wait_with_output().expect("wait gluon");
-    assert!(
-        output.status.success(),
-        "gluon {args:?} failed: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
-fn fresh_app(tmp: &Path, name: &str) -> PathBuf {
-    run_gluon(tmp, &["new", name, "--no-git", "--no-install"]);
-    let app = tmp.join(name);
-    fix_paths(&app.join("Cargo.toml"));
-    app
 }
 
 #[test]

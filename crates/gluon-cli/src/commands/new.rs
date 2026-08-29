@@ -2,8 +2,9 @@
 //! templates.
 //!
 //! The implementation walks every embedded asset whose path starts with
-//! `new/`, renders `*.j2` files through minijinja and copies the rest
-//! verbatim into the freshly-created project directory.
+//! `new/`, renders `*.j2` files through minijinja with the project name, CLI
+//! version, and source revision, and copies the rest verbatim into the freshly-created project
+//! directory.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -19,10 +20,7 @@ use crate::templating;
 /// embedded bundle.
 const SCAFFOLD_PREFIX: &str = "new/";
 
-/// Prefix used to identify the embedded agent skill.
-const SKILL_PREFIX: &str = "skill/gluon/";
-
-/// Embedded skill entry copied into root instruction files.
+/// Embedded skill entry used for agent support files and root instruction files.
 const SKILL_FILE: &str = "skill/gluon/SKILL.md";
 
 /// File extension that marks a template that should be processed by minijinja.
@@ -39,7 +37,8 @@ pub(crate) struct AgentSupport {
 /// 1. Create `<name>/` in the current working directory. If it already exists
 ///    we abort with an error rather than overwriting user data.
 /// 2. Expand every embedded asset under `new/` into the new directory,
-///    rendering `*.j2` files with the project name as the template context.
+///    rendering `*.j2` files with the project name, CLI version, and source
+///    revision as the template context.
 /// 3. Optionally add Claude Code and/or agent instructions and skills.
 /// 4. Optionally run `git init` (skipped if `no_git` is set).
 /// 5. Optionally run `cargo fetch` (skipped if `no_install` is set, and
@@ -100,9 +99,14 @@ fn validate_project_name(name: &str) -> Result<()> {
 }
 
 /// Iterate over every embedded asset under `SCAFFOLD_PREFIX` and write the
-/// rendered (or verbatim) output into `project_dir`.
+/// rendered (or verbatim) output into `project_dir`. Templates receive the
+/// project name, CLI version, and source revision as their context.
 fn expand_scaffold(name: &str, project_dir: &Path) -> Result<()> {
-    let ctx = context! { name => name };
+    let ctx = context! {
+        name => name,
+        gluon_version => env!("CARGO_PKG_VERSION"),
+        gluon_revision => option_env!("GLUON_GIT_REV").unwrap_or_default(),
+    };
 
     let mut entries: Vec<String> = Templates::iter()
         .map(std::borrow::Cow::into_owned)
@@ -137,17 +141,16 @@ fn expand_scaffold(name: &str, project_dir: &Path) -> Result<()> {
                 .with_context(|| format!("failed to create directory: {}", parent.display()))?;
         }
 
-        if is_template {
-            let rendered = templating::render(&template_path, &ctx)
-                .with_context(|| format!("failed to render template: {template_path}"))?;
-            fs::write(&output_path, rendered)
-                .with_context(|| format!("failed to write file: {}", output_path.display()))?;
+        let contents = if is_template {
+            templating::render(&template_path, &ctx)
+                .map(String::into_bytes)
+                .with_context(|| format!("failed to render template: {template_path}"))?
         } else {
-            let bytes = templating::read_bytes(&template_path)
-                .with_context(|| format!("failed to read embedded asset: {template_path}"))?;
-            fs::write(&output_path, bytes)
-                .with_context(|| format!("failed to write file: {}", output_path.display()))?;
-        }
+            templating::read_bytes(&template_path)
+                .with_context(|| format!("failed to read embedded asset: {template_path}"))?
+        };
+        fs::write(&output_path, contents)
+            .with_context(|| format!("failed to write file: {}", output_path.display()))?;
     }
 
     Ok(())
@@ -159,15 +162,14 @@ fn install_agent_support(project_dir: &Path, claude: bool, agents: bool) -> Resu
         return Ok(());
     }
 
+    let skill = templating::read_bytes(SKILL_FILE)
+        .with_context(|| format!("failed to read embedded skill: {SKILL_FILE}"))?;
     let skill_dir = if agents {
         project_dir.join(".agents/skills/gluon")
     } else {
         project_dir.join(".claude/skills/gluon")
     };
-    copy_skill(&skill_dir)?;
-
-    let skill = templating::read_bytes(SKILL_FILE)
-        .with_context(|| format!("failed to read embedded skill: {SKILL_FILE}"))?;
+    copy_skill(&skill_dir, &skill)?;
     if agents {
         fs::write(project_dir.join("AGENTS.md"), &skill).context("failed to write AGENTS.md")?;
     }
@@ -182,7 +184,7 @@ fn install_agent_support(project_dir: &Path, claude: bool, agents: bool) -> Resu
 
             #[cfg(windows)]
             // Directory symlinks require Developer Mode or elevation on Windows.
-            copy_skill(&link)?;
+            copy_skill(&link, &skill)?;
 
             #[cfg(not(windows))]
             if let Err(error) = create_skill_symlink(Path::new("../../.agents/skills/gluon"), &link)
@@ -191,7 +193,7 @@ fn install_agent_support(project_dir: &Path, claude: bool, agents: bool) -> Resu
                     "warning: failed to link {}; copying skill instead: {error}",
                     link.display()
                 );
-                copy_skill(&link)?;
+                copy_skill(&link, &skill)?;
             }
 
             fs::write(project_dir.join("CLAUDE.md"), "@AGENTS.md\n")
@@ -204,35 +206,13 @@ fn install_agent_support(project_dir: &Path, claude: bool, agents: bool) -> Resu
     Ok(())
 }
 
-/// Copy every embedded file under `skill/gluon/` to `skill_dir`.
-fn copy_skill(skill_dir: &Path) -> Result<()> {
-    let mut entries: Vec<String> = Templates::iter()
-        .map(std::borrow::Cow::into_owned)
-        .filter(|path| path.starts_with(SKILL_PREFIX))
-        .collect();
-    entries.sort();
-
-    if entries.is_empty() {
-        return Err(anyhow!(
-            "no gluon skill found under `{SKILL_PREFIX}` in the embedded bundle"
-        ));
-    }
-
-    for template_path in entries {
-        let relative = template_path
-            .strip_prefix(SKILL_PREFIX)
-            .ok_or_else(|| anyhow!("unexpected skill path: {template_path}"))?;
-        let output_path = skill_dir.join(relative);
-        if let Some(parent) = output_path.parent() {
-            fs::create_dir_all(parent)
-                .with_context(|| format!("failed to create directory: {}", parent.display()))?;
-        }
-        let bytes = templating::read_bytes(&template_path)
-            .with_context(|| format!("failed to read embedded skill: {template_path}"))?;
-        fs::write(&output_path, bytes)
-            .with_context(|| format!("failed to write file: {}", output_path.display()))?;
-    }
-
+/// Copy the embedded skill to `skill_dir`.
+fn copy_skill(skill_dir: &Path, skill: &[u8]) -> Result<()> {
+    fs::create_dir_all(skill_dir)
+        .with_context(|| format!("failed to create directory: {}", skill_dir.display()))?;
+    let output_path = skill_dir.join("SKILL.md");
+    fs::write(&output_path, skill)
+        .with_context(|| format!("failed to write file: {}", output_path.display()))?;
     Ok(())
 }
 

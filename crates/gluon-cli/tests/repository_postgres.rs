@@ -5,23 +5,15 @@
     clippy::too_many_lines
 )]
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::Command;
+
+mod common;
+
+use common::{fresh_app, gluon_bin};
 
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::runners::AsyncRunner;
-
-fn gluon_bin() -> &'static str {
-    env!("CARGO_BIN_EXE_gluon")
-}
-
-fn workspace_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .unwrap()
-        .to_path_buf()
-}
 
 fn run(root: &Path, program: &str, args: &[&str], database_url: Option<&str>) {
     let mut command = Command::new(program);
@@ -47,28 +39,7 @@ async fn generated_postgres_repository_supports_crud() {
         .expect("postgres port");
     let database_url = format!("postgres://postgres:postgres@127.0.0.1:{port}/postgres");
     let temp = tempfile::tempdir().expect("tempdir");
-    run(
-        temp.path(),
-        gluon_bin(),
-        &["new", "repo_app", "--no-git", "--no-install"],
-        None,
-    );
-    let app = temp.path().join("repo_app");
-    let cargo_toml = app.join("Cargo.toml");
-    let content = std::fs::read_to_string(&cargo_toml).unwrap();
-    let root = workspace_root();
-    let build_path = root.join("crates/gluon-build");
-    let gluon_path = root.join("crates/gluon");
-    let content = content
-        .replace(
-            "../gluon/crates/gluon-build",
-            &build_path.to_string_lossy().replace('\\', "/"),
-        )
-        .replace(
-            "../gluon/crates/gluon",
-            &gluon_path.to_string_lossy().replace('\\', "/"),
-        );
-    std::fs::write(&cargo_toml, content).unwrap();
+    let app = fresh_app(temp.path(), "repo_app");
     run(
         &app,
         gluon_bin(),

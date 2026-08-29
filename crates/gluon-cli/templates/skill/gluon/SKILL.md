@@ -26,7 +26,7 @@ gluon dev | gluon build | gluon run [--release] | gluon routes
 
 - `src/wiring.rs` and each generated layer `mod.rs` contain machine-edited marker regions. Preserve the markers.
 - `gluon g domain` does not create a migration; create one separately with `gluon g migration`.
-- Generated `Cargo.toml` path dependencies point at the local gluon workspace and may need adjustment outside this repository.
+- Generated `Cargo.toml` dependencies use the GitHub repository and are pinned to the exact framework revision used to build the CLI, or to the matching `v<version>` tag when Git metadata is unavailable. For local framework development, rewrite them to local paths.
 - In zsh, quote routes containing bracket segments, for example `gluon g controller 'users/[id]'`.
 
 ## Verification
