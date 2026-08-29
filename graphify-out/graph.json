@@ -680,6 +680,105 @@
       "source_location": "L31"
     },
     {
+      "id": "crates_gluon_tests_testing_dogfood",
+      "label": "testing_dogfood.rs",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "ContainerBuilder",
+      "file_type": "code",
+      "norm_label": "testing_dogfood.rs",
+      "source_file": "crates/gluon/tests/testing_dogfood.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "crates_gluon_tests_testing_dogfood_container_helper_returns_empty_builder",
+      "label": "container_helper_returns_empty_builder()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "ContainerBuilder",
+      "file_type": "code",
+      "norm_label": "container_helper_returns_empty_builder()",
+      "source_file": "crates/gluon/tests/testing_dogfood.rs",
+      "source_location": "L27"
+    },
+    {
+      "id": "crates_gluon_tests_testing_dogfood_missing_dependency",
+      "label": "missing_dependency()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "ContainerBuilder",
+      "file_type": "code",
+      "norm_label": "missing_dependency()",
+      "source_file": "crates/gluon/tests/testing_dogfood.rs",
+      "source_location": "L35"
+    },
+    {
+      "id": "crates_gluon_tests_testing_dogfood_missing_injected_binding_returns_500_without_panicking",
+      "label": "missing_injected_binding_returns_500_without_panicking()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "ContainerBuilder",
+      "file_type": "code",
+      "norm_label": "missing_injected_binding_returns_500_without_panicking()",
+      "source_file": "crates/gluon/tests/testing_dogfood.rs",
+      "source_location": "L40"
+    },
+    {
+      "id": "crates_gluon_tests_testing_dogfood_missingdependency",
+      "label": "MissingDependency",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "ContainerBuilder",
+      "file_type": "code",
+      "norm_label": "missingdependency",
+      "source_file": "crates/gluon/tests/testing_dogfood.rs",
+      "source_location": "L33"
+    },
+    {
+      "id": "crates_gluon_tests_testing_dogfood_ping",
+      "label": "ping()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "ContainerBuilder",
+      "file_type": "code",
+      "norm_label": "ping()",
+      "source_file": "crates/gluon/tests/testing_dogfood.rs",
+      "source_location": "L11"
+    },
+    {
+      "id": "crates_gluon_tests_testing_dogfood_rs_send",
+      "label": "Send",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "ContainerBuilder",
+      "file_type": "code",
+      "norm_label": "send",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_tests_testing_dogfood_rs_sync",
+      "label": "Sync",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "ContainerBuilder",
+      "file_type": "code",
+      "norm_label": "sync",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_tests_testing_dogfood_test_client_serves_basic_route",
+      "label": "test_client_serves_basic_route()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "ContainerBuilder",
+      "file_type": "code",
+      "norm_label": "test_client_serves_basic_route()",
+      "source_file": "crates/gluon/tests/testing_dogfood.rs",
+      "source_location": "L16"
+    },
+    {
       "id": "examples_api_src_wiring",
       "label": "api/src/wiring.rs",
       "_origin": "ast",
@@ -2403,105 +2502,6 @@
       "source_location": "L45"
     },
     {
-      "id": "crates_gluon_tests_testing_dogfood",
-      "label": "testing_dogfood.rs",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "inject.rs",
-      "file_type": "code",
-      "norm_label": "testing_dogfood.rs",
-      "source_file": "crates/gluon/tests/testing_dogfood.rs",
-      "source_location": "L1"
-    },
-    {
-      "id": "crates_gluon_tests_testing_dogfood_container_helper_returns_empty_builder",
-      "label": "container_helper_returns_empty_builder()",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "inject.rs",
-      "file_type": "code",
-      "norm_label": "container_helper_returns_empty_builder()",
-      "source_file": "crates/gluon/tests/testing_dogfood.rs",
-      "source_location": "L27"
-    },
-    {
-      "id": "crates_gluon_tests_testing_dogfood_missing_dependency",
-      "label": "missing_dependency()",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "inject.rs",
-      "file_type": "code",
-      "norm_label": "missing_dependency()",
-      "source_file": "crates/gluon/tests/testing_dogfood.rs",
-      "source_location": "L35"
-    },
-    {
-      "id": "crates_gluon_tests_testing_dogfood_missing_injected_binding_returns_500_without_panicking",
-      "label": "missing_injected_binding_returns_500_without_panicking()",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "inject.rs",
-      "file_type": "code",
-      "norm_label": "missing_injected_binding_returns_500_without_panicking()",
-      "source_file": "crates/gluon/tests/testing_dogfood.rs",
-      "source_location": "L40"
-    },
-    {
-      "id": "crates_gluon_tests_testing_dogfood_missingdependency",
-      "label": "MissingDependency",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "inject.rs",
-      "file_type": "code",
-      "norm_label": "missingdependency",
-      "source_file": "crates/gluon/tests/testing_dogfood.rs",
-      "source_location": "L33"
-    },
-    {
-      "id": "crates_gluon_tests_testing_dogfood_ping",
-      "label": "ping()",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "inject.rs",
-      "file_type": "code",
-      "norm_label": "ping()",
-      "source_file": "crates/gluon/tests/testing_dogfood.rs",
-      "source_location": "L11"
-    },
-    {
-      "id": "crates_gluon_tests_testing_dogfood_rs_send",
-      "label": "Send",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "inject.rs",
-      "file_type": "code",
-      "norm_label": "send",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_tests_testing_dogfood_rs_sync",
-      "label": "Sync",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "inject.rs",
-      "file_type": "code",
-      "norm_label": "sync",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_tests_testing_dogfood_test_client_serves_basic_route",
-      "label": "test_client_serves_basic_route()",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "inject.rs",
-      "file_type": "code",
-      "norm_label": "test_client_serves_basic_route()",
-      "source_file": "crates/gluon/tests/testing_dogfood.rs",
-      "source_location": "L16"
-    },
-    {
       "id": "examples_di_app_greet_name_route",
       "label": "[name]/route.rs",
       "_origin": "ast",
@@ -2909,11 +2909,418 @@
       "source_location": "L1062"
     },
     {
+      "id": "crates_gluon_cli_tests_common_mod",
+      "label": "common/mod.rs",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "common/mod.rs",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_childguard",
+      "label": "ChildGuard",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "childguard",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L176"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_childguard_drop",
+      "label": ".drop()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": ".drop()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L193"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_childguard_new",
+      "label": ".new()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": ".new()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L179"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_childguard_try_wait",
+      "label": ".try_wait()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": ".try_wait()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L184"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_drain_to_void",
+      "label": "drain_to_void()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "drain_to_void()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L168"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_fix_paths",
+      "label": "fix_paths()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "fix_paths()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L37"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "label": "fresh_app()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "fresh_app()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L74"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_git_dep",
+      "label": "git_dep()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "git_dep()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L30"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_gluon_bin",
+      "label": "gluon_bin()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "gluon_bin()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L12"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_pick_port",
+      "label": "pick_port()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "pick_port()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L161"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_rs_child",
+      "label": "Child",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "child",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_rs_client",
+      "label": "Client",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "client",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_rs_option",
+      "label": "Option",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "option",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_rs_path",
+      "label": "Path",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_rs_pathbuf",
+      "label": "PathBuf",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "pathbuf",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_rs_result",
+      "label": "Result",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "result",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_rs_self",
+      "label": "Self",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "self",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_rs_string",
+      "label": "String",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "string",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_run_cargo_build",
+      "label": "run_cargo_build()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "run_cargo_build()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L123"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_run_gluon",
+      "label": "run_gluon()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "run_gluon()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L60"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_run_gluon_expect_failure",
+      "label": "run_gluon_expect_failure()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "run_gluon_expect_failure()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L88"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_run_gluon_yes",
+      "label": "run_gluon_yes()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "run_gluon_yes()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L102"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_toml_path",
+      "label": "toml_path()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "toml_path()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L24"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_wait_until_ready",
+      "label": "wait_until_ready()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "wait_until_ready()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L138"
+    },
+    {
+      "id": "crates_gluon_cli_tests_common_mod_workspace_root",
+      "label": "workspace_root()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "workspace_root()",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L16"
+    },
+    {
+      "id": "crates_gluon_cli_tests_db_postgres",
+      "label": "db_postgres.rs",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "db_postgres.rs",
+      "source_file": "crates/gluon-cli/tests/db_postgres.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "crates_gluon_cli_tests_db_postgres_database_lifecycle_and_seed_work_against_postgres",
+      "label": "database_lifecycle_and_seed_work_against_postgres()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "database_lifecycle_and_seed_work_against_postgres()",
+      "source_file": "crates/gluon-cli/tests/db_postgres.rs",
+      "source_location": "L30"
+    },
+    {
+      "id": "crates_gluon_cli_tests_db_postgres_gluon_bin",
+      "label": "gluon_bin()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "gluon_bin()",
+      "source_file": "crates/gluon-cli/tests/db_postgres.rs",
+      "source_location": "L10"
+    },
+    {
+      "id": "crates_gluon_cli_tests_db_postgres_rs_path",
+      "label": "Path",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_db_postgres_run_gluon",
+      "label": "run_gluon()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "run_gluon()",
+      "source_file": "crates/gluon-cli/tests/db_postgres.rs",
+      "source_location": "L14"
+    },
+    {
+      "id": "crates_gluon_cli_tests_e2e",
+      "label": "e2e.rs",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "e2e.rs",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "crates_gluon_cli_tests_e2e_destroy_loop",
+      "label": "e2e_destroy_loop.rs",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "e2e_destroy_loop.rs",
+      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "crates_gluon_cli_tests_e2e_destroy_loop_destroy_resource_cleans_empty_dirs",
+      "label": "destroy_resource_cleans_empty_dirs()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "destroy_resource_cleans_empty_dirs()",
+      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
+      "source_location": "L27"
+    },
+    {
+      "id": "crates_gluon_cli_tests_e2e_destroy_loop_migrations_in_same_second_collide",
+      "label": "migrations_in_same_second_collide()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "migrations_in_same_second_collide()",
+      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
+      "source_location": "L15"
+    },
+    {
+      "id": "crates_gluon_cli_tests_e2e_destroy_migration_uses_exact_match",
+      "label": "destroy_migration_uses_exact_match()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "destroy_migration_uses_exact_match()",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L256"
+    },
+    {
+      "id": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
+      "label": "full_lifecycle_builds_after_each_generate()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "full_lifecycle_builds_after_each_generate()",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L114"
+    },
+    {
       "id": "crates_gluon_cli_tests_e2e_idempotency",
       "label": "e2e_idempotency.rs",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "e2e_idempotency.rs",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
@@ -2924,141 +3331,97 @@
       "label": "controller_api_flag_skips_tsx()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "controller_api_flag_skips_tsx()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L161"
+      "source_location": "L108"
     },
     {
       "id": "crates_gluon_cli_tests_e2e_idempotency_controller_without_api_creates_both",
       "label": "controller_without_api_creates_both()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "controller_without_api_creates_both()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L172"
+      "source_location": "L119"
     },
     {
       "id": "crates_gluon_cli_tests_e2e_idempotency_db_seed_requires_database_url",
       "label": "db_seed_requires_database_url()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "db_seed_requires_database_url()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L202"
+      "source_location": "L149"
     },
     {
       "id": "crates_gluon_cli_tests_e2e_idempotency_destroy_then_generate_restores_wiring_byte_equal",
       "label": "destroy_then_generate_restores_wiring_byte_equal()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "destroy_then_generate_restores_wiring_byte_equal()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L124"
+      "source_location": "L71"
     },
     {
       "id": "crates_gluon_cli_tests_e2e_idempotency_destroy_unknown_target_is_idempotent_with_nothing_to_remove",
       "label": "destroy_unknown_target_is_idempotent_with_nothing_to_remove()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "destroy_unknown_target_is_idempotent_with_nothing_to_remove()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L214"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_idempotency_fix_paths",
-      "label": "fix_paths()",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "E2E Idempotency Tests",
-      "file_type": "code",
-      "norm_label": "fix_paths()",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L34"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "label": "fresh_app()",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "E2E Idempotency Tests",
-      "file_type": "code",
-      "norm_label": "fresh_app()",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L106"
+      "source_location": "L161"
     },
     {
       "id": "crates_gluon_cli_tests_e2e_idempotency_generate_usecase_twice_refuses_overwrite",
       "label": "generate_usecase_twice_refuses_overwrite()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "generate_usecase_twice_refuses_overwrite()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L114"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_idempotency_gluon_bin",
-      "label": "gluon_bin()",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "E2E Idempotency Tests",
-      "file_type": "code",
-      "norm_label": "gluon_bin()",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L18"
+      "source_location": "L61"
     },
     {
       "id": "crates_gluon_cli_tests_e2e_idempotency_new_no_install_skips_cargo_lock",
       "label": "new_no_install_skips_cargo_lock()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "new_no_install_skips_cargo_lock()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L183"
+      "source_location": "L130"
     },
     {
       "id": "crates_gluon_cli_tests_e2e_idempotency_routes_with_no_app_dir_fails",
       "label": "routes_with_no_app_dir_fails()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "routes_with_no_app_dir_fails()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L192"
+      "source_location": "L139"
     },
     {
       "id": "crates_gluon_cli_tests_e2e_idempotency_rs_path",
       "label": "Path",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_idempotency_rs_pathbuf",
-      "label": "PathBuf",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "E2E Idempotency Tests",
-      "file_type": "code",
-      "norm_label": "pathbuf",
       "source_file": "",
       "source_location": ""
     },
@@ -3067,7 +3430,7 @@
       "label": "String",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "string",
       "source_file": "",
@@ -3078,66 +3441,220 @@
       "label": "run_gluon()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "run_gluon()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L45"
+      "source_location": "L22"
     },
     {
       "id": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_capture",
       "label": "run_gluon_capture()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "run_gluon_capture()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L60"
+      "source_location": "L37"
     },
     {
       "id": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_expect_failure",
       "label": "run_gluon_expect_failure()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
       "norm_label": "run_gluon_expect_failure()",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L74"
+      "source_location": "L51"
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_yes",
-      "label": "run_gluon_yes()",
+      "id": "crates_gluon_cli_tests_e2e_new_agent_flags_install_expected_files",
+      "label": "new_agent_flags_install_expected_files()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
-      "norm_label": "run_gluon_yes()",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L83"
+      "norm_label": "new_agent_flags_install_expected_files()",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L37"
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_idempotency_toml_path",
-      "label": "toml_path()",
+      "id": "crates_gluon_cli_tests_e2e_routes_command_lists_generated_routes",
+      "label": "routes_command_lists_generated_routes()",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
-      "norm_label": "toml_path()",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L30"
+      "norm_label": "routes_command_lists_generated_routes()",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L279"
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_idempotency_workspace_root",
-      "label": "workspace_root()",
+      "id": "crates_gluon_cli_tests_e2e_rs_path",
+      "label": "Path",
       "_origin": "ast",
       "community": 16,
-      "community_name": "E2E Idempotency Tests",
+      "community_name": "fresh_app",
       "file_type": "code",
-      "norm_label": "workspace_root()",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L22"
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_e2e_run_cargo_check",
+      "label": "run_cargo_check()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "run_cargo_check()",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L21"
+    },
+    {
+      "id": "crates_gluon_cli_tests_e2e_validation_rejects_unsafe_inputs",
+      "label": "validation_rejects_unsafe_inputs()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "validation_rejects_unsafe_inputs()",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L232"
+    },
+    {
+      "id": "crates_gluon_cli_tests_http_csrf",
+      "label": "http_csrf.rs",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "http_csrf.rs",
+      "source_file": "crates/gluon-cli/tests/http_csrf.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "crates_gluon_cli_tests_http_csrf_csrf_blocks_state_changing_without_token",
+      "label": "csrf_blocks_state_changing_without_token()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "csrf_blocks_state_changing_without_token()",
+      "source_file": "crates/gluon-cli/tests/http_csrf.rs",
+      "source_location": "L19"
+    },
+    {
+      "id": "crates_gluon_cli_tests_http_smoke",
+      "label": "http_smoke.rs",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "http_smoke.rs",
+      "source_file": "crates/gluon-cli/tests/http_smoke.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "crates_gluon_cli_tests_http_smoke_http_smoke_serves_basic_routes",
+      "label": "http_smoke_serves_basic_routes()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "http_smoke_serves_basic_routes()",
+      "source_file": "crates/gluon-cli/tests/http_smoke.rs",
+      "source_location": "L19"
+    },
+    {
+      "id": "crates_gluon_cli_tests_repository_postgres",
+      "label": "repository_postgres.rs",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "repository_postgres.rs",
+      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "crates_gluon_cli_tests_repository_postgres_generated_postgres_repository_supports_crud",
+      "label": "generated_postgres_repository_supports_crud()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "generated_postgres_repository_supports_crud()",
+      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
+      "source_location": "L34"
+    },
+    {
+      "id": "crates_gluon_cli_tests_repository_postgres_rs_option",
+      "label": "Option",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "option",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_repository_postgres_rs_path",
+      "label": "Path",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_repository_postgres_run",
+      "label": "run()",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "run()",
+      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
+      "source_location": "L18"
+    },
+    {
+      "id": "drop",
+      "label": "Drop",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "drop",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "exitstatus",
+      "label": "ExitStatus",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "exitstatus",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "r",
+      "label": "R",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "fresh_app",
+      "file_type": "code",
+      "norm_label": "r",
+      "source_file": "",
+      "source_location": ""
     },
     {
       "id": "crates_gluon_build_src_lib_emit_mod_tree",
@@ -3522,7 +4039,7 @@
       "file_type": "code",
       "norm_label": "agentsupport",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L34"
+      "source_location": "L32"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_copy_skill",
@@ -3533,7 +4050,7 @@
       "file_type": "code",
       "norm_label": "copy_skill()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L208"
+      "source_location": "L210"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_create_skill_symlink",
@@ -3544,7 +4061,7 @@
       "file_type": "code",
       "norm_label": "create_skill_symlink()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L240"
+      "source_location": "L220"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_expand_scaffold",
@@ -3566,7 +4083,7 @@
       "file_type": "code",
       "norm_label": "install_agent_support()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L157"
+      "source_location": "L160"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_rs_path",
@@ -3599,7 +4116,7 @@
       "file_type": "code",
       "norm_label": "run()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L53"
+      "source_location": "L52"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_run_cargo_fetch",
@@ -3610,7 +4127,7 @@
       "file_type": "code",
       "norm_label": "run_cargo_fetch()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L269"
+      "source_location": "L249"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_run_git_init",
@@ -3621,7 +4138,7 @@
       "file_type": "code",
       "norm_label": "run_git_init()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L255"
+      "source_location": "L235"
     },
     {
       "id": "crates_gluon_cli_src_commands_new_validate_project_name",
@@ -3632,7 +4149,7 @@
       "file_type": "code",
       "norm_label": "validate_project_name()",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L89"
+      "source_location": "L88"
     },
     {
       "id": "crates_gluon_cli_src_templating",
@@ -4504,543 +5021,235 @@
       "source_location": ""
     },
     {
-      "id": "crates_gluon_cli_tests_common_mod",
-      "label": "common/mod.rs",
+      "id": "crates_gluon_cli_tests_examples",
+      "label": "examples.rs",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
-      "norm_label": "common/mod.rs",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "norm_label": "examples.rs",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
       "source_location": "L1"
     },
     {
-      "id": "crates_gluon_cli_tests_common_mod_childguard",
-      "label": "ChildGuard",
+      "id": "crates_gluon_cli_tests_examples_checked_in_examples_match_their_contracts",
+      "label": "checked_in_examples_match_their_contracts()",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
-      "norm_label": "childguard",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L113"
+      "norm_label": "checked_in_examples_match_their_contracts()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L345"
     },
     {
-      "id": "crates_gluon_cli_tests_common_mod_childguard_drop",
-      "label": ".drop()",
+      "id": "crates_gluon_cli_tests_examples_client",
+      "label": "client()",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
-      "norm_label": ".drop()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L130"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_childguard_new",
-      "label": ".new()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": ".new()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L116"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_childguard_try_wait",
-      "label": ".try_wait()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": ".try_wait()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L121"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_drain_to_void",
-      "label": "drain_to_void()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "drain_to_void()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L105"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_fix_paths",
-      "label": "fix_paths()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "fix_paths()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L28"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_fresh_app",
-      "label": "fresh_app()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "fresh_app()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L53"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_gluon_bin",
-      "label": "gluon_bin()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "gluon_bin()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L12"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_pick_port",
-      "label": "pick_port()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "pick_port()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "norm_label": "client()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
       "source_location": "L98"
     },
     {
-      "id": "crates_gluon_cli_tests_common_mod_rs_child",
-      "label": "Child",
+      "id": "crates_gluon_cli_tests_examples_compile_examples",
+      "label": "compile_examples()",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
-      "norm_label": "child",
-      "source_file": "",
-      "source_location": ""
+      "norm_label": "compile_examples()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L25"
     },
     {
-      "id": "crates_gluon_cli_tests_common_mod_rs_client",
+      "id": "crates_gluon_cli_tests_examples_repository_root",
+      "label": "repository_root()",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "examples.rs",
+      "file_type": "code",
+      "norm_label": "repository_root()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L17"
+    },
+    {
+      "id": "crates_gluon_cli_tests_examples_response_json",
+      "label": "response_json()",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "examples.rs",
+      "file_type": "code",
+      "norm_label": "response_json()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L106"
+    },
+    {
+      "id": "crates_gluon_cli_tests_examples_rs_client",
       "label": "Client",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
       "norm_label": "client",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "crates_gluon_cli_tests_common_mod_rs_option",
-      "label": "Option",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "option",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_rs_path",
+      "id": "crates_gluon_cli_tests_examples_rs_path",
       "label": "Path",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
       "norm_label": "path",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "crates_gluon_cli_tests_common_mod_rs_pathbuf",
+      "id": "crates_gluon_cli_tests_examples_rs_pathbuf",
       "label": "PathBuf",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
       "norm_label": "pathbuf",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "crates_gluon_cli_tests_common_mod_rs_result",
+      "id": "crates_gluon_cli_tests_examples_rs_response",
+      "label": "Response",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "examples.rs",
+      "file_type": "code",
+      "norm_label": "response",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "crates_gluon_cli_tests_examples_rs_result",
       "label": "Result",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
       "norm_label": "result",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "crates_gluon_cli_tests_common_mod_rs_self",
-      "label": "Self",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "self",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_rs_string",
+      "id": "crates_gluon_cli_tests_examples_rs_string",
       "label": "String",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
       "norm_label": "string",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "crates_gluon_cli_tests_common_mod_run_cargo_build",
-      "label": "run_cargo_build()",
+      "id": "crates_gluon_cli_tests_examples_rs_value",
+      "label": "Value",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
-      "norm_label": "run_cargo_build()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L60"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_run_gluon",
-      "label": "run_gluon()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "run_gluon()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L39"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_toml_path",
-      "label": "toml_path()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "toml_path()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L24"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_wait_until_ready",
-      "label": "wait_until_ready()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "wait_until_ready()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L75"
-    },
-    {
-      "id": "crates_gluon_cli_tests_common_mod_workspace_root",
-      "label": "workspace_root()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "workspace_root()",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L16"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e",
-      "label": "e2e.rs",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "e2e.rs",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L1"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_destroy_migration_uses_exact_match",
-      "label": "destroy_migration_uses_exact_match()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "destroy_migration_uses_exact_match()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L364"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_fix_paths",
-      "label": "fix_paths()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "fix_paths()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L36"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_fresh_app",
-      "label": "fresh_app()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "fresh_app()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L130"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
-      "label": "full_lifecycle_builds_after_each_generate()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "full_lifecycle_builds_after_each_generate()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L222"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_gluon_bin",
-      "label": "gluon_bin()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "gluon_bin()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L16"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_new_agent_flags_install_expected_files",
-      "label": "new_agent_flags_install_expected_files()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "new_agent_flags_install_expected_files()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L145"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_routes_command_lists_generated_routes",
-      "label": "routes_command_lists_generated_routes()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "routes_command_lists_generated_routes()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L387"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_rs_path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "path",
+      "norm_label": "value",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_rs_pathbuf",
-      "label": "PathBuf",
+      "id": "crates_gluon_cli_tests_examples_run_api",
+      "label": "run_api()",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
-      "norm_label": "pathbuf",
-      "source_file": "",
-      "source_location": ""
+      "norm_label": "run_api()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L184"
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_rs_string",
-      "label": "String",
+      "id": "crates_gluon_cli_tests_examples_run_di",
+      "label": "run_di()",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
-      "norm_label": "string",
-      "source_file": "",
-      "source_location": ""
+      "norm_label": "run_di()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L329"
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_run_cargo_build",
-      "label": "run_cargo_build()",
+      "id": "crates_gluon_cli_tests_examples_run_htmx",
+      "label": "run_htmx()",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
-      "norm_label": "run_cargo_build()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "norm_label": "run_htmx()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L284"
+    },
+    {
+      "id": "crates_gluon_cli_tests_examples_run_pages",
+      "label": "run_pages()",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "examples.rs",
+      "file_type": "code",
+      "norm_label": "run_pages()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L142"
+    },
+    {
+      "id": "crates_gluon_cli_tests_examples_run_sessions",
+      "label": "run_sessions()",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "examples.rs",
+      "file_type": "code",
+      "norm_label": "run_sessions()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L225"
+    },
+    {
+      "id": "crates_gluon_cli_tests_examples_spawn_example",
+      "label": "spawn_example()",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "examples.rs",
+      "file_type": "code",
+      "norm_label": "spawn_example()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L43"
+    },
+    {
+      "id": "crates_gluon_cli_tests_examples_spawn_ready",
+      "label": "spawn_ready()",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "examples.rs",
+      "file_type": "code",
+      "norm_label": "spawn_ready()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
       "source_location": "L115"
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_run_cargo_check",
-      "label": "run_cargo_check()",
+      "id": "crates_gluon_cli_tests_examples_try_wait_until_ready",
+      "label": "try_wait_until_ready()",
       "_origin": "ast",
       "community": 20,
-      "community_name": "e2e.rs",
+      "community_name": "examples.rs",
       "file_type": "code",
-      "norm_label": "run_cargo_check()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L100"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_run_gluon",
-      "label": "run_gluon()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "run_gluon()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L47"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_run_gluon_expect_failure",
-      "label": "run_gluon_expect_failure()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "run_gluon_expect_failure()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L61"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_run_gluon_yes",
-      "label": "run_gluon_yes()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "run_gluon_yes()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L77"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_toml_path",
-      "label": "toml_path()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "toml_path()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L29"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_validation_rejects_unsafe_inputs",
-      "label": "validation_rejects_unsafe_inputs()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "validation_rejects_unsafe_inputs()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L340"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_workspace_root",
-      "label": "workspace_root()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "workspace_root()",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L21"
-    },
-    {
-      "id": "crates_gluon_cli_tests_http_csrf",
-      "label": "http_csrf.rs",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "http_csrf.rs",
-      "source_file": "crates/gluon-cli/tests/http_csrf.rs",
-      "source_location": "L1"
-    },
-    {
-      "id": "crates_gluon_cli_tests_http_csrf_csrf_blocks_state_changing_without_token",
-      "label": "csrf_blocks_state_changing_without_token()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "csrf_blocks_state_changing_without_token()",
-      "source_file": "crates/gluon-cli/tests/http_csrf.rs",
-      "source_location": "L19"
-    },
-    {
-      "id": "crates_gluon_cli_tests_http_smoke",
-      "label": "http_smoke.rs",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "http_smoke.rs",
-      "source_file": "crates/gluon-cli/tests/http_smoke.rs",
-      "source_location": "L1"
-    },
-    {
-      "id": "crates_gluon_cli_tests_http_smoke_http_smoke_serves_basic_routes",
-      "label": "http_smoke_serves_basic_routes()",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "http_smoke_serves_basic_routes()",
-      "source_file": "crates/gluon-cli/tests/http_smoke.rs",
-      "source_location": "L19"
-    },
-    {
-      "id": "drop",
-      "label": "Drop",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "drop",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "exitstatus",
-      "label": "ExitStatus",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "exitstatus",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "r",
-      "label": "R",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "e2e.rs",
-      "file_type": "code",
-      "norm_label": "r",
-      "source_file": "",
-      "source_location": ""
+      "norm_label": "try_wait_until_ready()",
+      "source_file": "crates/gluon-cli/tests/examples.rs",
+      "source_location": "L73"
     },
     {
       "id": "crates_gluon_macros_src_lib",
@@ -6000,158 +6209,59 @@
       "source_location": ""
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "label": "e2e_destroy_loop.rs",
+      "id": "crates_gluon_cli_build",
+      "label": "gluon-cli/build.rs",
       "_origin": "ast",
       "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
+      "community_name": "git_output",
       "file_type": "code",
-      "norm_label": "e2e_destroy_loop.rs",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
+      "norm_label": "gluon-cli/build.rs",
+      "source_file": "crates/gluon-cli/build.rs",
       "source_location": "L1"
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_destroy_resource_cleans_empty_dirs",
-      "label": "destroy_resource_cleans_empty_dirs()",
+      "id": "crates_gluon_cli_build_git_output",
+      "label": "git_output()",
       "_origin": "ast",
       "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
+      "community_name": "git_output",
       "file_type": "code",
-      "norm_label": "destroy_resource_cleans_empty_dirs()",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L111"
+      "norm_label": "git_output()",
+      "source_file": "crates/gluon-cli/build.rs",
+      "source_location": "L3"
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_fix_paths",
-      "label": "fix_paths()",
+      "id": "crates_gluon_cli_build_main",
+      "label": "main()",
       "_origin": "ast",
       "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
+      "community_name": "git_output",
       "file_type": "code",
-      "norm_label": "fix_paths()",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L29"
+      "norm_label": "main()",
+      "source_file": "crates/gluon-cli/build.rs",
+      "source_location": "L11"
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_fresh_app",
-      "label": "fresh_app()",
+      "id": "crates_gluon_cli_build_rs_option",
+      "label": "Option",
       "_origin": "ast",
       "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
+      "community_name": "git_output",
       "file_type": "code",
-      "norm_label": "fresh_app()",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L91"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_gluon_bin",
-      "label": "gluon_bin()",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
-      "file_type": "code",
-      "norm_label": "gluon_bin()",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L13"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_migrations_in_same_second_collide",
-      "label": "migrations_in_same_second_collide()",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
-      "file_type": "code",
-      "norm_label": "migrations_in_same_second_collide()",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L99"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_rs_path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
-      "file_type": "code",
-      "norm_label": "path",
+      "norm_label": "option",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_rs_pathbuf",
-      "label": "PathBuf",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
-      "file_type": "code",
-      "norm_label": "pathbuf",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_rs_string",
+      "id": "crates_gluon_cli_build_rs_string",
       "label": "String",
       "_origin": "ast",
       "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
+      "community_name": "git_output",
       "file_type": "code",
       "norm_label": "string",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon",
-      "label": "run_gluon()",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
-      "file_type": "code",
-      "norm_label": "run_gluon()",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L40"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_expect_failure",
-      "label": "run_gluon_expect_failure()",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
-      "file_type": "code",
-      "norm_label": "run_gluon_expect_failure()",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L54"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_yes",
-      "label": "run_gluon_yes()",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
-      "file_type": "code",
-      "norm_label": "run_gluon_yes()",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L68"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_toml_path",
-      "label": "toml_path()",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
-      "file_type": "code",
-      "norm_label": "toml_path()",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L25"
-    },
-    {
-      "id": "crates_gluon_cli_tests_e2e_destroy_loop_workspace_root",
-      "label": "workspace_root()",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "E2E Destroy Loop Tests",
-      "file_type": "code",
-      "norm_label": "workspace_root()",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L17"
     },
     {
       "id": "crates_gluon_build_src_lib_generate",
@@ -6748,237 +6858,6 @@
       "source_location": ""
     },
     {
-      "id": "crates_gluon_cli_tests_examples",
-      "label": "examples.rs",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "examples.rs",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L1"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_checked_in_examples_match_their_contracts",
-      "label": "checked_in_examples_match_their_contracts()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "checked_in_examples_match_their_contracts()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L345"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_client",
-      "label": "client()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "client()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L98"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_compile_examples",
-      "label": "compile_examples()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "compile_examples()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L25"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_repository_root",
-      "label": "repository_root()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "repository_root()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L17"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_response_json",
-      "label": "response_json()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "response_json()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L106"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_rs_client",
-      "label": "Client",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "client",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_rs_path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_rs_pathbuf",
-      "label": "PathBuf",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "pathbuf",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_rs_response",
-      "label": "Response",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "response",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_rs_result",
-      "label": "Result",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "result",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_rs_string",
-      "label": "String",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "string",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_rs_value",
-      "label": "Value",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "value",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_run_api",
-      "label": "run_api()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "run_api()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L184"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_run_di",
-      "label": "run_di()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "run_di()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L329"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_run_htmx",
-      "label": "run_htmx()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "run_htmx()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L284"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_run_pages",
-      "label": "run_pages()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "run_pages()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L142"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_run_sessions",
-      "label": "run_sessions()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "run_sessions()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L225"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_spawn_example",
-      "label": "spawn_example()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "spawn_example()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L43"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_spawn_ready",
-      "label": "spawn_ready()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "spawn_ready()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L115"
-    },
-    {
-      "id": "crates_gluon_cli_tests_examples_try_wait_until_ready",
-      "label": "try_wait_until_ready()",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "examples.rs",
-      "file_type": "code",
-      "norm_label": "try_wait_until_ready()",
-      "source_file": "crates/gluon-cli/tests/examples.rs",
-      "source_location": "L73"
-    },
-    {
       "id": "crates_gluon_tests_static_files",
       "label": "tests/static_files.rs",
       "_origin": "ast",
@@ -7076,94 +6955,6 @@
       "norm_label": "symlink_cannot_escape_public_directory()",
       "source_file": "crates/gluon/tests/static_files.rs",
       "source_location": "L65"
-    },
-    {
-      "id": "crates_gluon_cli_tests_repository_postgres",
-      "label": "repository_postgres.rs",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "Postgres Repository Generation",
-      "file_type": "code",
-      "norm_label": "repository_postgres.rs",
-      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L1"
-    },
-    {
-      "id": "crates_gluon_cli_tests_repository_postgres_generated_postgres_repository_supports_crud",
-      "label": "generated_postgres_repository_supports_crud()",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "Postgres Repository Generation",
-      "file_type": "code",
-      "norm_label": "generated_postgres_repository_supports_crud()",
-      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L42"
-    },
-    {
-      "id": "crates_gluon_cli_tests_repository_postgres_gluon_bin",
-      "label": "gluon_bin()",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "Postgres Repository Generation",
-      "file_type": "code",
-      "norm_label": "gluon_bin()",
-      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L14"
-    },
-    {
-      "id": "crates_gluon_cli_tests_repository_postgres_rs_option",
-      "label": "Option",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "Postgres Repository Generation",
-      "file_type": "code",
-      "norm_label": "option",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_repository_postgres_rs_path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "Postgres Repository Generation",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_repository_postgres_rs_pathbuf",
-      "label": "PathBuf",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "Postgres Repository Generation",
-      "file_type": "code",
-      "norm_label": "pathbuf",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_repository_postgres_run",
-      "label": "run()",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "Postgres Repository Generation",
-      "file_type": "code",
-      "norm_label": "run()",
-      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L26"
-    },
-    {
-      "id": "crates_gluon_cli_tests_repository_postgres_workspace_root",
-      "label": "workspace_root()",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "Postgres Repository Generation",
-      "file_type": "code",
-      "norm_label": "workspace_root()",
-      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L18"
     },
     {
       "id": "crates_gluon_cli_src_commands_generate_validate_field_type",
@@ -7373,61 +7164,6 @@
       "norm_label": "file",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_db_postgres",
-      "label": "db_postgres.rs",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "Postgres DB Lifecycle Test",
-      "file_type": "code",
-      "norm_label": "db_postgres.rs",
-      "source_file": "crates/gluon-cli/tests/db_postgres.rs",
-      "source_location": "L1"
-    },
-    {
-      "id": "crates_gluon_cli_tests_db_postgres_database_lifecycle_and_seed_work_against_postgres",
-      "label": "database_lifecycle_and_seed_work_against_postgres()",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "Postgres DB Lifecycle Test",
-      "file_type": "code",
-      "norm_label": "database_lifecycle_and_seed_work_against_postgres()",
-      "source_file": "crates/gluon-cli/tests/db_postgres.rs",
-      "source_location": "L30"
-    },
-    {
-      "id": "crates_gluon_cli_tests_db_postgres_gluon_bin",
-      "label": "gluon_bin()",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "Postgres DB Lifecycle Test",
-      "file_type": "code",
-      "norm_label": "gluon_bin()",
-      "source_file": "crates/gluon-cli/tests/db_postgres.rs",
-      "source_location": "L10"
-    },
-    {
-      "id": "crates_gluon_cli_tests_db_postgres_rs_path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "Postgres DB Lifecycle Test",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "crates_gluon_cli_tests_db_postgres_run_gluon",
-      "label": "run_gluon()",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "Postgres DB Lifecycle Test",
-      "file_type": "code",
-      "norm_label": "run_gluon()",
-      "source_file": "crates/gluon-cli/tests/db_postgres.rs",
-      "source_location": "L14"
     },
     {
       "id": "crates_gluon_cli_src_commands_build_run",
@@ -12454,6 +12190,18 @@
       "weight": 1.0
     },
     {
+      "source": "crates_gluon_cli_build_main",
+      "target": "crates_gluon_cli_build_git_output",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "crates/gluon-cli/build.rs",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
       "source": "crates_gluon_cli_src_commands_db_run",
       "target": "crates_gluon_cli_src_commands_db_run_async",
       "relation": "calls",
@@ -13842,7 +13590,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L167",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
@@ -13854,7 +13602,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L188",
+      "source_location": "L190",
       "weight": 1.0
     },
     {
@@ -13866,7 +13614,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L54",
+      "source_location": "L53",
       "weight": 1.0
     },
     {
@@ -13878,7 +13626,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L70",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -13890,7 +13638,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L71",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -13902,7 +13650,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L74",
+      "source_location": "L73",
       "weight": 1.0
     },
     {
@@ -13914,7 +13662,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L78",
+      "source_location": "L77",
       "weight": 1.0
     },
     {
@@ -14118,7 +13866,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L117",
+      "source_location": "L180",
       "weight": 1.0
     },
     {
@@ -14130,7 +13878,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L107",
+      "source_location": "L170",
       "weight": 1.0
     },
     {
@@ -14142,19 +13890,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L29",
+      "source_location": "L38",
       "weight": 1.0
     },
     {
       "source": "crates_gluon_cli_tests_common_mod_fix_paths",
-      "target": "crates_gluon_cli_tests_common_mod_toml_path",
+      "target": "crates_gluon_cli_tests_common_mod_git_dep",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L34",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -14166,7 +13914,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L54",
+      "source_location": "L75",
       "weight": 1.0
     },
     {
@@ -14178,11 +13926,23 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L56",
+      "source_location": "L78",
       "weight": 1.0
     },
     {
       "source": "crates_gluon_cli_tests_common_mod_run_cargo_build",
+      "target": "crates_gluon_cli_tests_common_mod_childguard_new",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod_run_gluon",
       "target": "crates_gluon_cli_tests_common_mod_childguard_new",
       "relation": "calls",
       "_origin": "ast",
@@ -14195,18 +13955,6 @@
     },
     {
       "source": "crates_gluon_cli_tests_common_mod_run_gluon",
-      "target": "crates_gluon_cli_tests_common_mod_childguard_new",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L40",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_common_mod_run_gluon",
       "target": "crates_gluon_cli_tests_common_mod_gluon_bin",
       "relation": "calls",
       "_origin": "ast",
@@ -14214,7 +13962,55 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L40",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod_run_gluon_expect_failure",
+      "target": "crates_gluon_cli_tests_common_mod_childguard_new",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod_run_gluon_expect_failure",
+      "target": "crates_gluon_cli_tests_common_mod_gluon_bin",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod_run_gluon_yes",
+      "target": "crates_gluon_cli_tests_common_mod_childguard_new",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod_run_gluon_yes",
+      "target": "crates_gluon_cli_tests_common_mod_gluon_bin",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L104",
       "weight": 1.0
     },
     {
@@ -14242,258 +14038,6 @@
       "weight": 1.0
     },
     {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_destroy_resource_cleans_empty_dirs",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L113",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_destroy_resource_cleans_empty_dirs",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L115",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_destroy_resource_cleans_empty_dirs",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_yes",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L116",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_fix_paths",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_workspace_root",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L30",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_fix_paths",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_toml_path",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L35",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L92",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_fix_paths",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L94",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_migrations_in_same_second_collide",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L101",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_migrations_in_same_second_collide",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L103",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_migrations_in_same_second_collide",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_expect_failure",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L106",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L41",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_expect_failure",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L55",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_yes",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L70",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_migration_uses_exact_match",
-      "target": "crates_gluon_cli_tests_e2e_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L366",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_migration_uses_exact_match",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L368",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_migration_uses_exact_match",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon_expect_failure",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L374",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_fix_paths",
-      "target": "crates_gluon_cli_tests_e2e_workspace_root",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L37",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_fix_paths",
-      "target": "crates_gluon_cli_tests_e2e_toml_path",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L42",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L131",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_fix_paths",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L133",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
-      "target": "crates_gluon_cli_tests_e2e_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L224",
-      "weight": 1.0
-    },
-    {
       "source": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
       "target": "crates_gluon_cli_tests_e2e_run_cargo_check",
       "relation": "calls",
@@ -14502,55 +14046,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L227",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L230",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
-      "target": "crates_gluon_cli_tests_e2e_run_cargo_build",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L317",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon_yes",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L320",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_controller_api_flag_skips_tsx",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L163",
+      "source_location": "L119",
       "weight": 1.0
     },
     {
@@ -14562,19 +14058,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L165",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_controller_without_api_creates_both",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L174",
+      "source_location": "L112",
       "weight": 1.0
     },
     {
@@ -14586,19 +14070,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L176",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_db_seed_requires_database_url",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L204",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -14610,19 +14082,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L206",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_destroy_then_generate_restores_wiring_byte_equal",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L126",
+      "source_location": "L153",
       "weight": 1.0
     },
     {
@@ -14634,31 +14094,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L136",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_destroy_then_generate_restores_wiring_byte_equal",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_yes",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L139",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_destroy_unknown_target_is_idempotent_with_nothing_to_remove",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L216",
+      "source_location": "L83",
       "weight": 1.0
     },
     {
@@ -14670,67 +14106,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L218",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_fix_paths",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_workspace_root",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L35",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_fix_paths",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_toml_path",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L40",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_run_gluon",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L107",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_fix_paths",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L109",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_generate_usecase_twice_refuses_overwrite",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L116",
+      "source_location": "L165",
       "weight": 1.0
     },
     {
@@ -14742,7 +14118,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L118",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -14754,19 +14130,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L119",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_new_no_install_skips_cargo_lock",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L185",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -14778,31 +14142,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L194",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_run_gluon",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L46",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_capture",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L61",
+      "source_location": "L141",
       "weight": 1.0
     },
     {
@@ -14814,139 +14154,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L75",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_yes",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L85",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_new_agent_flags_install_expected_files",
-      "target": "crates_gluon_cli_tests_e2e_workspace_root",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L147",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_new_agent_flags_install_expected_files",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L150",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_routes_command_lists_generated_routes",
-      "target": "crates_gluon_cli_tests_e2e_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L389",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_routes_command_lists_generated_routes",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L391",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_routes_command_lists_generated_routes",
-      "target": "crates_gluon_cli_tests_e2e_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L394",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_run_gluon",
-      "target": "crates_gluon_cli_tests_e2e_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L48",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_run_gluon_expect_failure",
-      "target": "crates_gluon_cli_tests_e2e_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L62",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_run_gluon_yes",
-      "target": "crates_gluon_cli_tests_e2e_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L79",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_validation_rejects_unsafe_inputs",
-      "target": "crates_gluon_cli_tests_e2e_fresh_app",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L342",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_validation_rejects_unsafe_inputs",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon_expect_failure",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L344",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -15150,31 +14358,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L50",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_repository_postgres_generated_postgres_repository_supports_crud",
-      "target": "crates_gluon_cli_tests_repository_postgres_gluon_bin",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L52",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_repository_postgres_generated_postgres_repository_supports_crud",
-      "target": "crates_gluon_cli_tests_repository_postgres_workspace_root",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L59",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -17370,7 +16554,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L113",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -17770,6 +16954,18 @@
       "weight": 1.0
     },
     {
+      "source": "crates_gluon_cli_build_git_output",
+      "target": "crates_gluon_cli_build_rs_string",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "generic_arg",
+      "source_file": "crates/gluon-cli/build.rs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
       "source": "crates_gluon_cli_src_commands_destroy_confirm_and_remove",
       "target": "crates_gluon_cli_src_commands_destroy_rs_pathbuf",
       "relation": "references",
@@ -17934,7 +17130,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L113",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -17946,7 +17142,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L121",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -17958,7 +17154,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L121",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -19115,18 +18311,6 @@
     },
     {
       "source": "crates_gluon_cli_src_commands_new",
-      "target": "crates_gluon_cli_src_templating",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L16",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_src_commands_new",
       "target": "crates_gluon_cli_src_commands_new_rs_path",
       "relation": "imports_from",
       "_origin": "ast",
@@ -19134,7 +18318,19 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L9",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_src_commands_new",
+      "target": "crates_gluon_cli_src_templating",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "crates/gluon-cli/src/commands/new.rs",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -19219,18 +18415,6 @@
       "context": "import",
       "source_file": "crates/gluon-cli/tests/e2e.rs",
       "source_location": "L11",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_path",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -20730,7 +19914,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L208",
+      "source_location": "L210",
       "weight": 1.0
     },
     {
@@ -20742,7 +19926,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L245",
+      "source_location": "L225",
       "weight": 1.0
     },
     {
@@ -20766,7 +19950,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L157",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -20778,7 +19962,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L53",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -20790,7 +19974,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L269",
+      "source_location": "L249",
       "weight": 1.0
     },
     {
@@ -20802,7 +19986,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L255",
+      "source_location": "L235",
       "weight": 1.0
     },
     {
@@ -20850,7 +20034,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L116",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -20862,7 +20046,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L105",
+      "source_location": "L168",
       "weight": 1.0
     },
     {
@@ -20874,7 +20058,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L28",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -20886,7 +20070,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L53",
+      "source_location": "L74",
       "weight": 1.0
     },
     {
@@ -20898,7 +20082,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L60",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -20910,7 +20094,31 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L39",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod_run_gluon_expect_failure",
+      "target": "crates_gluon_cli_tests_common_mod_rs_path",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L88",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod_run_gluon_yes",
+      "target": "crates_gluon_cli_tests_common_mod_rs_path",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L102",
       "weight": 1.0
     },
     {
@@ -20934,7 +20142,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L75",
+      "source_location": "L138",
       "weight": 1.0
     },
     {
@@ -20950,126 +20158,6 @@
       "weight": 1.0
     },
     {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_fix_paths",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L29",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L91",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L40",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_expect_failure",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L54",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_yes",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L68",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_toml_path",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L25",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_fix_paths",
-      "target": "crates_gluon_cli_tests_e2e_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L36",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L130",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_fix_paths",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L34",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L106",
-      "weight": 1.0
-    },
-    {
       "source": "crates_gluon_cli_tests_e2e_idempotency_run_gluon",
       "target": "crates_gluon_cli_tests_e2e_idempotency_rs_path",
       "relation": "references",
@@ -21078,7 +20166,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L45",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -21090,7 +20178,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L60",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -21102,43 +20190,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L74",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_yes",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L83",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_toml_path",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L30",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_run_cargo_build",
-      "target": "crates_gluon_cli_tests_e2e_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L115",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -21150,55 +20202,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L100",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_run_gluon",
-      "target": "crates_gluon_cli_tests_e2e_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L47",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_run_gluon_expect_failure",
-      "target": "crates_gluon_cli_tests_e2e_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L61",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_run_gluon_yes",
-      "target": "crates_gluon_cli_tests_e2e_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L77",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_toml_path",
-      "target": "crates_gluon_cli_tests_e2e_rs_path",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L29",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -21342,7 +20346,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L26",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -21354,7 +20358,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L26",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -22546,6 +21550,18 @@
       "weight": 1.0
     },
     {
+      "source": "crates_gluon_cli_build_git_output",
+      "target": "crates_gluon_cli_build_rs_option",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "crates/gluon-cli/build.rs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
       "source": "crates_gluon_cli_src_commands_build_run_build",
       "target": "crates_gluon_cli_src_commands_build_run_rs_result",
       "relation": "references",
@@ -23022,7 +22038,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L208",
+      "source_location": "L210",
       "weight": 1.0
     },
     {
@@ -23034,7 +22050,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L245",
+      "source_location": "L225",
       "weight": 1.0
     },
     {
@@ -23058,7 +22074,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L157",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -23070,7 +22086,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L53",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -23082,7 +22098,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L89",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -23214,7 +22230,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L121",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -23226,7 +22242,31 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L53",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod_git_dep",
+      "target": "crates_gluon_cli_tests_common_mod_rs_string",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod_run_gluon_expect_failure",
+      "target": "crates_gluon_cli_tests_common_mod_rs_string",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -23254,78 +22294,6 @@
       "weight": 1.0
     },
     {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_pathbuf",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L91",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_expect_failure",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_string",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L54",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_toml_path",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_string",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L25",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop_workspace_root",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_rs_pathbuf",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L17",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_rs_pathbuf",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L130",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_rs_pathbuf",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L106",
-      "weight": 1.0
-    },
-    {
       "source": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_capture",
       "target": "crates_gluon_cli_tests_e2e_idempotency_rs_string",
       "relation": "references",
@@ -23334,7 +22302,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L60",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -23346,67 +22314,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L74",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_toml_path",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_rs_string",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L30",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency_workspace_root",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_rs_pathbuf",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L22",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_run_gluon_expect_failure",
-      "target": "crates_gluon_cli_tests_e2e_rs_string",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L61",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_toml_path",
-      "target": "crates_gluon_cli_tests_e2e_rs_string",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L29",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_workspace_root",
-      "target": "crates_gluon_cli_tests_e2e_rs_pathbuf",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L21",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -23479,18 +22387,6 @@
       "context": "return_type",
       "source_file": "crates/gluon-cli/tests/examples.rs",
       "source_location": "L73",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_repository_postgres_workspace_root",
-      "target": "crates_gluon_cli_tests_repository_postgres_rs_pathbuf",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "return_type",
-      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -25560,6 +24456,28 @@
       "weight": 1.0
     },
     {
+      "source": "crates_gluon_cli_build",
+      "target": "crates_gluon_cli_build_main",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "crates/gluon-cli/build.rs",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_build",
+      "target": "crates_gluon_cli_build_git_output",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "crates/gluon-cli/build.rs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
       "source": "crates_gluon_cli_src_commands_build_run",
       "target": "crates_gluon_cli_src_commands_build_run_run",
       "relation": "contains",
@@ -27349,7 +26267,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L157",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -27360,7 +26278,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L208",
+      "source_location": "L210",
       "weight": 1.0
     },
     {
@@ -27371,7 +26289,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L245",
+      "source_location": "L225",
       "weight": 1.0
     },
     {
@@ -27382,7 +26300,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L255",
+      "source_location": "L235",
       "weight": 1.0
     },
     {
@@ -27393,7 +26311,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L269",
+      "source_location": "L249",
       "weight": 1.0
     },
     {
@@ -27404,7 +26322,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L34",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -27415,7 +26333,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L53",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -27426,7 +26344,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/src/commands/new.rs",
-      "source_location": "L89",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -28146,24 +27064,13 @@
     },
     {
       "source": "crates_gluon_cli_tests_common_mod",
-      "target": "crates_gluon_cli_tests_common_mod_drain_to_void",
+      "target": "crates_gluon_cli_tests_common_mod_run_gluon_yes",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L105",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_common_mod",
-      "target": "crates_gluon_cli_tests_common_mod_childguard",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L113",
+      "source_location": "L102",
       "weight": 1.0
     },
     {
@@ -28179,6 +27086,28 @@
     },
     {
       "source": "crates_gluon_cli_tests_common_mod",
+      "target": "crates_gluon_cli_tests_common_mod_run_cargo_build",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L123",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod",
+      "target": "crates_gluon_cli_tests_common_mod_wait_until_ready",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L138",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod",
       "target": "crates_gluon_cli_tests_common_mod_workspace_root",
       "relation": "contains",
       "_origin": "ast",
@@ -28186,6 +27115,39 @@
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
       "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod",
+      "target": "crates_gluon_cli_tests_common_mod_pick_port",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L161",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod",
+      "target": "crates_gluon_cli_tests_common_mod_drain_to_void",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L168",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod",
+      "target": "crates_gluon_cli_tests_common_mod_childguard",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -28201,13 +27163,24 @@
     },
     {
       "source": "crates_gluon_cli_tests_common_mod",
+      "target": "crates_gluon_cli_tests_common_mod_git_dep",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "crates/gluon-cli/tests/common/mod.rs",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_common_mod",
       "target": "crates_gluon_cli_tests_common_mod_fix_paths",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L28",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -28218,7 +27191,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L39",
+      "source_location": "L60",
       "weight": 1.0
     },
     {
@@ -28229,40 +27202,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L53",
+      "source_location": "L74",
       "weight": 1.0
     },
     {
       "source": "crates_gluon_cli_tests_common_mod",
-      "target": "crates_gluon_cli_tests_common_mod_run_cargo_build",
+      "target": "crates_gluon_cli_tests_common_mod_run_gluon_expect_failure",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L60",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_common_mod",
-      "target": "crates_gluon_cli_tests_common_mod_wait_until_ready",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L75",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_common_mod",
-      "target": "crates_gluon_cli_tests_common_mod_pick_port",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L98",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -28300,62 +27251,18 @@
     },
     {
       "source": "crates_gluon_cli_tests_e2e",
+      "target": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e",
       "target": "crates_gluon_cli_tests_e2e_run_cargo_check",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L100",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_run_cargo_build",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L115",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_fresh_app",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L130",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_new_agent_flags_install_expected_files",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L145",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_gluon_bin",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L16",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_workspace_root",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -28366,46 +27273,13 @@
     },
     {
       "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L222",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_toml_path",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L29",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e",
       "target": "crates_gluon_cli_tests_e2e_validation_rejects_unsafe_inputs",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L340",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_fix_paths",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L36",
+      "source_location": "L232",
       "weight": 1.0
     },
     {
@@ -28416,7 +27290,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L364",
+      "source_location": "L256",
       "weight": 1.0
     },
     {
@@ -28427,139 +27301,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L387",
+      "source_location": "L279",
       "weight": 1.0
     },
     {
       "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon",
+      "target": "crates_gluon_cli_tests_e2e_new_agent_flags_install_expected_files",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L47",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon_expect_failure",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L61",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e",
-      "target": "crates_gluon_cli_tests_e2e_run_gluon_yes",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e.rs",
-      "source_location": "L77",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_destroy_resource_cleans_empty_dirs",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L111",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_gluon_bin",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L13",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_workspace_root",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L17",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_toml_path",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L25",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_fix_paths",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L29",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L40",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_expect_failure",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L54",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_run_gluon_yes",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L68",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
-      "target": "crates_gluon_cli_tests_e2e_destroy_loop_fresh_app",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L91",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -28570,40 +27323,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
-      "source_location": "L99",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
-      "source": "crates_gluon_cli_tests_e2e_idempotency",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_fresh_app",
+      "source": "crates_gluon_cli_tests_e2e_destroy_loop",
+      "target": "crates_gluon_cli_tests_e2e_destroy_loop_destroy_resource_cleans_empty_dirs",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L106",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_generate_usecase_twice_refuses_overwrite",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L114",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_destroy_then_generate_restores_wiring_byte_equal",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L124",
+      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -28614,7 +27345,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L161",
+      "source_location": "L108",
       "weight": 1.0
     },
     {
@@ -28625,18 +27356,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L172",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_gluon_bin",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L18",
+      "source_location": "L119",
       "weight": 1.0
     },
     {
@@ -28647,7 +27367,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L183",
+      "source_location": "L130",
       "weight": 1.0
     },
     {
@@ -28658,7 +27378,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L192",
+      "source_location": "L139",
       "weight": 1.0
     },
     {
@@ -28669,7 +27389,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L202",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
@@ -28680,40 +27400,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L214",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_workspace_root",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L22",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_toml_path",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L30",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_e2e_idempotency",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_fix_paths",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L34",
+      "source_location": "L161",
       "weight": 1.0
     },
     {
@@ -28724,7 +27411,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L45",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -28735,7 +27422,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L60",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -28746,18 +27433,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L74",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
       "source": "crates_gluon_cli_tests_e2e_idempotency",
-      "target": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_yes",
+      "target": "crates_gluon_cli_tests_e2e_idempotency_generate_usecase_twice_refuses_overwrite",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
-      "source_location": "L83",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency",
+      "target": "crates_gluon_cli_tests_e2e_idempotency_destroy_then_generate_restores_wiring_byte_equal",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L71",
       "weight": 1.0
     },
     {
@@ -28927,18 +27625,7 @@
     },
     {
       "source": "crates_gluon_cli_tests_repository_postgres",
-      "target": "crates_gluon_cli_tests_repository_postgres_gluon_bin",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L14",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_repository_postgres",
-      "target": "crates_gluon_cli_tests_repository_postgres_workspace_root",
+      "target": "crates_gluon_cli_tests_repository_postgres_run",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -28949,24 +27636,13 @@
     },
     {
       "source": "crates_gluon_cli_tests_repository_postgres",
-      "target": "crates_gluon_cli_tests_repository_postgres_run",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L26",
-      "weight": 1.0
-    },
-    {
-      "source": "crates_gluon_cli_tests_repository_postgres",
       "target": "crates_gluon_cli_tests_repository_postgres_generated_postgres_repository_supports_crud",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
-      "source_location": "L42",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -31210,7 +29886,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L129",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -31551,7 +30227,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L116",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -31562,7 +30238,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L121",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -31573,7 +30249,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "crates/gluon-cli/tests/common/mod.rs",
-      "source_location": "L130",
+      "source_location": "L193",
       "weight": 1.0
     },
     {
@@ -32122,6 +30798,294 @@
       "weight": 1.0
     },
     {
+      "source": "crates_gluon_cli_tests_e2e_destroy_loop_destroy_resource_cleans_empty_dirs",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_destroy_loop_destroy_resource_cleans_empty_dirs",
+      "target": "crates_gluon_cli_tests_common_mod_run_gluon_yes",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_destroy_loop_migrations_in_same_second_collide",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_destroy_loop_migrations_in_same_second_collide",
+      "target": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_expect_failure",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_destroy_loop.rs",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_destroy_migration_uses_exact_match",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L258",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_destroy_migration_uses_exact_match",
+      "target": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_expect_failure",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L266",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L116",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
+      "target": "crates_gluon_cli_tests_common_mod_run_cargo_build",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L209",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_full_lifecycle_builds_after_each_generate",
+      "target": "crates_gluon_cli_tests_common_mod_run_gluon_yes",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L212",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency_controller_api_flag_skips_tsx",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L110",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency_controller_without_api_creates_both",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency_db_seed_requires_database_url",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L151",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency_destroy_then_generate_restores_wiring_byte_equal",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency_destroy_then_generate_restores_wiring_byte_equal",
+      "target": "crates_gluon_cli_tests_common_mod_run_gluon_yes",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency_destroy_unknown_target_is_idempotent_with_nothing_to_remove",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L163",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency_generate_usecase_twice_refuses_overwrite",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency_new_no_install_skips_cargo_lock",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L132",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency_run_gluon",
+      "target": "crates_gluon_cli_tests_db_postgres_gluon_bin",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_capture",
+      "target": "crates_gluon_cli_tests_db_postgres_gluon_bin",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e_idempotency.rs",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_new_agent_flags_install_expected_files",
+      "target": "crates_gluon_cli_tests_common_mod_workspace_root",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_routes_command_lists_generated_routes",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L281",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_routes_command_lists_generated_routes",
+      "target": "crates_gluon_cli_tests_db_postgres_gluon_bin",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L286",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_validation_rejects_unsafe_inputs",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L234",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_e2e_validation_rejects_unsafe_inputs",
+      "target": "crates_gluon_cli_tests_e2e_idempotency_run_gluon_expect_failure",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/e2e.rs",
+      "source_location": "L236",
+      "weight": 1.0
+    },
+    {
       "source": "crates_gluon_cli_tests_examples_spawn_example",
       "target": "crates_gluon_cli_tests_common_mod_drain_to_void",
       "relation": "calls",
@@ -32147,7 +31111,19 @@
     },
     {
       "source": "crates_gluon_cli_tests_http_csrf_csrf_blocks_state_changing_without_token",
-      "target": "crates_gluon_cli_tests_e2e_run_cargo_build",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/http_csrf.rs",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_http_csrf_csrf_blocks_state_changing_without_token",
+      "target": "crates_gluon_cli_tests_common_mod_run_cargo_build",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "INFERRED",
@@ -32207,7 +31183,19 @@
     },
     {
       "source": "crates_gluon_cli_tests_http_smoke_http_smoke_serves_basic_routes",
-      "target": "crates_gluon_cli_tests_e2e_run_cargo_build",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/http_smoke.rs",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_http_smoke_http_smoke_serves_basic_routes",
+      "target": "crates_gluon_cli_tests_common_mod_run_cargo_build",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "INFERRED",
@@ -32263,6 +31251,30 @@
       "context": "call",
       "source_file": "crates/gluon-cli/tests/http_smoke.rs",
       "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_repository_postgres_generated_postgres_repository_supports_crud",
+      "target": "crates_gluon_cli_tests_common_mod_fresh_app",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "crates_gluon_cli_tests_repository_postgres_generated_postgres_repository_supports_crud",
+      "target": "crates_gluon_cli_tests_db_postgres_gluon_bin",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "crates/gluon-cli/tests/repository_postgres.rs",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -32835,5 +31847,5 @@
       "source_file": ".claude/skills/review-pr/SKILL.md"
     }
   ],
-  "built_at_commit": "470dc1018a8b7d4890bbaa3cb13bea15c06d57da"
+  "built_at_commit": "a95eee974f5f2dd24232dd5417284caa56e76250"
 }

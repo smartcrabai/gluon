@@ -39,7 +39,7 @@ myapp/
     `-- dto/
 ```
 
-The `gluon` / `gluon-build` dependencies in `Cargo.toml` are placeholders set to `path = "../gluon/crates/gluon{,-build}"`. See [`workflows.md`](workflows.md) for details and rewrite examples.
+The `gluon` / `gluon-build` dependencies in `Cargo.toml` use the GitHub repository and are pinned to the exact framework revision used to build the CLI, or to the matching `v<version>` tag when Git metadata is unavailable. For local CLI/framework development, see [`workflows.md`](workflows.md) for how to rewrite them to local paths.
 
 ## `gluon g controller <route> [--api]`
 
