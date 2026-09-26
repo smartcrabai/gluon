@@ -22,11 +22,11 @@ insta = { version = "1", default-features = false }
 jsxrs = "0.1.4"
 minijinja = "2"
 notify = "8"
-opentelemetry = { version = "0.32", default-features = false, features = [
+opentelemetry = { version = "0.33", default-features = false, features = [
   "trace",
 ] }
-opentelemetry-otlp = { version = "0.32", features = ["trace", "grpc-tonic"] }
-opentelemetry_sdk = { version = "0.32", features = ["trace", "rt-tokio"] }
+opentelemetry-otlp = { version = "0.33", features = ["trace", "grpc-tonic"] }
+opentelemetry_sdk = { version = "0.33", features = ["trace", "rt-tokio"] }
 proc-macro2 = "1"
 quote = "1"
 rand = "0.10"
@@ -56,7 +56,7 @@ tower-cookies = "0.11"
 tower-http = { version = "0.7", features = ["fs"] }
 tower-sessions = { version = "0.15", features = ["signed"] }
 tracing = "0.1"
-tracing-opentelemetry = "0.33"
+tracing-opentelemetry = "0.34"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 trybuild = "1"
 ts-rs = "12"
