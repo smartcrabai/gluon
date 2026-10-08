@@ -613,7 +613,7 @@ mod tests {
         let entries = scan(&app).unwrap();
         assert_eq!(entries.len(), 1);
         let e = &entries[0];
-        assert!(e.dir_segments.is_empty());
+        assert_eq!(e.dir_segments, [] as [std::string::String; 0]);
         assert_eq!(e.file_stem, "page");
         assert_eq!(e.methods, vec!["get".to_owned()]);
     }
@@ -719,7 +719,10 @@ mod tests {
     fn ignores_unsupported_method_names() {
         let parsed: syn::File =
             syn::parse_str("pub async fn handle() {} pub async fn foo() {}").unwrap();
-        assert!(extract_http_methods(&parsed).is_empty());
+        assert_eq!(
+            extract_http_methods(&parsed),
+            [] as [std::string::String; 0]
+        );
     }
 
     #[test]
@@ -744,7 +747,10 @@ mod tests {
     fn ignores_impl_block_methods() {
         let parsed: syn::File =
             syn::parse_str("struct Foo; impl Foo { pub async fn get(&self) {} }").unwrap();
-        assert!(extract_http_methods(&parsed).is_empty());
+        assert_eq!(
+            extract_http_methods(&parsed),
+            [] as [std::string::String; 0]
+        );
     }
 
     // ---------- BuildError ----------
