@@ -68,7 +68,10 @@ mod tests {
         };
 
         let out = render("new/Cargo.toml.j2", &ctx).unwrap();
-        assert!(out.contains("name = \"sample-app\""), "unexpected output: {out}");
+        assert!(
+            out.contains("name = \"sample-app\""),
+            "unexpected output: {out}"
+        );
         assert!(out.contains("tag = \"v1.2.3\""), "unexpected output: {out}");
     }
 
@@ -83,8 +86,14 @@ mod tests {
         });
 
         let out = render("domain/entity.rs.j2", ctx).unwrap();
-        assert!(out.contains("pub struct Customer"), "unexpected output: {out}");
-        assert!(out.contains("pub email: String,"), "unexpected output: {out}");
+        assert!(
+            out.contains("pub struct Customer"),
+            "unexpected output: {out}"
+        );
+        assert!(
+            out.contains("pub email: String,"),
+            "unexpected output: {out}"
+        );
         assert!(out.contains("pub age: u32,"), "unexpected output: {out}");
     }
 
