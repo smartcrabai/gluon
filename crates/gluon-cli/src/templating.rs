@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use minijinja::Environment;
+use minijinja::{Environment, value::Serde};
 use serde::Serialize;
 
 use crate::embed::Templates;
@@ -35,7 +35,7 @@ pub fn render<S: Serialize>(template_path: &str, ctx: S) -> Result<String> {
     let tmpl = env
         .get_template(template_path)
         .with_context(|| format!("failed to get template: {template_path}"))?;
-    tmpl.render(ctx)
+    tmpl.render(Serde(ctx))
         .with_context(|| format!("failed to render template: {template_path}"))
 }
 
@@ -55,7 +55,47 @@ pub fn read_bytes(template_path: &str) -> Result<Vec<u8>> {
 
 #[cfg(test)]
 mod tests {
+    use minijinja::context;
+
     use super::render;
+
+    #[test]
+    fn render_new_cargo_template_with_minijinja_context() {
+        let ctx = context! {
+            name => "sample-app",
+            gluon_version => "1.2.3",
+            gluon_revision => "",
+        };
+
+        let out = render("new/Cargo.toml.j2", &ctx).unwrap();
+        assert!(
+            out.contains("name = \"sample-app\""),
+            "unexpected output: {out}"
+        );
+        assert!(out.contains("tag = \"v1.2.3\""), "unexpected output: {out}");
+    }
+
+    #[test]
+    fn render_domain_entity_template_with_json_context() {
+        let ctx = serde_json::json!({
+            "pascal_name": "Customer",
+            "fields": [
+                { "name": "email", "ty": "String" },
+                { "name": "age", "ty": "u32" },
+            ],
+        });
+
+        let out = render("domain/entity.rs.j2", ctx).unwrap();
+        assert!(
+            out.contains("pub struct Customer"),
+            "unexpected output: {out}"
+        );
+        assert!(
+            out.contains("pub email: String,"),
+            "unexpected output: {out}"
+        );
+        assert!(out.contains("pub age: u32,"), "unexpected output: {out}");
+    }
 
     #[test]
     fn render_existing_template_succeeds() {
