@@ -20,7 +20,7 @@ heck = "0.5"
 http = "1"
 insta = { version = "1", default-features = false }
 jsxrs = "0.1.6"
-minijinja = "3"
+minijinja = { version = "3", features = ["serde"] }
 notify = "8"
 opentelemetry = { version = "0.33", default-features = false, features = [
   "trace",
