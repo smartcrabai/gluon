@@ -33,7 +33,9 @@ fn destroy_controller(root: &Path, route: &str) -> Result<()> {
         dir.join("page.tsx"),
         dir.join("route.rs"),
     ];
-    confirm_and_remove(&mut paths)?;
+    if !confirm_and_remove(&mut paths)? {
+        return Ok(());
+    }
     remove_empty_dir(&dir);
     Ok(())
 }
@@ -56,7 +58,9 @@ fn destroy_resource(root: &Path, name: &str) -> Result<()> {
         api_base.join("route.rs"),
         api_base.join("[id]").join("route.rs"),
     ];
-    confirm_and_remove(&mut paths)?;
+    if !confirm_and_remove(&mut paths)? {
+        return Ok(());
+    }
     remove_empty_dir(&base.join("[id]").join("edit"));
     remove_empty_dir(&base.join("[id]"));
     remove_empty_dir(&base.join("new"));
@@ -77,7 +81,9 @@ fn destroy_usecase(root: &Path, name: &str) -> Result<()> {
             .join("usecases")
             .join(format!("{snake}.rs")),
     ];
-    confirm_and_remove(&mut paths)?;
+    if !confirm_and_remove(&mut paths)? {
+        return Ok(());
+    }
     remove_pub_mod_if_present(
         &root.join("src").join("usecases").join("mod.rs"),
         "usecase-mods",
@@ -109,7 +115,9 @@ fn destroy_domain(root: &Path, name: &str) -> Result<()> {
             .join("mocks")
             .join(format!("{snake}_repository.rs")),
     ];
-    confirm_and_remove(&mut paths)?;
+    if !confirm_and_remove(&mut paths)? {
+        return Ok(());
+    }
     remove_empty_dir(&domain_dir);
     remove_pub_mod_if_present(
         &root.join("src").join("domain").join("mod.rs"),
@@ -145,7 +153,9 @@ fn destroy_dto(root: &Path, name: &str) -> Result<()> {
     validate_identifier(name, "dto")?;
     let snake = name.to_snake_case();
     let mut paths = vec![root.join("src").join("dto").join(format!("{snake}.rs"))];
-    confirm_and_remove(&mut paths)?;
+    if !confirm_and_remove(&mut paths)? {
+        return Ok(());
+    }
     remove_pub_mod_if_present(
         &root.join("src").join("dto").join("mod.rs"),
         "dto-mods",
@@ -180,7 +190,9 @@ fn destroy_migration(root: &Path, name: &str) -> Result<()> {
     if matches.is_empty() {
         bail!("no migration matched name: {name}");
     }
-    confirm_and_remove(&mut matches)?;
+    if !confirm_and_remove(&mut matches)? {
+        return Ok(());
+    }
     Ok(())
 }
 
@@ -209,22 +221,24 @@ fn route_to_app_dir(root: &Path, route: &str) -> PathBuf {
     dir
 }
 
-fn confirm_and_remove(paths: &mut Vec<PathBuf>) -> Result<()> {
+fn confirm_and_remove(paths: &mut Vec<PathBuf>) -> Result<bool> {
     paths.retain(|p| p.exists());
     if paths.is_empty() {
         println!("nothing to remove");
-        return Ok(());
+        return Ok(true);
+    }
+    for path in paths.iter() {
+        if !confirm(&format!("remove {}?", path.display()))? {
+            println!("cancelled; no files removed");
+            return Ok(false);
+        }
     }
     for path in paths {
-        if !confirm(&format!("remove {}?", path.display()))? {
-            println!("skipped {}", path.display());
-            continue;
-        }
         std::fs::remove_file(&*path)
             .with_context(|| format!("failed to remove {}", path.display()))?;
         println!("removed {}", path.display());
     }
-    Ok(())
+    Ok(true)
 }
 
 fn confirm(prompt: &str) -> Result<bool> {
