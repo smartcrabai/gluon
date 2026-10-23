@@ -10,21 +10,6 @@ Thank you for your interest in contributing.
 4. Run the repository's formatter, linter, and test commands before opening a pull request.
 5. Open a pull request with a clear summary and any relevant context.
 
-## Testing
-
-Run `cargo test --workspace --all-features --locked` and
-`node --test scripts/check-csrf-runners.test.cjs`.
-The PostgreSQL integration tests require Docker with reachable published ports.
-
-CLI regression tests cover these safety guarantees:
-
-- `destroy` collects approval for all existing target files before changing any
-  file or registration. A refusal, blank response, or EOF cancels the whole
-  operation, including when an earlier target was approved. This does not
-  provide rollback for filesystem errors during an approved deletion.
-- A failed database migration preserves existing data and migration history,
-  rolls back its DDL/DML, and can be retried after correcting its SQL.
-
 ## Pull Request Guidelines
 
 - Keep pull requests small and reviewable.
