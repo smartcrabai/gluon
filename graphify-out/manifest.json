@@ -396,9 +396,9 @@
     "semantic_hash": "fdb8b0f3d7ad5543872f9c821b7d2e90"
   },
   ".github/workflows/ci.yml": {
-    "mtime": 1792747167.4278336,
-    "seen": 1792747188.093813,
-    "ast_hash": "838713274cede10ebd7cd71f3357c5ae",
+    "mtime": 1792749794.359516,
+    "seen": 1792749802.35887,
+    "ast_hash": "cf13948176491819ab3d5c310fd60f94",
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {
@@ -885,6 +885,12 @@
     "mtime": 1781983665.0,
     "seen": 1792747120.213123,
     "ast_hash": "71bf67befa13179ba6c50c83f8e755cb",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/specs/VERIFICATION.md": {
+    "mtime": 1792747787.1467233,
+    "seen": 1792749802.358903,
+    "ast_hash": "873b588da622be166de74aa69a48802e",
     "semantic_hash": ""
   }
 }

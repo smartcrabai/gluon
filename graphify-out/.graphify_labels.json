@@ -1,5 +1,4 @@
 {
-  "0": "ContainerBuilder",
   "1": "Value Object Extraction",
   "3": "csrf.rs",
   "4": "gluon-build/src/lib.rs",
@@ -14,7 +13,6 @@
   "20": "examples.rs",
   "21": "Entity Derive Macro",
   "22": "Flash Session Messages",
-  "23": "Redirect Response Helper",
   "25": "Dev Server File Watcher",
   "27": "scan",
   "28": "Mod.rs Insertion Utilities",
@@ -24,8 +22,6 @@
   "39": "Release Automation Config",
   "42": "Contributing & Security Docs",
   "43": "csrf_middleware.rs",
-  "44": "get",
-  "46": "CSRF Token Component",
   "47": "404 Page Component",
   "48": "500 Page Component",
   "49": "Root Layout Component",
