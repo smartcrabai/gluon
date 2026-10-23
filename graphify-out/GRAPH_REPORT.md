@@ -1,22 +1,22 @@
 # Graph Report - gluon  (2026-10-23)
 
 ## Corpus Check
-- 125 files · ~45,913 words
+- 125 files · ~45,969 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 13 file(s) not represented in the graph (top: (none) 8, .feature 1, .als 1)
 
 ## Summary
-- 1130 nodes · 2001 edges · 86 communities (50 shown, 36 thin omitted)
+- 1131 nodes · 2002 edges · 82 communities (49 shown, 33 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 50 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `40730bba`
+- Built from commit: `068c4a69`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- container.rs
+- ContainerBuilder
 - Value Object Extraction
 - Boot
 - csrf.rs
@@ -39,7 +39,6 @@
 - examples.rs
 - Entity Derive Macro
 - Flash Session Messages
-- ContainerBuilder
 - validate_identifier
 - Dev Server File Watcher
 - command
@@ -57,7 +56,6 @@
 - package.json
 - Release Automation Config
 - db.rs
-- testing_dogfood.rs
 - csrf_middleware.rs
 - Commands
 - common/mod.rs
@@ -77,8 +75,6 @@
 - check-csrf-quint.sh
 - generate_domain
 - session_server
-- Container
-- testing.rs
 
 ## God Nodes (most connected - your core abstractions)
 1. `CsrfWorld` - 33 edges
@@ -117,15 +113,15 @@
 - **gluon-cli skill + its reference documentation set** — skills_gluon_cli_skill, skills_gluon_cli_references_commands, skills_gluon_cli_references_conventions, skills_gluon_cli_references_environment, skills_gluon_cli_references_limitations, skills_gluon_cli_references_testing, skills_gluon_cli_references_validation, skills_gluon_cli_references_workflows [EXTRACTED 0.90]
 - **Review perspective extraction & consumption ecosystem** — claude_skills_improve_review_from_pr_gap_skill, claude_skills_improve_review_from_session_skill, claude_skills_review_pr_skill, claude_skills_review_uncommitted_skill, dot_review_directory [EXTRACTED 0.90]
 
-## Communities (86 total, 36 thin omitted)
+## Communities (82 total, 33 thin omitted)
 
-### Community 0 - "container.rs"
-Cohesion: 0.21
-Nodes (13): Aloha, bind_instance_short_circuits_factory(), bind_same_type_twice_uses_last(), default_builder_builds_empty_container(), factories_see_prior_bindings_during_build(), factory_can_resolve_multiple_prior_bindings(), Greeter, Hello (+5 more)
+### Community 0 - "ContainerBuilder"
+Cohesion: 0.06
+Nodes (24): Aloha, bind_instance_short_circuits_factory(), bind_same_type_twice_uses_last(), Container, ContainerBuilder, default_builder_builds_empty_container(), factories_see_prior_bindings_during_build(), factory_can_resolve_multiple_prior_bindings() (+16 more)
 
 ### Community 3 - "csrf.rs"
-Cohesion: 0.07
-Nodes (24): CsrfToken(), constant_time_eq(), CSRF_FORM_FIELD, CSRF_HEADER, csrf_middleware(), CSRF_SESSION_KEY, CsrfToken, encode_hex() (+16 more)
+Cohesion: 0.08
+Nodes (23): CsrfToken(), constant_time_eq(), CSRF_FORM_FIELD, CSRF_HEADER, csrf_middleware(), CSRF_SESSION_KEY, encode_hex(), ensure_session_token() (+15 more)
 
 ### Community 4 - "gluon-build/src/lib.rs"
 Cohesion: 0.05
@@ -144,12 +140,12 @@ Cohesion: 0.08
 Nodes (19): BIND_CLOSE_PREFIX, BIND_OPEN_PREFIX, BINDS_END, BINDS_START, Block, insert_and_replace_round_trip(), insert_bind(), line_is_close_marker() (+11 more)
 
 ### Community 8 - "htmx_middleware.rs"
-Cohesion: 0.06
-Nodes (21): extractor_defaults_when_middleware_was_skipped(), htmx_middleware(), HtmxRequest, empty_url_is_rejected(), external_locations_are_rejected(), invalid_location_becomes_500_internal_error(), is_local_location(), permanent_sets_301() (+13 more)
+Cohesion: 0.09
+Nodes (13): extractor_defaults_when_middleware_was_skipped(), htmx_middleware(), HtmxRequest, flag_is_false_with_false_header_value(), flag_is_false_without_header(), flag_is_true_case_insensitive(), flag_is_true_with_header_present(), handler() (+5 more)
 
 ### Community 9 - "App Error Handling"
-Cohesion: 0.08
-Nodes (18): User, AppError, BadRequest, Conflict, Forbidden, Internal, NotFound, Unauthorized (+10 more)
+Cohesion: 0.06
+Nodes (26): User, AppError, BadRequest, Conflict, Forbidden, Internal, NotFound, Unauthorized (+18 more)
 
 ### Community 11 - "Postgres Session Store"
 Cohesion: 0.12
@@ -198,10 +194,6 @@ Nodes (13): derive_entity(), expand_entity(), expand_entity_fails_on_enum(), exp
 ### Community 22 - "Flash Session Messages"
 Cohesion: 0.23
 Nodes (7): Flash, FLASH_KEY, new_session(), set_and_take_round_trip(), set_multiple_keys_round_trip(), take_clears_state(), take_when_unset_returns_empty()
-
-### Community 23 - "ContainerBuilder"
-Cohesion: 0.18
-Nodes (6): ContainerBuilder, build_container(), build_container(), build_container(), build_container(), build_container()
 
 ### Community 24 - "validate_identifier"
 Cohesion: 0.15
@@ -268,8 +260,8 @@ Cohesion: 0.23
 Nodes (10): run(), run_async(), seed_requires_seed_file(), DbOp, Create, Drop, Migrate, Prepare (+2 more)
 
 ### Community 43 - "csrf_middleware.rs"
-Cohesion: 0.11
-Nodes (17): build_app(), echo_body(), get_passes_through_and_sets_token(), head_and_options_are_safe(), options_handler(), post_exceeding_max_body_returns_413(), post_with_mismatched_token_is_forbidden(), post_with_valid_form_token_passes() (+9 more)
+Cohesion: 0.08
+Nodes (19): CsrfToken, build_app(), echo_body(), get_passes_through_and_sets_token(), head_and_options_are_safe(), options_handler(), post_exceeding_max_body_returns_413(), post_with_mismatched_token_is_forbidden() (+11 more)
 
 ### Community 44 - "Commands"
 Cohesion: 0.20
@@ -321,23 +313,23 @@ Nodes (3): insecure_development_cookie_omits_secure_attribute(), session_cookie_
 
 ## Knowledge Gaps
 - **47 isolated node(s):** `gluon-build`, `gluon-cli`, `New`, `Generate`, `Destroy` (+42 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 415 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **36 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 416 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **33 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ContainerBuilder` connect `ContainerBuilder` to `boot.rs`, `container.rs`, `App Error Handling`, `testing_dogfood.rs`, `inject.rs`, `new.rs`, `Container`, `testing.rs`?**
-  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+- **Why does `ContainerBuilder` connect `ContainerBuilder` to `boot.rs`, `App Error Handling`, `new.rs`, `inject.rs`?**
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
 - **Are the 16 inferred relationships involving `fresh_app()` (e.g. with `destroy_resource_cleans_empty_dirs()` and `migrations_in_same_second_collide()`) actually correct?**
   _`fresh_app()` has 16 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `gluon-build`, `gluon-cli`, `New` to the rest of the system?**
   _47 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `ContainerBuilder` be split into smaller, more focused modules?**
+  _Cohesion score 0.059887005649717516 - nodes in this community are weakly interconnected._
+- **Why does `Container` connect `ContainerBuilder` to `boot.rs`, `Boot`, `App Error Handling`, `inject.rs`, `new.rs`, `serve_with_shutdown`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Should `Value Object Extraction` be split into smaller, more focused modules?**
   _Cohesion score 0.03389830508474576 - nodes in this community are weakly interconnected._
-- **Why does `Container` connect `Container` to `boot.rs`, `container.rs`, `Boot`, `testing_dogfood.rs`, `App Error Handling`, `inject.rs`, `new.rs`, `testing.rs`, `serve_with_shutdown`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
-- **Should `Boot` be split into smaller, more focused modules?**
-  _Cohesion score 0.12280701754385964 - nodes in this community are weakly interconnected._
 - **Why does `DbOp` connect `db.rs` to `gluon-cli/src/main.rs`, `Commands`?**
   _High betweenness centrality (0.031) - this node is a cross-community bridge._

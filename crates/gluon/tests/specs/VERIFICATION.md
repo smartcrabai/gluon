@@ -256,3 +256,12 @@ per-execution Alloy receipts/instances, `gherkin.log`, `junit.xml`,
 logs, and the Docker diagnostic. The final Alloy run's checked receipt and
 instances are in `target/csrf-spec/alloy-GGzjKBW8/instances/`. Older pre-existing
 artifacts are not used as proof of this verification pass.
+
+## Remote CI follow-up
+
+PR #54's first run failed during JDK installation: `actions/setup-java` exposes
+Temurin 21.0.6 build 7 as `21.0.6+7.0.LTS`, not `21.0.6+7`. The workflow now
+uses that full release selector; the runtime checks retain `21.0.6+7`.
+After this correction, [CI run 39936355289](https://github.com/smartcrabai/gluon/actions/runs/39936355289)
+passed all four jobs, including the formal checks and both platform suites,
+at commit `068c4a690e7d0d09dd43ec607fa4360507bb68ff`.
