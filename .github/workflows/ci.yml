@@ -54,6 +54,85 @@ jobs:
         shell: bash
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
+  csrf-spec:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Load exact CSRF tool versions
+        shell: bash
+        run: |
+          grep -E '^[A-Z_][A-Z_0-9]*=' scripts/csrf-tools.env >> "$GITHUB_ENV"
+          mkdir -p target/csrf-spec
+
+      - name: Install pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pinned JDK
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install pinned Rust
+        shell: bash
+        run: rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+
+      - name: Install checksum-verified formal tools
+        shell: bash
+        run: |
+          set -o pipefail
+          bash scripts/setup-csrf-specs.sh 2>&1 | tee target/csrf-spec/setup.log
+
+      - name: Test formal runner failure detection
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -o pipefail
+          node --test scripts/check-csrf-runners.test.cjs 2>&1 | tee target/csrf-spec/runner-tests.log
+
+      - name: Check Quint invariants and witnesses
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: bash scripts/check-csrf-quint.sh
+
+      - name: Check Alloy assertions and satisfiable witnesses
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: bash scripts/check-csrf-alloy.sh
+
+      - name: Execute strict production Gherkin
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -o pipefail
+          cargo test --locked -p gluon --test csrf_spec 2>&1 | tee target/csrf-spec/gherkin.log
+
+      - name: Preserve production middleware regression check
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -o pipefail
+          cargo test --locked -p gluon --test csrf_middleware 2>&1 | tee target/csrf-spec/production.log
+
+      - name: Retain CSRF check reports and bounded traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: csrf-spec-results
+          path: target/csrf-spec/
+          if-no-files-found: error
+          retention-days: 7
+
   platform-test:
     strategy:
       fail-fast: false

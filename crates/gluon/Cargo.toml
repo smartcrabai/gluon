@@ -8,7 +8,12 @@ version.workspace = true
 
 [lib]
 
+[[test]]
+harness = false
+name = "csrf_spec"
+
 [dev-dependencies]
+cucumber = { version = "=0.21.1", features = ["output-junit"] }
 reqwest.workspace = true
 serial_test.workspace = true
 tempfile.workspace = true

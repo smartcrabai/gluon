@@ -1,0 +1,8 @@
+{
+  "name": "gluon-csrf-specs",
+  "private": true,
+  "version": "0.0.0",
+  "engines": { "node": "22.14.0", "npm": "10.9.2" },
+  "devDependencies": { "@informalsystems/quint": "0.29.1" },
+  "overrides": { "tar": "7.5.21", "adm-zip": "0.6.1" }
+}
