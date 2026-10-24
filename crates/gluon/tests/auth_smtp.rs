@@ -1,4 +1,4 @@
-//! Plan §5.2: the standard SMTP adapter must not downgrade to plaintext.
+//! Plan section 5.2: the standard SMTP adapter must not downgrade to plaintext.
 #![cfg(feature = "auth")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 

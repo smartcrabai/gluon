@@ -1,4 +1,4 @@
-//! Plan §6 / §10.2: real PostgreSQL, never a mock or a silent Docker skip.
+//! Plan section 6 / section 10.2: real PostgreSQL, never a mock or a silent Docker skip.
 //! Run with Docker reachable: cargo test -p gluon --features auth --test `auth_postgres`.
 #![cfg(feature = "auth")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]

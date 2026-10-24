@@ -906,9 +906,9 @@
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_contracts.rs": {
-    "mtime": 1792836074.578308,
-    "seen": 1792836378.511723,
-    "ast_hash": "0271a5712d78407817b088a520d31d1a",
+    "mtime": 1792836566.1572375,
+    "seen": 1792836574.72897,
+    "ast_hash": "9cb85186f9497769de07062c78f18366",
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_email_otp.rs": {
@@ -924,9 +924,9 @@
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_jwt.rs": {
-    "mtime": 1792836317.764753,
-    "seen": 1792836378.511725,
-    "ast_hash": "6263b7acf5d4701441235520ac1b2b8d",
+    "mtime": 1792836566.1578453,
+    "seen": 1792836574.729019,
+    "ast_hash": "006b6dadc2bb3f9e8ba64ec362073745",
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_oauth.rs": {
@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_postgres.rs": {
-    "mtime": 1792836074.5997312,
-    "seen": 1792836378.511729,
-    "ast_hash": "0bdc863bff2c85625e2fb3950fbccd22",
+    "mtime": 1792836566.159451,
+    "seen": 1792836574.7290702,
+    "ast_hash": "d85905b618745b9ea3446b449da6f6cf",
     "semantic_hash": ""
   },
   "crates/gluon/tests/common/auth/passkey_device.rs": {
@@ -978,27 +978,27 @@
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_oauth_providers.rs": {
-    "mtime": 1792836264.1653976,
-    "seen": 1792836378.511727,
-    "ast_hash": "246042ff23844acc67d447f2c5039c1e",
+    "mtime": 1792836566.1582742,
+    "seen": 1792836574.729044,
+    "ast_hash": "beaefdf5c526921ee96eb1f97766b2e2",
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_oauth_transport.rs": {
-    "mtime": 1792836027.7309582,
-    "seen": 1792836378.511728,
-    "ast_hash": "f7bf38f7bdd310a287e69b845e3d61a4",
+    "mtime": 1792836566.1587574,
+    "seen": 1792836574.729045,
+    "ast_hash": "dd531fedacbb95c3c45ec613754ddee3",
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_session_failures.rs": {
-    "mtime": 1792836074.603559,
-    "seen": 1792836378.511731,
-    "ast_hash": "30e3bc7708f4098e5ccfb675bd14d143",
+    "mtime": 1792836566.1612842,
+    "seen": 1792836574.729096,
+    "ast_hash": "17e1f90041f1b6c118fcb58161eb8b89",
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_smtp.rs": {
-    "mtime": 1792836027.7346492,
-    "seen": 1792836378.5117319,
-    "ast_hash": "49cf2e376923635e2681c8a39283c1eb",
+    "mtime": 1792836566.1617942,
+    "seen": 1792836574.729097,
+    "ast_hash": "489fa9dc70f70d0035b5a3d3d631a522",
     "semantic_hash": ""
   },
   "crates/gluon/src/auth/extractors.rs": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "docs/auth.md": {
-    "mtime": 1792836027.7331357,
-    "seen": 1792836378.511798,
-    "ast_hash": "ef244fdfc49978e7a7269a1217062d8b",
+    "mtime": 1792836435.9402878,
+    "seen": 1792836574.731292,
+    "ast_hash": "499264ed406c5a97685297b5cd88a378",
     "semantic_hash": ""
   },
   "crates/gluon/src/auth/service.rs": {
@@ -1068,9 +1068,9 @@
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_registration_policy.rs": {
-    "mtime": 1792836027.7333434,
-    "seen": 1792836378.51173,
-    "ast_hash": "8ad8daea016b5171e1f8d9d51904030d",
+    "mtime": 1792836566.1607099,
+    "seen": 1792836574.7290711,
+    "ast_hash": "6c9c773174e5118385d01574fefe372c",
     "semantic_hash": ""
   },
   "examples/auth/src/lib.rs": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "crates/gluon/tests/auth_api.rs": {
-    "mtime": 1792836027.729809,
-    "seen": 1792836378.511721,
-    "ast_hash": "c181a8523f876917f31f26df52ce7b69",
+    "mtime": 1792836566.1563137,
+    "seen": 1792836574.7289448,
+    "ast_hash": "c5ed852d8f81a85000e09640a31b92e1",
     "semantic_hash": ""
   }
 }

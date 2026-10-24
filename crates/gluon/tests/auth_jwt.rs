@@ -1,4 +1,4 @@
-//! Plan §5.5 / §10.1: session-gated JWT issuance, strict verification, and public-key rotation.
+//! Plan section 5.5 / section 10.1: session-gated JWT issuance, strict verification, and public-key rotation.
 #![cfg(feature = "auth")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 

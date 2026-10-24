@@ -1,4 +1,4 @@
-//! Plan §5.1 / §6.1: success must not escape before required session persistence.
+//! Plan section 5.1 / section 6.1: success must not escape before required session persistence.
 #![cfg(feature = "auth")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 #[path = "common/auth/mod.rs"]

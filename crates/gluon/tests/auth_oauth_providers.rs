@@ -1,4 +1,4 @@
-//! Plan §5.4: real signed OIDC responses through the public provider adapter.
+//! Plan section 5.4: real signed OIDC responses through the public provider adapter.
 //! HTTP is a deterministic fixture here, not an OIDC verification-success mock.
 //! Real network transport safety is covered by `auth_oauth_transport.rs`.
 #![cfg(feature = "auth")]

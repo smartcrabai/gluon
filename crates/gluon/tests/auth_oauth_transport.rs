@@ -1,4 +1,4 @@
-//! Plan §5.4: drive the OAuth HTTP bridge against a real local server.
+//! Plan section 5.4: drive the OAuth HTTP bridge against a real local server.
 #![cfg(feature = "auth")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 

@@ -1,27 +1,27 @@
-//! Plan-item → observable assertion map for the test-first authentication step.
+//! Plan-item to observable assertion map for the test-first authentication step.
 //!
-//! - §4.1, §4.3: this file rejects missing PostgreSQL, invalid mount paths,
+//! - section 4.1, section 4.3: this file rejects missing PostgreSQL, invalid mount paths,
 //!   short OTP keys, inconsistent RP/origin, and absent JWT signing material.
-//! - §4.2, §5.1: `auth_session.rs`, `auth_session_failures.rs`, and `auth_http.rs`
+//! - section 4.2, section 5.1: `auth_session.rs`, `auth_session_failures.rs`, and `auth_http.rs`
 //!   cover current-user extraction, rotation/revocation, optional anonymity,
 //!   session expiry, write failures, and failed server-side logout deletion.
-//! - §5.2: `auth_email_otp.rs` covers delivery, verification, limits, resend,
+//! - section 5.2: `auth_email_otp.rs` covers delivery, verification, limits, resend,
 //!   expiry, single consumption, and identity resolution.
 //!   `auth_smtp.rs` checks that a real plaintext-only SMTP endpoint cannot
 //!   receive credentials or OTP messages from the standard sender.
-//! - §5.3: `auth_passkey.rs` exercises real authenticator registration and
+//! - section 5.3: `auth_passkey.rs` exercises real authenticator registration and
 //!   authentication as well as invalid and cross-browser flows.
-//! - §5.4: `auth_oauth.rs` covers provider flows, identity and explicit linking.
+//! - section 5.4: `auth_oauth.rs` covers provider flows, identity and explicit linking.
 //!   `auth_oauth_providers.rs` uses genuinely RSA-signed ID tokens for trusted
 //!   OIDC discovery, nonce/issuer/audience/expiry/signature validation, and
 //!   Google/GitHub stable identities. `auth_oauth_transport.rs` exercises real
 //!   local HTTP redirect refusal, byte limits, and nonresponding-server timeout.
-//! - §5.5: `auth_jwt.rs` verifies signature/claims, issuance gating, and rotation.
-//! - §6: `auth_postgres.rs` exercises real PostgreSQL sharing, atomic consumption,
+//! - section 5.5: `auth_jwt.rs` verifies signature/claims, issuance gating, and rotation.
+//! - section 6: `auth_postgres.rs` exercises real PostgreSQL sharing, atomic consumption,
 //!   rate limits, cleanup, migration isolation, and concurrent migrations.
-//! - §4.3–4.4 / §10.2: `auth_boot.rs` drives Boot as a subprocess, and `auth_http.rs`
+//! - section 4.3-4.4 / section 10.2: `auth_boot.rs` drives Boot as a subprocess, and `auth_http.rs`
 //!   drives the real router/Session/CSRF/Extractor boundaries.
-//! - §3 / §10.1 compatibility: existing boot, `csrf_middleware`, `csrf_spec`,
+//! - section 3 / section 10.1 compatibility: existing boot, `csrf_middleware`, `csrf_spec`,
 //!   `postgres_session`, redirect, DI, and example tests remain unchanged.
 //!
 //! Boundaries: these tests do not claim real Google/GitHub account registration,

@@ -1,4 +1,4 @@
-//! Plan §4.3 / §5.5: direct composition obeys HTTP disabling and explicit JWT defaults.
+//! Plan section 4.3 / section 5.5: direct composition obeys HTTP disabling and explicit JWT defaults.
 #![cfg(feature = "auth")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 #[path = "common/auth/mod.rs"]

@@ -1,4 +1,4 @@
-//! Plan §5.1: applications can prohibit registration or choose their auth subject.
+//! Plan section 5.1: applications can prohibit registration or choose their auth subject.
 #![cfg(feature = "auth")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 #[path = "common/auth/mod.rs"]
