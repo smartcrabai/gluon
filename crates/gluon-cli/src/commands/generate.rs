@@ -517,10 +517,37 @@ fn generate_migration(name: &str) -> Result<()> {
 // ---------------------------------------------------------------------------
 
 fn ensure_no_existing_file(dest: &Path) -> Result<()> {
-    if dest.exists() {
+    ensure_no_symlinked_parent_dirs(dest)?;
+    if inspect_output_path(dest)?.is_some() {
         bail!("refusing to overwrite existing file: {}", dest.display());
     }
     Ok(())
+}
+
+fn ensure_no_symlinked_parent_dirs(dest: &Path) -> Result<()> {
+    for parent in dest
+        .ancestors()
+        .skip(1)
+        .filter(|parent| !parent.as_os_str().is_empty())
+    {
+        if inspect_output_path(parent)?.is_some_and(|metadata| metadata.file_type().is_symlink()) {
+            bail!(
+                "refusing to write through symlinked parent directory: {}",
+                parent.display()
+            );
+        }
+    }
+    Ok(())
+}
+
+fn inspect_output_path(path: &Path) -> Result<Option<std::fs::Metadata>> {
+    match std::fs::symlink_metadata(path) {
+        Ok(metadata) => Ok(Some(metadata)),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(error) => {
+            Err(error).with_context(|| format!("failed to inspect output path: {}", path.display()))
+        }
+    }
 }
 
 fn ensure_no_existing_outputs<'a>(paths: impl IntoIterator<Item = &'a Path>) -> Result<()> {

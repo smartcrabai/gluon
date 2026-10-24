@@ -42,7 +42,11 @@ fn snapshot_tree(root: &Path) -> Vec<(PathBuf, Option<Vec<u8>>)> {
                 .strip_prefix(root)
                 .expect("entry is inside app")
                 .to_path_buf();
-            if entry.file_type().expect("read entry type").is_dir() {
+            let file_type = entry.file_type().expect("read entry type");
+            if file_type.is_symlink() {
+                let target = std::fs::read_link(&path).expect("read symlink target");
+                entries.push((relative, Some(target.to_string_lossy().as_bytes().to_vec())));
+            } else if file_type.is_dir() {
                 entries.push((relative, None));
                 visit(root, &path, entries);
             } else {
@@ -302,6 +306,59 @@ fn resource_nested_route_collision_leaves_app_unchanged() {
 
     let _ = run_gluon_expect_failure(&app, &["g", "resource", "posts"]);
     assert_eq!(snapshot_tree(&app), before);
+}
+
+#[cfg(unix)]
+#[test]
+fn dto_dangling_output_symlink_is_rejected_without_side_effects() {
+    let tmp = tempfile::tempdir().expect("create tempdir");
+    let app = fresh_app(tmp.path(), "myapp");
+    let outside_file = tmp.path().join("outside.rs");
+    let output = app.join("src/dto/report.rs");
+    std::os::unix::fs::symlink(&outside_file, &output).expect("create dangling output symlink");
+    let target_before = std::fs::read_link(&output).expect("read symlink target");
+    let before = snapshot_tree(&app);
+
+    let stderr = run_gluon_expect_failure(&app, &["g", "dto", "report"]);
+
+    assert!(
+        stderr.contains("refusing to overwrite existing file"),
+        "stderr: {stderr}"
+    );
+    assert!(
+        !outside_file.exists(),
+        "dangling symlink target was created"
+    );
+    assert_eq!(snapshot_tree(&app), before);
+    assert_eq!(
+        std::fs::read_link(&output).expect("read symlink target after generation"),
+        target_before
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn resource_parent_symlink_is_rejected_without_side_effects() {
+    let tmp = tempfile::tempdir().expect("create tempdir");
+    let app = fresh_app(tmp.path(), "myapp");
+    let posts = app.join("app/posts");
+    std::fs::create_dir_all(&posts).expect("create resource parent");
+    let alias = posts.join("new");
+    std::os::unix::fs::symlink(".", &alias).expect("create resource parent symlink");
+    let target_before = std::fs::read_link(&alias).expect("read symlink target");
+    let before = snapshot_tree(&app);
+
+    let stderr = run_gluon_expect_failure(&app, &["g", "resource", "posts"]);
+
+    assert!(
+        stderr.contains("refusing to write through symlinked parent directory"),
+        "stderr: {stderr}"
+    );
+    assert_eq!(snapshot_tree(&app), before);
+    assert_eq!(
+        std::fs::read_link(&alias).expect("read symlink target after generation"),
+        target_before
+    );
 }
 
 #[test]

@@ -3,9 +3,10 @@
 Arguments, generated artifacts, and typical invocations for each subcommand. The short forms `g` / `d` follow Rails conventions.
 
 All `generate` commands check their complete set of new output paths before
-writing files or updating module registrations and wiring. If any output
-already exists, the command refuses without changing the application. This is
-not a filesystem transaction: later I/O errors and concurrent creators are not
+writing files or updating module registrations and wiring. They refuse if an
+output already exists (including a symlink), or if an existing parent directory
+is a symlink. These checks run before changing the application. This is not a
+filesystem transaction: later I/O errors and concurrent creators are not
 covered by this preflight guarantee.
 
 ## `gluon new <name>`
