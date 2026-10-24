@@ -35,15 +35,27 @@ pub struct Boot {
     container_factory: Option<ContainerFactory>,
     router: Option<axum::Router<Arc<Container>>>,
     router_factory: Option<RouterFactory>,
+    #[cfg(feature = "auth")]
+    auth_config: Option<crate::auth::AuthConfig>,
 }
 
 impl Boot {
+    /// Enables the shared authentication service and its optional HTTP adapter.
+    #[cfg(feature = "auth")]
+    #[must_use]
+    pub fn with_auth(mut self, config: crate::auth::AuthConfig) -> Self {
+        self.auth_config = Some(config);
+        self
+    }
+
     #[must_use]
     pub fn new() -> Self {
         Self {
             container_factory: None,
             router: None,
             router_factory: None,
+            #[cfg(feature = "auth")]
+            auth_config: None,
         }
     }
 
@@ -115,12 +127,30 @@ impl Boot {
             Err(error) => return Err(AppError::Internal(Box::new(error))),
         };
 
+        #[cfg(feature = "auth")]
+        if let Some(config) = self.auth_config {
+            let auth = crate::auth::Auth::new(config, database_pool.clone())
+                .await
+                .map_err(|error| AppError::Internal(Box::new(error)))?;
+            builder = builder.bind_instance(Arc::new(auth));
+        }
+
         if let Some(factory) = self.container_factory {
             builder = factory(builder);
         }
         let container = Arc::new(builder.build());
 
         let mut router = self.router.unwrap_or_default();
+        let public_router = axum::Router::new();
+        #[cfg(feature = "auth")]
+        let mut public_router = public_router;
+        #[cfg(feature = "auth")]
+        if let Some(auth) = container.try_resolve::<crate::auth::Auth>()
+            && auth.config.http_enabled
+        {
+            router = router.nest(&auth.config.mount_path, auth.router());
+            public_router = public_router.nest(&auth.config.mount_path, auth.public_router());
+        }
 
         if let Ok(cwd) = std::env::current_dir() {
             let public_dir = cwd.join("public");
@@ -147,10 +177,10 @@ impl Boot {
                 .map_err(|error| AppError::Internal(Box::new(error)))?;
             serve_with_shutdown(
                 router,
+                public_router,
                 container,
                 listener,
-                store,
-                (secure_cookie, session_key),
+                (store, secure_cookie, session_key),
                 self.router_factory,
                 shutdown_signal(),
             )
@@ -158,10 +188,10 @@ impl Boot {
         } else {
             serve_with_shutdown(
                 router,
+                public_router,
                 container,
                 listener,
-                MemoryStore::default(),
-                (secure_cookie, session_key),
+                (MemoryStore::default(), secure_cookie, session_key),
                 self.router_factory,
                 shutdown_signal(),
             )
@@ -271,10 +301,10 @@ fn build_session_layer<Store: SessionStore + Clone>(
 
 async fn serve_with_shutdown<Store, Shutdown>(
     router: axum::Router<Arc<Container>>,
+    public_router: axum::Router<Arc<Container>>,
     container: Arc<Container>,
     listener: tokio::net::TcpListener,
-    store: Store,
-    session: (bool, Key),
+    session: (Store, bool, Key),
     router_factory: Option<RouterFactory>,
     shutdown: Shutdown,
 ) -> Result<()>
@@ -285,15 +315,47 @@ where
     let mut router = router
         .layer(axum::middleware::from_fn(htmx_middleware))
         .layer(axum::middleware::from_fn(csrf_middleware))
-        .layer(build_session_layer(store, session.0, session.1));
+        .layer(build_session_layer(session.0, session.1, session.2));
+    #[cfg(feature = "auth")]
+    if let Some(auth) = container.try_resolve::<crate::auth::Auth>()
+        && auth.config.http_enabled
+    {
+        let mount = auth.config.mount_path.clone();
+        let prefix = format!("{mount}/");
+        let jwks = format!("{mount}/jwks");
+        router = router.layer(axum::middleware::from_fn(
+            move |request: axum::extract::Request, next: axum::middleware::Next| {
+                let path = request
+                    .extensions()
+                    .get::<axum::extract::OriginalUri>()
+                    .map_or_else(|| request.uri().path(), |original| original.0.path());
+                let private_auth = (path == mount || path.starts_with(&prefix)) && path != jwks;
+                async move {
+                    let mut response = next.run(request).await;
+                    if private_auth {
+                        response.headers_mut().insert(
+                            axum::http::header::CACHE_CONTROL,
+                            axum::http::HeaderValue::from_static("no-store"),
+                        );
+                    }
+                    response
+                }
+            },
+        ));
+    }
+    // Public keys must not create a session, even on rejected unsafe methods.
+    router = router.merge(public_router);
     if let Some(factory) = router_factory {
         router = factory(router);
     }
     let app = router.with_state(container);
-    axum::serve(listener, app)
-        .with_graceful_shutdown(shutdown)
-        .await
-        .map_err(|error| AppError::Internal(Box::new(error)))
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<std::net::SocketAddr>(),
+    )
+    .with_graceful_shutdown(shutdown)
+    .await
+    .map_err(|error| AppError::Internal(Box::new(error)))
 }
 
 async fn shutdown_signal() {
@@ -511,10 +573,10 @@ mod tests {
         let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel::<()>();
         let task = tokio::spawn(serve_with_shutdown(
             router,
+            axum::Router::new(),
             container,
             listener,
-            MemoryStore::default(),
-            (false, Key::generate()),
+            (MemoryStore::default(), false, Key::generate()),
             Some(middleware),
             async move {
                 let _ = shutdown_rx.await;

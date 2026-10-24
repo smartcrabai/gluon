@@ -13,15 +13,31 @@ anyhow = "1"
 async-trait = "0.1"
 axum = "0.8"
 axum-test = "21"
+base64 = "0.22"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 clap = { version = "4", features = ["derive"] }
+ed25519-dalek = { version = "2", features = ["pkcs8", "pem"] }
 form_urlencoded = "1"
 heck = "0.5"
+hmac = "0.12"
 http = "1"
 insta = { version = "1", default-features = false }
+jsonwebtoken = { version = "=11.1.0", default-features = false, features = [
+  "rust_crypto",
+  "use_pem",
+] }
 jsxrs = "0.1.6"
+lettre = { version = "0.11", default-features = false, features = [
+  "builder",
+  "smtp-transport",
+  "tokio1-rustls-tls",
+  "ring",
+  "webpki-roots",
+] }
 minijinja = "2"
 notify = "8"
+oauth2 = { version = "5", default-features = false }
+openidconnect = { version = "4", default-features = false }
 opentelemetry = { version = "0.33", default-features = false, features = [
   "trace",
 ] }
@@ -40,6 +56,7 @@ rust-embed = "8"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serial_test = "4"
+sha2 = "0.10"
 sqlx = { version = "0.9", features = ["postgres", "runtime-tokio", "time"] }
 subtle = "2"
 syn = { version = "3", features = ["full"] }
@@ -60,7 +77,12 @@ tracing-opentelemetry = "0.34"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 trybuild = "1"
 ts-rs = "12"
+uuid = { version = "1", features = ["v4", "serde"] }
 walkdir = "2"
+webauthn-rs = { version = "=0.5.5", features = [
+  "conditional-ui",
+  "danger-allow-state-serialisation",
+] }
 
 [workspace.metadata.dist]
 allow-dirty = ["ci"]

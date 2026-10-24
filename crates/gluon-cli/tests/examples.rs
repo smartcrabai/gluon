@@ -341,6 +341,128 @@ async fn run_di(workspace: &Path) {
     );
 }
 
+fn auth_command(workspace: &Path, key: &Path, bind: &str) -> Command {
+    let bin = workspace
+        .join("target/debug")
+        .join(format!("sample-auth{}", std::env::consts::EXE_SUFFIX));
+    let mut command = Command::new(bin);
+    command
+        .current_dir(workspace.join("auth"))
+        .env_remove("DATABASE_URL")
+        .env_remove("AUTH_RP_ID")
+        .env_remove("AUTH_ORIGIN")
+        .env("AUTH_STORE", "memory-development")
+        .env("AUTH_SMTP_SERVER", "smtp.example.test")
+        .env("AUTH_SMTP_USERNAME", "fixture")
+        .env("AUTH_SMTP_PASSWORD", "fixture")
+        .env("AUTH_SMTP_FROM", "auth@example.test")
+        .env("AUTH_SMTP_PORT", "587")
+        .env(
+            "AUTH_OTP_SECRET",
+            "test-only-independent-otp-secret-32-bytes",
+        )
+        .env("AUTH_JWT_PRIVATE_KEY_FILE", key)
+        .env("AUTH_JWT_KID", "smoke-key")
+        .env("AUTH_JWT_ISSUER", "https://auth.example.test")
+        .env("AUTH_JWT_AUDIENCE", "smoke-api")
+        .env("GLUON_BIND", bind)
+        .env("GLUON_INSECURE_COOKIE", "1")
+        .env("GLUON_TELEMETRY_DISABLED", "1")
+        .env(
+            "SECRET_KEY_BASE",
+            "test-only-cookie-key-0000000000000000000000000000000000000000000000",
+        )
+        .env_remove("AUTH_MIGRATE_ON_START")
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+    command
+}
+
+async fn run_auth(workspace: &Path) {
+    // Public test-only key. Never use this material in an application.
+    let key = tempfile::NamedTempFile::new().expect("temporary JWT key");
+    std::fs::write(key.path(), b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIEmyZSI2Yqo54etzjA/kMeF9rVI5ixzZ1YKPQEFh9XKt\n-----END PRIVATE KEY-----\n").expect("write test key");
+    let bind = format!("127.0.0.1:{}", pick_port());
+    let base = format!("http://{bind}");
+    let mut command = auth_command(workspace, key.path(), &bind);
+    let mut child = command.spawn().expect("spawn screenless auth example");
+    if let Some(stdout) = child.stdout.take() {
+        drain_to_void(stdout);
+    }
+    if let Some(stderr) = child.stderr.take() {
+        drain_to_void(stderr);
+    }
+    let mut child = ChildGuard::new(child);
+    let http = client();
+    try_wait_until_ready(&mut child, &http, &format!("{base}/health"))
+        .await
+        .expect("auth process readiness");
+    // Use a fresh client: public JWKS must not need or create a session.
+    let jwks = client()
+        .get(format!("{base}/auth/jwks"))
+        .send()
+        .await
+        .expect("public JWKS");
+    assert_eq!(jwks.status(), 200);
+    assert!(!jwks.headers().contains_key("set-cookie"));
+    let jwks = response_json(jwks, "JWKS").await;
+    assert_eq!(jwks["keys"][0]["kid"], "smoke-key");
+    assert_eq!(jwks["keys"][0]["kty"], "OKP");
+    assert!(jwks["keys"][0].get("d").is_none());
+    let csrf = http
+        .get(format!("{base}/auth/csrf"))
+        .send()
+        .await
+        .expect("auth CSRF");
+    assert_eq!(csrf.status(), 200);
+    assert_eq!(
+        csrf.headers()
+            .get("cache-control")
+            .expect("auth Cache-Control"),
+        "no-store"
+    );
+    let csrf = response_json(csrf, "auth CSRF").await;
+    let token = csrf["token"].as_str().expect("CSRF token");
+    assert_ne!(token, "");
+    let denied = http
+        .post(format!("{base}/auth/token"))
+        .send()
+        .await
+        .expect("token without CSRF");
+    assert_eq!(denied.status(), 403);
+    let anonymous = http
+        .post(format!("{base}/auth/token"))
+        .header("x-csrf-token", token)
+        .send()
+        .await
+        .expect("anonymous JWT request");
+    assert_eq!(anonymous.status(), 401);
+    let session = http
+        .get(format!("{base}/auth/session"))
+        .send()
+        .await
+        .expect("anonymous session");
+    assert_eq!(session.status(), 200);
+    assert_eq!(
+        response_json(session, "anonymous session").await,
+        json!({"user": null})
+    );
+    let disabled = http
+        .post(format!("{base}/auth/oauth/github/start"))
+        .header("x-csrf-token", token)
+        .send()
+        .await
+        .expect("unconfigured provider");
+    assert_eq!(disabled.status(), 404);
+    // Missing PostgreSQL must fail rather than silently switch to Memory.
+    let rejected = command
+        .env("AUTH_STORE", "postgres")
+        .output()
+        .expect("launch missing-database configuration");
+    assert!(!rejected.status.success());
+    assert!(String::from_utf8_lossy(&rejected.stderr).contains("DATABASE_URL"));
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn checked_in_examples_match_their_contracts() {
     let workspace = repository_root().join("examples");
@@ -353,4 +475,5 @@ async fn checked_in_examples_match_their_contracts() {
     run_sessions(&workspace).await;
     run_htmx(&workspace).await;
     run_di(&workspace).await;
+    run_auth(&workspace).await;
 }

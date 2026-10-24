@@ -1,3 +1,7 @@
+#[cfg(feature = "auth")]
+pub use crate::auth::{
+    Auth, AuthBuilder, AuthConfig, AuthContext, AuthError, AuthUser, CurrentUser, UserId,
+};
 pub use crate::{
     AppError, Boot, Container, ContainerBuilder, Flash, Inject, Redirect, Result, Session, View,
 };
