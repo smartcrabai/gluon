@@ -1,12 +1,12 @@
 # Graph Report - 20261023163131497_5cbe0a9d75e74c628276d19eb80e7382  (2026-10-24)
 
 ## Corpus Check
-- 160 files · ~73,019 words
+- 160 files · ~73,349 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 14 file(s) not represented in the graph (top: (none) 9, .feature 1, .als 1)
 
 ## Summary
-- 1846 nodes · 4152 edges · 106 communities (69 shown, 37 thin omitted)
+- 1852 nodes · 4172 edges · 115 communities (73 shown, 42 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 164 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -24,7 +24,7 @@
 - Destroy Command Logic
 - [id]/route.rs
 - Wiring File Parsing
-- src/auth/mod.rs
+- AuthBuilder
 - AppError
 - gluon-cli/src/main.rs
 - session.rs
@@ -56,7 +56,7 @@
 - common/mod.rs
 - package.json
 - Release Automation Config
-- .finish_passkey_authentication
+- AuthError
 - ContainerBuilder
 - auth_http.rs
 - store.rs
@@ -75,34 +75,42 @@
 - validate_route
 - .run
 - check-csrf-quint.sh
-- random_id
+- prelude.rs
 - serve_with_shutdown
 - testing_dogfood.rs
 - view.rs
+- redirect.rs
 - testing.rs
+- auth_oauth_transport.rs
 - auth_jwt.rs
 - auth_boot.rs
-- htmx_middleware.rs
+- htmx.rs
 - auth_contracts.rs
+- htmx_middleware.rs
 - .context
-- common/mod.rs
+- e2e.rs
 - arc
 - mail.rs
 - result
+- gluon/src/lib.rs
+- gluon-cli SKILL.md
 - new.rs
+- middleware/static_files.rs
 - templating.rs
 - UserId
 - process.rs
 - service.rs
+- post
+- ChildGuard
 - tests/static_files.rs
 - Container
+- validate_config
+- get
 - auth_smtp.rs
-- AuthError
-- arc
 
 ## God Nodes (most connected - your core abstractions)
-1. `AuthError` - 114 edges
-2. `AuthContext` - 57 edges
+1. `AuthError` - 116 edges
+2. `AuthContext` - 58 edges
 3. `Auth` - 42 edges
 4. `fixture()` - 39 edges
 5. `CsrfWorld` - 33 edges
@@ -140,7 +148,7 @@
 - **gluon-cli skill + its reference documentation set** — skills_gluon_cli_skill, skills_gluon_cli_references_commands, skills_gluon_cli_references_conventions, skills_gluon_cli_references_environment, skills_gluon_cli_references_limitations, skills_gluon_cli_references_testing, skills_gluon_cli_references_validation, skills_gluon_cli_references_workflows [EXTRACTED 0.90]
 - **Review perspective extraction & consumption ecosystem** — claude_skills_improve_review_from_pr_gap_skill, claude_skills_improve_review_from_session_skill, claude_skills_review_pr_skill, claude_skills_review_uncommitted_skill, dot_review_directory [EXTRACTED 0.90]
 
-## Communities (106 total, 37 thin omitted)
+## Communities (115 total, 42 thin omitted)
 
 ### Community 0 - "container.rs"
 Cohesion: 0.21
@@ -166,13 +174,13 @@ Nodes (32): confirm(), confirm_and_remove(), destroy_controller(), destroy_domai
 Cohesion: 0.08
 Nodes (19): BIND_CLOSE_PREFIX, BIND_OPEN_PREFIX, BINDS_END, BINDS_START, Block, insert_and_replace_round_trip(), insert_bind(), line_is_close_marker() (+11 more)
 
-### Community 8 - "src/auth/mod.rs"
-Cohesion: 0.16
-Nodes (9): SmtpConfig, AuthBuilder, AuthConfig, Clock, EmailOtpConfig, oauth_callback(), PasskeyConfig, SystemClock (+1 more)
+### Community 8 - "AuthBuilder"
+Cohesion: 0.22
+Nodes (3): AuthBuilder, Clock, SystemClock
 
 ### Community 9 - "AppError"
-Cohesion: 0.06
-Nodes (26): User, AppError, BadRequest, Conflict, Forbidden, Internal, NotFound, Unauthorized (+18 more)
+Cohesion: 0.11
+Nodes (15): AppError, BadRequest, Conflict, Forbidden, Internal, NotFound, Unauthorized, Validation (+7 more)
 
 ### Community 10 - "gluon-cli/src/main.rs"
 Cohesion: 0.05
@@ -212,7 +220,7 @@ Nodes (15): extract_value_objects(), generate_domain(), is_value_object_type(), 
 
 ### Community 19 - "oauth.rs"
 Cohesion: 0.06
-Nodes (22): OAuthExchange, OAuthIdentity, OAuthProvider, authorization(), failure(), GitHubProvider, GoogleProvider, HttpBridge (+14 more)
+Nodes (23): oauth_callback(), OAuthExchange, OAuthIdentity, OAuthProvider, authorization(), failure(), GitHubProvider, GoogleProvider (+15 more)
 
 ### Community 20 - "examples.rs"
 Cohesion: 0.21
@@ -223,11 +231,11 @@ Cohesion: 0.15
 Nodes (13): derive_entity(), expand_entity(), expand_entity_fails_on_enum(), expand_entity_fails_on_tuple_struct(), expand_entity_fails_with_multiple_id_attributes(), expand_entity_fails_without_id_attribute(), expand_entity_preserves_generics_and_where_clause(), expand_entity_succeeds_with_id_field() (+5 more)
 
 ### Community 22 - "csrf_middleware.rs"
-Cohesion: 0.07
-Nodes (24): Flash, FLASH_KEY, new_session(), set_and_take_round_trip(), set_multiple_keys_round_trip(), take_clears_state(), take_when_unset_returns_empty(), build_app() (+16 more)
+Cohesion: 0.08
+Nodes (21): Flash, FLASH_KEY, new_session(), set_and_take_round_trip(), set_multiple_keys_round_trip(), take_clears_state(), take_when_unset_returns_empty(), build_app() (+13 more)
 
 ### Community 23 - "db.rs"
-Cohesion: 0.14
+Cohesion: 0.15
 Nodes (11): run(), run_async(), seed_requires_seed_file(), DbOp, Create, Drop, Migrate, Prepare (+3 more)
 
 ### Community 24 - "validate_identifier"
@@ -259,8 +267,8 @@ Cohesion: 0.36
 Nodes (10): smartcrabai/agent-skills (upstream skills repo), ai-antipattern skill (companion), .claude/skills directory, improve-review-from-pr-gap SKILL.md, improve-review-from-session SKILL.md, review-pr SKILL.md, review-uncommitted SKILL.md, code-review skill (companion) (+2 more)
 
 ### Community 31 - "csrf_spec.rs"
-Cohesion: 0.09
-Nodes (21): admitted_only(), application(), backend_error(), binary(), COOKIE, cross_session(), CsrfWorld, failure() (+13 more)
+Cohesion: 0.08
+Nodes (23): CsrfToken, admitted_only(), application(), backend_error(), binary(), COOKIE, cross_session(), CsrfWorld (+15 more)
 
 ### Community 32 - "boot.rs"
 Cohesion: 0.10
@@ -271,8 +279,8 @@ Cohesion: 0.11
 Nodes (12): assert, checkReceipt(), fs, assert, { checkReceipt }, fs, model, os (+4 more)
 
 ### Community 34 - "http.rs"
-Cohesion: 0.14
-Nodes (27): authentication_finish(), authentication_start(), AuthenticationStart, Callback, csrf(), EmailRequest, Finish, logout() (+19 more)
+Cohesion: 0.20
+Nodes (25): authentication_finish(), authentication_start(), AuthenticationStart, Callback, csrf(), EmailRequest, Finish, logout() (+17 more)
 
 ### Community 35 - "scan_app_dir"
 Cohesion: 0.40
@@ -283,31 +291,31 @@ Cohesion: 0.15
 Nodes (12): assert_destroy_cancelled_without_changes(), DESTROY_CASES, destroy_declined_confirmation_preserves_generated_files_and_registrations(), destroy_eof_preserves_generated_files_and_registrations(), destroy_later_decline_keeps_every_target_unchanged(), destroy_resource_cleans_empty_dirs(), DOMAIN_FILES, DTO_FILES (+4 more)
 
 ### Community 37 - "common/mod.rs"
-Cohesion: 0.31
-Nodes (6): drain_to_void(), pick_port(), run_cargo_build(), wait_until_ready(), csrf_blocks_state_changing_without_token(), http_smoke_serves_basic_routes()
+Cohesion: 0.19
+Nodes (9): drain_to_void(), gluon_bin(), pick_port(), run_cargo_build(), run_gluon(), run_gluon_expect_failure(), wait_until_ready(), csrf_blocks_state_changing_without_token() (+1 more)
 
 ### Community 38 - "package.json"
 Cohesion: 0.15
 Nodes (12): devDependencies, @informalsystems/quint, engines, node, npm, name, overrides, adm-zip (+4 more)
 
-### Community 40 - ".finish_passkey_authentication"
-Cohesion: 0.26
-Nodes (7): AuthFlow, Auth, Ceremony, decode_key(), internal(), invalid(), SavedKey
+### Community 40 - "AuthError"
+Cohesion: 0.12
+Nodes (21): AuthError, AuthFlow, Auth, Ceremony, check_deletion(), decode_key(), different_configured_provider_does_not_enable_historical_identity(), enabled_email_allows_passkey_deletion() (+13 more)
 
 ### Community 41 - "ContainerBuilder"
 Cohesion: 0.23
 Nodes (5): ContainerBuilder, build_container(), build_container(), build_container(), build_container()
 
 ### Community 43 - "auth_http.rs"
-Cohesion: 0.07
-Nodes (21): AuthContext, BROWSER_KEY, CurrentUser, internal(), assert_cors_for_configured_origin(), assert_extractor_session_failure(), assert_no_store(), auth_session_and_csrf_responses_are_not_cached() (+13 more)
+Cohesion: 0.10
+Nodes (22): assert_cors_for_configured_origin(), assert_extractor_session_failure(), assert_flow_response(), assert_no_store(), assert_passkey_error(), auth_session_and_csrf_responses_are_not_cached(), cors_allows_only_configured_origin(), cors_canonicalizes_configured_origin_with_trailing_slash() (+14 more)
 
 ### Community 44 - "store.rs"
 Cohesion: 0.10
-Nodes (18): AuthStore, check_schema_connection(), load(), lock(), LOCK_ID, LOGIN_MIGRATION, MemoryAuthStore, MIGRATION (+10 more)
+Nodes (17): AuthStore, check_schema_connection(), load(), lock(), LOCK_ID, LOGIN_MIGRATION, MemoryAuthStore, MIGRATION (+9 more)
 
 ### Community 45 - "auth_passkey.rs"
-Cohesion: 0.08
+Cohesion: 0.09
 Nodes (46): anonymous_cannot_delete_an_existing_credential(), anonymous_cannot_list_credentials(), anonymous_registration_finish_cannot_choose_a_victim_user(), anonymous_registration_start_rejects(), another_user_cannot_delete_owner_credential(), assert_option_schema(), assert_public_only(), assertion() (+38 more)
 
 ### Community 62 - "build_session_layer"
@@ -323,8 +331,8 @@ Cohesion: 0.25
 Nodes (8): gluon, gluon-macros, sample-api, sample-auth, sample-di, sample-htmx, sample-pages, sample-sessions
 
 ### Community 66 - "common/auth/mod.rs"
-Cohesion: 0.23
-Nodes (5): OtpEmail, config(), Fixture, Mailbox, TestClock
+Cohesion: 0.16
+Nodes (9): AuthConfig, EmailOtpConfig, EmailSender, OtpEmail, PausedSender, config(), Fixture, Mailbox (+1 more)
 
 ### Community 78 - "Entry"
 Cohesion: 0.22
@@ -342,49 +350,69 @@ Nodes (5): add_test_header(), init_tracing(), read_secure_cookie_env(), shutdown
 Cohesion: 0.25
 Nodes (4): check-csrf-alloy.sh script, QUINT_HOME, check-csrf-quint.sh script, setup-csrf-specs.sh script
 
-### Community 82 - "random_id"
-Cohesion: 0.27
-Nodes (7): Auth, invalid_config(), invalid_token(), public_key(), validate_jwt(), random_id(), TokenClaims
+### Community 82 - "prelude.rs"
+Cohesion: 0.15
+Nodes (4): AuthContext, BROWSER_KEY, CurrentUser, internal()
 
 ### Community 85 - "view.rs"
 Cohesion: 0.21
 Nodes (10): body_string(), Greeting, invalid_template_path_returns_500(), MIN_PAGE, task_local_isolation(), task_local_template_renders_html(), template_missing_returns_500(), View<P> (+2 more)
 
+### Community 86 - "redirect.rs"
+Cohesion: 0.26
+Nodes (8): empty_url_is_rejected(), external_locations_are_rejected(), invalid_location_becomes_500_internal_error(), is_local_location(), permanent_sets_301(), Redirect, to_sets_303_and_location(), url_with_query_string_preserved()
+
+### Community 88 - "auth_oauth_transport.rs"
+Cohesion: 0.21
+Nodes (4): oauth_http_redirect_is_not_followed(), oauth_http_response_limit_allows_exact_boundary_but_rejects_one_byte_more(), oauth_http_timeout_bounds_a_nonresponding_provider(), Server
+
 ### Community 89 - "auth_jwt.rs"
-Cohesion: 0.07
-Nodes (32): JwtConfig, JwtKey, anonymous_session_cannot_mint_tokens(), fixture(), issued_token_is_verifiable_using_only_public_jwks_and_session_subject(), jwks_contains_public_ed25519_keys_but_no_private_material(), logout_prevents_new_tokens_but_does_not_revoke_offline_tokens(), rejected_claim! (+24 more)
+Cohesion: 0.08
+Nodes (27): Auth, invalid_config(), invalid_token(), public_key(), validate_jwt(), JwtConfig, JwtKey, TokenClaims (+19 more)
 
 ### Community 90 - "auth_boot.rs"
-Cohesion: 0.17
-Nodes (16): boot_child(), boot_csrf_rejections_are_not_cached_only_under_the_auth_mount(), boot_http_and_injected_direct_api_use_the_with_container_auth_override(), boot_http_disabled_leaves_auth_in_di_but_mounts_no_auth_endpoints(), boot_otp_rotates_session_csrf_and_preserves_cookie_only_authentication(), boot_public_jwks_is_cacheable_without_session_or_private_key_material(), boot_public_jwks_rejects_unsafe_methods_without_creating_sessions(), boot_with_auth_feature_but_without_with_auth_serves_normally_without_auth_routes() (+8 more)
+Cohesion: 0.18
+Nodes (17): OtpChallenge, boot_child(), boot_csrf_rejections_are_not_cached_only_under_the_auth_mount(), boot_http_and_injected_direct_api_use_the_with_container_auth_override(), boot_http_disabled_leaves_auth_in_di_but_mounts_no_auth_endpoints(), boot_otp_rotates_session_csrf_and_preserves_cookie_only_authentication(), boot_public_jwks_is_cacheable_without_session_or_private_key_material(), boot_public_jwks_rejects_unsafe_methods_without_creating_sessions() (+9 more)
 
-### Community 91 - "htmx_middleware.rs"
-Cohesion: 0.05
-Nodes (20): extractor_defaults_when_middleware_was_skipped(), htmx_middleware(), HtmxRequest, serve_file(), service(), oauth_http_redirect_is_not_followed(), oauth_http_response_limit_allows_exact_boundary_but_rejects_one_byte_more(), oauth_http_timeout_bounds_a_nonresponding_provider() (+12 more)
+### Community 91 - "htmx.rs"
+Cohesion: 0.13
+Nodes (4): extractor_defaults_when_middleware_was_skipped(), htmx_middleware(), HtmxRequest, handler()
 
 ### Community 92 - "auth_contracts.rs"
-Cohesion: 0.16
+Cohesion: 0.15
 Nodes (17): absent_database_does_not_silently_select_memory_storage(), active_jwt_kid_must_reference_a_configured_key(), base(), builder_default_attempt_limit_is_five(), builder_default_otp_is_eight_digits(), builder_default_otp_lifetime_is_five_minutes(), builder_default_resend_interval_is_sixty_seconds(), callbackless_provider_accepts_https_fallback_with_custom_mount() (+9 more)
+
+### Community 93 - "htmx_middleware.rs"
+Cohesion: 0.26
+Nodes (9): flag_is_false_with_false_header_value(), flag_is_false_without_header(), flag_is_true_case_insensitive(), flag_is_true_with_header_present(), htmx_view_returns_fragment_while_normal_request_returns_document(), page(), PageProps, server() (+1 more)
 
 ### Community 94 - ".context"
 Cohesion: 0.06
 Nodes (70): concurrent_verification_of_one_challenge_succeeds_once(), configured_maximum_failed_attempts_permanently_exhausts_challenge(), delivered_code_is_eight_decimal_characters_and_authenticates_once(), delivery_failure_invalidates_only_failed_challenge(), destination_limit_is_shared_across_sources(), disabled_user_cannot_login_or_remain_authenticated(), identity_resolution_is_shared_across_auth_instances(), incorrect() (+62 more)
 
-### Community 95 - "common/mod.rs"
-Cohesion: 0.15
-Nodes (11): ChildGuard, fix_paths(), git_dep(), gluon_bin(), run_gluon(), run_gluon_expect_failure(), run_gluon_yes(), workspace_root() (+3 more)
+### Community 95 - "e2e.rs"
+Cohesion: 0.31
+Nodes (7): fix_paths(), git_dep(), run_gluon_yes(), workspace_root(), full_lifecycle_builds_after_each_generate(), new_agent_flags_install_expected_files(), run_cargo_check()
 
 ### Community 96 - "arc"
-Cohesion: 0.27
-Nodes (4): Inject, get(), DefaultGreetingService, GreetingService
+Cohesion: 0.21
+Nodes (5): Inject, get(), build_container(), DefaultGreetingService, GreetingService
 
 ### Community 97 - "mail.rs"
-Cohesion: 0.19
-Nodes (3): SmtpEmailSender, EmailSender, PausedSender
+Cohesion: 0.16
+Nodes (5): SmtpConfig, SmtpEmailSender, PasskeyConfig, main(), required()
 
 ### Community 98 - "result"
 Cohesion: 0.18
 Nodes (8): View, get(), get(), PageProps, get(), HomeProps, get(), UserProps
+
+### Community 99 - "gluon/src/lib.rs"
+Cohesion: 0.18
+Nodes (3): User, FieldError, app!
+
+### Community 100 - "gluon-cli SKILL.md"
+Cohesion: 0.42
+Nodes (11): gluon CLI binary, gluon-cli references/commands.md, gluon-cli references/conventions.md, Domain と Table 境界の非1:1原則, View<P> テンプレートパス非公開の原則, gluon-cli references/environment.md, gluon-cli references/limitations.md, gluon-cli references/testing.md (+3 more)
 
 ### Community 101 - "new.rs"
 Cohesion: 0.26
@@ -395,7 +423,7 @@ Cohesion: 0.23
 Nodes (5): Templates, load_environment(), render(), render_existing_template_succeeds(), render_unknown_template_errors()
 
 ### Community 104 - "UserId"
-Cohesion: 0.29
+Cohesion: 0.26
 Nodes (5): RegistrationPolicy, UserId, VerifiedIdentity, ExistingSubject, Reject
 
 ### Community 105 - "process.rs"
@@ -404,39 +432,35 @@ Nodes (5): csrf(), fixture_process(), Mailbox, otp_session_jwt_logout_through_sh
 
 ### Community 106 - "service.rs"
 Cohesion: 0.16
-Nodes (11): AuthUser, error(), OAuthStart, OtpChallenge, Auth, Login, normalize_email(), otp_mac() (+3 more)
+Nodes (11): AuthUser, error(), OAuthStart, random_id(), Auth, Login, normalize_email(), otp_mac() (+3 more)
+
+### Community 107 - "post"
+Cohesion: 0.62
+Nodes (3): get(), post(), read_count()
 
 ### Community 109 - "tests/static_files.rs"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (6): directory_index_disabled(), nonexistent_returns_404(), root_created_after_service_is_available(), server_for(), serves_existing_file(), symlink_cannot_escape_public_directory()
-
-### Community 115 - "AuthError"
-Cohesion: 0.18
-Nodes (13): AuthError, check_deletion(), different_configured_provider_does_not_enable_historical_identity(), enabled_email_allows_passkey_deletion(), enabled_matching_provider_allows_passkey_deletion(), EnabledMethod, Email, None (+5 more)
-
-### Community 119 - "arc"
-Cohesion: 0.20
-Nodes (3): main(), required(), build_container()
 
 ## Knowledge Gaps
 - **50 isolated node(s):** `gluon-build`, `gluon-cli`, `New`, `Generate`, `Destroy` (+45 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 542 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **37 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 541 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **42 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AuthError` connect `AuthError` to `mail.rs`, `http.rs`, `common/auth/mod.rs`, `src/auth/mod.rs`, `UserId`, `service.rs`, `auth_http.rs`, `.finish_passkey_authentication`, `store.rs`, `auth_passkey.rs`, `process.rs`, `random_id`, `oauth.rs`, `auth_jwt.rs`, `auth_boot.rs`, `auth_oauth_providers.rs`, `.context`?**
-  _High betweenness centrality (0.081) - this node is a cross-community bridge._
+- **Why does `AuthError` connect `AuthError` to `mail.rs`, `http.rs`, `common/auth/mod.rs`, `UserId`, `process.rs`, `service.rs`, `store.rs`, `validate_config`, `prelude.rs`, `oauth.rs`, `auth_jwt.rs`, `auth_boot.rs`, `auth_oauth_providers.rs`, `.context`?**
+  _High betweenness centrality (0.084) - this node is a cross-community bridge._
 - **What connects `gluon-build`, `gluon-cli`, `New` to the rest of the system?**
   _50 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Value Object Extraction` be split into smaller, more focused modules?**
   _Cohesion score 0.0331002331002331 - nodes in this community are weakly interconnected._
 - **Why does `context()` connect `db.rs` to `auth_jwt.rs`, `Value Object Extraction`, `common/auth/mod.rs`, `http.rs`, `new.rs`, `Destroy Command Logic`, `templating.rs`, `Wiring File Parsing`, `auth_passkey.rs`, `dev.rs`, `.context`?**
-  _High betweenness centrality (0.065) - this node is a cross-community bridge._
+  _High betweenness centrality (0.069) - this node is a cross-community bridge._
 - **Should `Boot` be split into smaller, more focused modules?**
   _Cohesion score 0.11578947368421053 - nodes in this community are weakly interconnected._
-- **Why does `AuthContext` connect `http.rs` to `common/auth/mod.rs`, `src/auth/mod.rs`, `.finish_passkey_authentication`, `service.rs`, `auth_http.rs`, `auth_passkey.rs`, `random_id`, `AuthError`, `db.rs`, `auth_jwt.rs`, `auth_boot.rs`, `.context`?**
-  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Why does `AuthContext` connect `http.rs` to `common/auth/mod.rs`, `AuthError`, `service.rs`, `auth_http.rs`, `store.rs`, `auth_passkey.rs`, `prelude.rs`, `db.rs`, `auth_jwt.rs`, `auth_boot.rs`, `.context`?**
+  _High betweenness centrality (0.058) - this node is a cross-community bridge._
 - **Should `csrf.rs` be split into smaller, more focused modules?**
   _Cohesion score 0.08258258258258258 - nodes in this community are weakly interconnected._

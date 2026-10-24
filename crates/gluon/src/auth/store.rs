@@ -61,7 +61,8 @@ impl StoreData {
         let before = self.challenges.len() + self.rates.len() + self.logins.len();
         self.challenges.retain(|_, item| item.expires > now);
         self.rates.retain(|_, item| item.expires > now);
-        self.logins.retain(|_, item| item.idle_expires > now && item.absolute_expires > now);
+        self.logins
+            .retain(|_, item| item.idle_expires > now && item.absolute_expires > now);
         (before - self.challenges.len() - self.rates.len() - self.logins.len()) as u64
     }
     fn len(&self) -> usize {
@@ -218,7 +219,9 @@ impl PostgresAuthStore {
         }
         if !versions.contains(&2) {
             sqlx::raw_sql(LOGIN_MIGRATION)
-                .execute(&mut *tx).await.map_err(storage_error)?;
+                .execute(&mut *tx)
+                .await
+                .map_err(storage_error)?;
             sqlx::query("INSERT INTO gluon_auth_schema_migrations (version, description) VALUES (2, 'authoritative login liveness')")
                 .execute(&mut *tx).await.map_err(storage_error)?;
         }

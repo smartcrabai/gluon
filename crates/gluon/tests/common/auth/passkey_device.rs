@@ -1,4 +1,5 @@
-//! Real cryptographic authenticator fixtures. SoftPasskey signs ECDSA responses
+#![allow(dead_code, clippy::unwrap_used, clippy::expect_used)]
+//! Real cryptographic authenticator fixtures. `SoftPasskey` signs ECDSA responses
 //! and stores private credential keys. `true` simulates device-local UV only,
 //! never the relying party's signature verification or acceptance result.
 //! The backend is called directly so adversarial tests can sign an incorrect RP
@@ -15,16 +16,29 @@ pub const ORIGIN: &str = "https://app.example.test";
 
 // A fresh packed self-attestation, with a new key but a caller-selected ID,
 // models an authenticator colliding with another user's registered credential.
-pub fn register_with_id(options: Value, id: &str) -> Value {
-    use openssl::{bn::BigNum, bn::BigNumContext, ec::{EcGroup, EcKey}, hash::MessageDigest,
-        nid::Nid, pkey::PKey, sign::Signer};
+pub fn register_with_id(options: &Value, id: &str) -> Value {
+    use openssl::{
+        bn::BigNum,
+        bn::BigNumContext,
+        ec::{EcGroup, EcKey},
+        hash::MessageDigest,
+        nid::Nid,
+        pkey::PKey,
+        sign::Signer,
+    };
     use serde_cbor_2::value::Value as Cbor;
     use sha2::{Digest, Sha256};
     use std::collections::BTreeMap;
 
     let key = EcKey::generate(&EcGroup::from_curve_name(Nid::X9_62_PRIME256V1).unwrap()).unwrap();
-    let (mut x, mut y, mut ctx) = (BigNum::new().unwrap(), BigNum::new().unwrap(), BigNumContext::new().unwrap());
-    key.public_key().affine_coordinates_gfp(key.group(), &mut x, &mut y, &mut ctx).unwrap();
+    let (mut x, mut y, mut ctx) = (
+        BigNum::new().unwrap(),
+        BigNum::new().unwrap(),
+        BigNumContext::new().unwrap(),
+    );
+    key.public_key()
+        .affine_coordinates_gfp(key.group(), &mut x, &mut y, &mut ctx)
+        .unwrap();
     let cose = Cbor::Map(BTreeMap::from([
         (Cbor::Integer(1), Cbor::Integer(2)),
         (Cbor::Integer(3), Cbor::Integer(-7)),
@@ -35,9 +49,16 @@ pub fn register_with_id(options: Value, id: &str) -> Value {
     let client = serde_json::to_vec(&json!({
         "type": "webauthn.create", "challenge": options["publicKey"]["challenge"],
         "origin": ORIGIN, "crossOrigin": false,
-    })).unwrap();
+    }))
+    .unwrap();
     let id_bytes = URL_SAFE_NO_PAD.decode(id).unwrap();
-    let mut auth_data = Sha256::digest(options["publicKey"]["rp"]["id"].as_str().unwrap().as_bytes()).to_vec();
+    let mut auth_data = Sha256::digest(
+        options["publicKey"]["rp"]["id"]
+            .as_str()
+            .unwrap()
+            .as_bytes(),
+    )
+    .to_vec();
     auth_data.push(0x45); // UP, UV and attested credential data.
     auth_data.extend_from_slice(&[0; 20]); // Counter and AAGUID.
     auth_data.extend_from_slice(&u16::try_from(id_bytes.len()).unwrap().to_be_bytes());
@@ -50,10 +71,16 @@ pub fn register_with_id(options: Value, id: &str) -> Value {
     let attestation = Cbor::Map(BTreeMap::from([
         (Cbor::Text("fmt".into()), Cbor::Text("packed".into())),
         (Cbor::Text("authData".into()), Cbor::Bytes(auth_data)),
-        (Cbor::Text("attStmt".into()), Cbor::Map(BTreeMap::from([
-            (Cbor::Text("alg".into()), Cbor::Integer(-7)),
-            (Cbor::Text("sig".into()), Cbor::Bytes(signer.sign_to_vec().unwrap())),
-        ]))),
+        (
+            Cbor::Text("attStmt".into()),
+            Cbor::Map(BTreeMap::from([
+                (Cbor::Text("alg".into()), Cbor::Integer(-7)),
+                (
+                    Cbor::Text("sig".into()),
+                    Cbor::Bytes(signer.sign_to_vec().unwrap()),
+                ),
+            ])),
+        ),
     ]));
     json!({"id": id, "rawId": id, "type": "public-key", "extensions": {},
         "response": {"clientDataJSON": URL_SAFE_NO_PAD.encode(client),
@@ -94,7 +121,7 @@ impl Device {
     }
     pub fn authenticate_at(&mut self, mut options: Value, origin: &str) -> Value {
         let allow = &options["publicKey"]["allowCredentials"];
-        let discoverable = allow.is_null() || allow.as_array().is_some_and(|list| list.is_empty());
+        let discoverable = allow.is_null() || allow.as_array().is_some_and(std::vec::Vec::is_empty);
         if discoverable {
             // SoftPasskey requires an allow list. Simulate device-local credential
             // selection without changing the server's options, RP, or challenge.

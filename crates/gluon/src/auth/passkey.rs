@@ -306,7 +306,8 @@ impl Auth {
                         return Err(invalid());
                     }
                     let state: PasskeyAuthentication =
-                        PasskeyAuthentication::deserialize(&ceremony.state).map_err(|_| internal())?;
+                        PasskeyAuthentication::deserialize(&ceremony.state)
+                            .map_err(|_| internal())?;
                     webauthn
                         .finish_passkey_authentication(&response, &state)
                         .map_err(|_| invalid())?
@@ -320,7 +321,8 @@ impl Auth {
                         return Err(invalid());
                     }
                     let state: DiscoverableAuthentication =
-                        DiscoverableAuthentication::deserialize(&ceremony.state).map_err(|_| internal())?;
+                        DiscoverableAuthentication::deserialize(&ceremony.state)
+                            .map_err(|_| internal())?;
                     webauthn
                         .finish_discoverable_authentication(
                             &response,

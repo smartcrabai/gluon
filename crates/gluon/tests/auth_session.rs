@@ -161,8 +161,14 @@ async fn preloaded_independent_sessions_cannot_restore_revoked_login_authority()
         let stale_writer = reopened(&ctx, sessions.clone());
         let other = Auth::new(f.config.clone(), None).await.unwrap();
         // Independent Session instances have loaded the same cookie before revocation.
-        assert_eq!(other.current_user(&stale).await.unwrap(), Some(old_user.clone()));
-        assert_eq!(other.current_user(&stale_writer).await.unwrap(), Some(old_user));
+        assert_eq!(
+            other.current_user(&stale).await.unwrap(),
+            Some(old_user.clone())
+        );
+        assert_eq!(
+            other.current_user(&stale_writer).await.unwrap(),
+            Some(old_user)
+        );
         let next = if replacement {
             Some(f.login(&ctx, "cached-new@example.test").await)
         } else {
@@ -170,7 +176,11 @@ async fn preloaded_independent_sessions_cannot_restore_revoked_login_authority()
             None
         };
         // Simulate a request that writes its already-cached cookie after revocation.
-        stale_writer.session.insert("late_write", true).await.unwrap();
+        stale_writer
+            .session
+            .insert("late_write", true)
+            .await
+            .unwrap();
         stale_writer.session.save().await.unwrap();
         let replay = reopened(&stale_writer, sessions);
         for cached in [&replay, &stale, &stale_writer] {
@@ -178,10 +188,16 @@ async fn preloaded_independent_sessions_cannot_restore_revoked_login_authority()
             assert_eq!(other.current_user(cached).await.unwrap(), None);
         }
         assert_eq!(f.auth.current_user(&ctx).await.unwrap(), next);
-        f.config.store.as_ref().unwrap().transact(&mut |data| {
-            assert_eq!(data.logins.len(), usize::from(replacement));
-            Ok(())
-        }).await.unwrap();
+        f.config
+            .store
+            .as_ref()
+            .unwrap()
+            .transact(&mut |data| {
+                assert_eq!(data.logins.len(), usize::from(replacement));
+                Ok(())
+            })
+            .await
+            .unwrap();
     }
 }
 
@@ -193,7 +209,10 @@ async fn cached_cookie_uses_authoritative_idle_activity_and_cleanup_cannot_be_un
     ctx.session = Session::new(None, sessions.clone(), None);
     let user = f.login(&ctx, "shared-idle@example.test").await;
     let stale = reopened(&ctx, sessions);
-    assert_eq!(f.auth.current_user(&stale).await.unwrap(), Some(user.clone()));
+    assert_eq!(
+        f.auth.current_user(&stale).await.unwrap(),
+        Some(user.clone())
+    );
     f.clock.advance(Duration::minutes(4));
     assert_eq!(f.auth.current_user(&ctx).await.unwrap(), Some(user.clone()));
     f.clock.advance(Duration::minutes(4));
@@ -203,10 +222,13 @@ async fn cached_cookie_uses_authoritative_idle_activity_and_cleanup_cannot_be_un
     assert!(store.cleanup_expired(f.config.clock.now()).await.unwrap() >= 1);
     assert_eq!(f.auth.current_user(&ctx).await.unwrap(), None);
     assert_eq!(f.auth.current_user(&stale).await.unwrap(), None);
-    store.transact(&mut |data| {
-        assert!(data.logins.is_empty());
-        Ok(())
-    }).await.unwrap();
+    store
+        .transact(&mut |data| {
+            assert!(data.logins.is_empty());
+            Ok(())
+        })
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
@@ -215,8 +237,12 @@ async fn login_payload_must_match_authoritative_user_and_authentication_time() {
         let f = Fixture::new().await;
         let ctx = context();
         f.login(&ctx, "bound@example.test").await;
-        let mut payload = ctx.session.get::<serde_json::Value>("__gluon_auth")
-            .await.unwrap().unwrap();
+        let mut payload = ctx
+            .session
+            .get::<serde_json::Value>("__gluon_auth")
+            .await
+            .unwrap()
+            .unwrap();
         match field {
             "id" => payload["id"] = serde_json::json!("missing-login"),
             "user" => payload["user"]["id"] = serde_json::json!("another-user"),
@@ -235,24 +261,43 @@ async fn login_authority_counts_toward_memory_capacity_and_expiry_reclaims_it() 
     let f = short_lived_fixture().await;
     f.login(&context(), "capacity@example.test").await;
     let mut login = None;
-    f.config.store.as_ref().unwrap().transact(&mut |data| {
-        login = data.logins.values().next().cloned();
-        Ok(())
-    }).await.unwrap();
+    f.config
+        .store
+        .as_ref()
+        .unwrap()
+        .transact(&mut |data| {
+            login = data.logins.values().next().cloned();
+            Ok(())
+        })
+        .await
+        .unwrap();
     let login = login.unwrap();
     let bounded = MemoryAuthStore::new(1);
-    bounded.transact(&mut |data| {
-        data.logins.insert("first".into(), login.clone());
-        Ok(())
-    }).await.unwrap();
-    assert_eq!(bounded.transact(&mut |data| {
-        data.logins.insert("second".into(), login.clone());
-        Ok(())
-    }).await.unwrap_err().code, "storage_capacity");
+    bounded
+        .transact(&mut |data| {
+            data.logins.insert("first".into(), login.clone());
+            Ok(())
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        bounded
+            .transact(&mut |data| {
+                data.logins.insert("second".into(), login.clone());
+                Ok(())
+            })
+            .await
+            .unwrap_err()
+            .code,
+        "storage_capacity"
+    );
     bounded.prepare_capacity(login.idle_expires).await.unwrap();
-    bounded.transact(&mut |data| {
-        assert!(data.logins.is_empty());
-        data.logins.insert("replacement".into(), login.clone());
-        Ok(())
-    }).await.unwrap();
+    bounded
+        .transact(&mut |data| {
+            assert!(data.logins.is_empty());
+            data.logins.insert("replacement".into(), login.clone());
+            Ok(())
+        })
+        .await
+        .unwrap();
 }

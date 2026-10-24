@@ -79,7 +79,12 @@ async fn boot_child() {
         Arc::new(support::Mailbox::default()),
     );
     let mode = std::env::var("GLUON_AUTH_TEST_HTTP").unwrap();
-    config.mount_path = if mode == "default-mount" { "/auth" } else { "/identity" }.into();
+    config.mount_path = if mode == "default-mount" {
+        "/auth"
+    } else {
+        "/identity"
+    }
+    .into();
     config.http_enabled = mode != "0";
     config.email_otp.as_mut().unwrap().sender = Arc::new(FileMail(
         std::env::var_os("GLUON_AUTH_TEST_MAIL").unwrap().into(),
@@ -249,10 +254,40 @@ async fn boot_otp_rotates_session_csrf_and_preserves_cookie_only_authentication(
             .is_null()
     );
     let (old_csrf, old_sid) = csrf(&client, &child, None).await;
+    let (sid, token) =
+        verify_email_otp_and_rotate_session(&client, &child, &old_sid, &old_csrf).await;
+    assert_cookie_only_token_authentication(&client, &child, &sid, &old_csrf, &token).await;
+    let logout = client
+        .post(child.url("/identity/logout"))
+        .header("cookie", &sid)
+        .header("x-csrf-token", token)
+        .send()
+        .await
+        .unwrap();
+    assert!(logout.status().is_success());
+    no_store(&logout);
+    assert_eq!(
+        client
+            .get(child.url("/required"))
+            .header("cookie", &sid)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::UNAUTHORIZED
+    );
+}
+
+async fn verify_email_otp_and_rotate_session(
+    client: &Client,
+    child: &ChildGuard,
+    old_sid: &str,
+    old_csrf: &str,
+) -> (String, String) {
     let request = client
         .post(child.url("/identity/email-otp/request"))
-        .header("cookie", &old_sid)
-        .header("x-csrf-token", &old_csrf)
+        .header("cookie", old_sid)
+        .header("x-csrf-token", old_csrf)
         .json(&json!({"email": "login@example.test"}))
         .send()
         .await
@@ -269,8 +304,8 @@ async fn boot_otp_rotates_session_csrf_and_preserves_cookie_only_authentication(
     );
     let verified = client
         .post(child.url("/identity/email-otp/verify"))
-        .header("cookie", &old_sid)
-        .header("x-csrf-token", &old_csrf)
+        .header("cookie", old_sid)
+        .header("x-csrf-token", old_csrf)
         .json(&json!({"challenge_id": challenge["challenge_id"], "code": mail["code"]}))
         .send()
         .await
@@ -287,14 +322,14 @@ async fn boot_otp_rotates_session_csrf_and_preserves_cookie_only_authentication(
     assert_eq!(
         client
             .get(child.url("/required"))
-            .header("cookie", &old_sid)
+            .header("cookie", old_sid)
             .send()
             .await
             .unwrap()
             .status(),
         StatusCode::UNAUTHORIZED
     );
-    let (token, sid) = csrf(&client, &child, Some(&sid)).await;
+    let (token, sid) = csrf(client, child, Some(&sid)).await;
     assert_ne!(token, old_csrf);
     assert!(
         client
@@ -306,9 +341,19 @@ async fn boot_otp_rotates_session_csrf_and_preserves_cookie_only_authentication(
             .status()
             .is_success()
     );
+    (sid, token)
+}
+
+async fn assert_cookie_only_token_authentication(
+    client: &Client,
+    child: &ChildGuard,
+    sid: &str,
+    old_csrf: &str,
+    csrf_token: &str,
+) {
     let stale = client
         .post(child.url("/identity/token"))
-        .header("cookie", &sid)
+        .header("cookie", sid)
         .header("x-csrf-token", old_csrf)
         .send()
         .await
@@ -317,8 +362,8 @@ async fn boot_otp_rotates_session_csrf_and_preserves_cookie_only_authentication(
     no_store(&stale);
     let issued = client
         .post(child.url("/identity/token"))
-        .header("cookie", &sid)
-        .header("x-csrf-token", &token)
+        .header("cookie", sid)
+        .header("x-csrf-token", csrf_token)
         .send()
         .await
         .unwrap();
@@ -341,32 +386,13 @@ async fn boot_otp_rotates_session_csrf_and_preserves_cookie_only_authentication(
     assert_eq!(
         client
             .post(child.url("/identity/logout"))
-            .header("cookie", &sid)
+            .header("cookie", sid)
             .bearer_auth(&jwt)
             .send()
             .await
             .unwrap()
             .status(),
         StatusCode::FORBIDDEN
-    );
-    let logout = client
-        .post(child.url("/identity/logout"))
-        .header("cookie", &sid)
-        .header("x-csrf-token", token)
-        .send()
-        .await
-        .unwrap();
-    assert!(logout.status().is_success());
-    no_store(&logout);
-    assert_eq!(
-        client
-            .get(child.url("/required"))
-            .header("cookie", &sid)
-            .send()
-            .await
-            .unwrap()
-            .status(),
-        StatusCode::UNAUTHORIZED
     );
 }
 
@@ -375,11 +401,16 @@ async fn boot_csrf_rejections_are_not_cached_only_under_the_auth_mount() {
     for (mode, mount) in [("1", "/identity"), ("default-mount", "/auth")] {
         let child = ChildGuard::start_mode(mode).await;
         let client = Client::new();
-        let initial = client.get(child.url(&format!("{mount}/csrf"))).send().await.unwrap();
+        let initial = client
+            .get(child.url(&format!("{mount}/csrf")))
+            .send()
+            .await
+            .unwrap();
         let sid = cookie(&initial);
         no_store(&initial);
         for token in [None, Some("incorrect-token")] {
-            let mut request = client.post(child.url(&format!("{mount}/logout")))
+            let mut request = client
+                .post(child.url(&format!("{mount}/logout")))
                 .header("cookie", &sid);
             if let Some(token) = token {
                 request = request.header("x-csrf-token", token);
@@ -391,12 +422,19 @@ async fn boot_csrf_rejections_are_not_cached_only_under_the_auth_mount() {
         let ready = client.get(child.url("/ready")).send().await.unwrap();
         assert_eq!(ready.status(), StatusCode::OK);
         assert!(!ready.headers().contains_key("cache-control"));
-        let unrelated = client.post(child.url("/direct-email-request"))
-            .header("cookie", &sid).send().await.unwrap();
+        let unrelated = client
+            .post(child.url("/direct-email-request"))
+            .header("cookie", &sid)
+            .send()
+            .await
+            .unwrap();
         assert_eq!(unrelated.status(), StatusCode::FORBIDDEN);
         assert!(!unrelated.headers().contains_key("cache-control"));
-        let boundary = client.get(child.url(&format!("{mount}-other")))
-            .send().await.unwrap();
+        let boundary = client
+            .get(child.url(&format!("{mount}-other")))
+            .send()
+            .await
+            .unwrap();
         assert!(!boundary.headers().contains_key("cache-control"));
     }
 }
@@ -433,8 +471,10 @@ async fn boot_public_jwks_is_cacheable_without_session_or_private_key_material()
         .json::<Value>()
         .await
         .unwrap();
-    assert!(!body["keys"].as_array().unwrap().is_empty());
-    for key in body["keys"].as_array().unwrap() {
+    let keys = body["keys"].as_array().unwrap();
+    assert_eq!(keys.len(), 1, "configured signing key must be published");
+    assert_eq!(keys[0]["kid"], "old-key");
+    for key in keys {
         assert!(key.get("d").is_none());
     }
 }
@@ -456,7 +496,13 @@ async fn boot_public_jwks_rejects_unsafe_methods_without_creating_sessions() {
             .unwrap();
         assert!(!response.status().is_success());
         assert!(!response.headers().contains_key("set-cookie"));
-        assert_ne!(response.headers().get("cache-control").and_then(|v| v.to_str().ok()), Some("no-store"));
+        assert_ne!(
+            response
+                .headers()
+                .get("cache-control")
+                .and_then(|v| v.to_str().ok()),
+            Some("no-store")
+        );
     }
 }
 

@@ -151,27 +151,43 @@ impl Auth {
                 )
                 .await
                 .map_err(|_| error("storage_error"))?;
-            context.session.save().await.map_err(|_| error("storage_error"))
-        }.await;
+            context
+                .session
+                .save()
+                .await
+                .map_err(|_| error("storage_error"))
+        }
+        .await;
         if let Err(failure) = persisted {
             let _ = context.session.flush().await;
             return Err(failure);
         }
         // Only establishment can create authority, and only after cookie storage
         // succeeds. Restoration never inserts a missing login record.
-        if let Err(failure) = self.store.transact(&mut |data| {
-            if !data.users.get(&user.id.0).is_some_and(|stored| stored.enabled) {
-                return Err(error("user_disabled"));
-            }
-            data.logins.insert(id.clone(), StoredLogin {
-                user: user.id.0.clone(),
-                authenticated: now,
-                last_seen: now,
-                idle_expires: now + self.config.idle_timeout,
-                absolute_expires: now + self.config.absolute_timeout,
-            });
-            Ok(())
-        }).await {
+        if let Err(failure) = self
+            .store
+            .transact(&mut |data| {
+                if !data
+                    .users
+                    .get(&user.id.0)
+                    .is_some_and(|stored| stored.enabled)
+                {
+                    return Err(error("user_disabled"));
+                }
+                data.logins.insert(
+                    id.clone(),
+                    StoredLogin {
+                        user: user.id.0.clone(),
+                        authenticated: now,
+                        last_seen: now,
+                        idle_expires: now + self.config.idle_timeout,
+                        absolute_expires: now + self.config.absolute_timeout,
+                    },
+                );
+                Ok(())
+            })
+            .await
+        {
             let _ = context.session.flush().await;
             return Err(failure);
         }
@@ -253,12 +269,18 @@ impl Auth {
             .map_err(|_| error("storage_error"))
     }
     async fn revoke_login(&self, context: &AuthContext) -> Result<(), AuthError> {
-        if let Some(login) = context.session.get::<Login>(SESSION_KEY).await
-            .map_err(|_| error("storage_error"))? {
-            self.store.transact(&mut |data| {
-                data.logins.remove(&login.id);
-                Ok(())
-            }).await?;
+        if let Some(login) = context
+            .session
+            .get::<Login>(SESSION_KEY)
+            .await
+            .map_err(|_| error("storage_error"))?
+        {
+            self.store
+                .transact(&mut |data| {
+                    data.logins.remove(&login.id);
+                    Ok(())
+                })
+                .await?;
         }
         Ok(())
     }
@@ -382,8 +404,8 @@ impl Auth {
                 {
                     return Err(error("invalid_otp"));
                 }
-                let mut otp = OtpState::deserialize(&challenge.data)
-                    .map_err(|_| error("storage_error"))?;
+                let mut otp =
+                    OtpState::deserialize(&challenge.data).map_err(|_| error("storage_error"))?;
                 if otp.version != 1 || otp.attempts >= config.max_attempts {
                     return Err(error("invalid_otp"));
                 }

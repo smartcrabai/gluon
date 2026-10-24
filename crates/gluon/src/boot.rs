@@ -325,7 +325,9 @@ where
         let jwks = format!("{mount}/jwks");
         router = router.layer(axum::middleware::from_fn(
             move |request: axum::extract::Request, next: axum::middleware::Next| {
-                let path = request.extensions().get::<axum::extract::OriginalUri>()
+                let path = request
+                    .extensions()
+                    .get::<axum::extract::OriginalUri>()
                     .map_or_else(|| request.uri().path(), |original| original.0.path());
                 let private_auth = (path == mount || path.starts_with(&prefix)) && path != jwks;
                 async move {

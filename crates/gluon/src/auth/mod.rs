@@ -14,8 +14,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{net::IpAddr, sync::Arc};
 pub use store::{
-    AuthStore, MemoryAuthStore, PostgresAuthStore, StoreData, StoredChallenge, StoredLogin, StoredPasskey,
-    StoredRate, StoredUser,
+    AuthStore, MemoryAuthStore, PostgresAuthStore, StoreData, StoredChallenge, StoredLogin,
+    StoredPasskey, StoredRate, StoredUser,
 };
 use time::{Duration, OffsetDateTime};
 
@@ -271,8 +271,16 @@ fn oauth_callback(config: &AuthConfig, provider: &dyn OAuthProvider) -> Result<S
     let callback = if let Some(callback) = provider.callback_url() {
         callback.to_owned()
     } else {
-        let origin = config.allowed_origins.first().ok_or_else(|| error("configuration"))?;
-        format!("{}{}/oauth/{}/callback", origin.trim_end_matches('/'), config.mount_path, provider.name())
+        let origin = config
+            .allowed_origins
+            .first()
+            .ok_or_else(|| error("configuration"))?;
+        format!(
+            "{}{}/oauth/{}/callback",
+            origin.trim_end_matches('/'),
+            config.mount_path,
+            provider.name()
+        )
     };
     let url = reqwest::Url::parse(&callback).map_err(|_| error("configuration"))?;
     if url.scheme() != "https"
@@ -293,7 +301,8 @@ fn validate_config(config: &AuthConfig) -> Result<(), AuthError> {
         || p.ends_with('/')
         || p.contains(['?', '#', '{', '}', '\\'])
         || p.contains("//")
-        || p.split('/').any(|s| s == "." || s == ".." || s.starts_with([':', '*']))
+        || p.split('/')
+            .any(|s| s == "." || s == ".." || s.starts_with([':', '*']))
         || p.chars().any(char::is_whitespace)
         || config.flow_ttl <= Duration::ZERO
         || config.idle_timeout <= Duration::ZERO
@@ -362,7 +371,10 @@ impl Auth {
     /// Constructs the common authentication service without implicit memory fallback.
     /// # Errors
     /// Returns an error for invalid settings, missing storage, or unavailable schema.
-    pub async fn new(mut config: AuthConfig, pool: Option<sqlx::PgPool>) -> Result<Self, AuthError> {
+    pub async fn new(
+        mut config: AuthConfig,
+        pool: Option<sqlx::PgPool>,
+    ) -> Result<Self, AuthError> {
         validate_config(&config)?;
         for origin in &mut config.allowed_origins {
             *origin = reqwest::Url::parse(origin)

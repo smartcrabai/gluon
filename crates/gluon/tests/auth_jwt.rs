@@ -74,7 +74,11 @@ async fn issued_token_is_verifiable_using_only_public_jwks_and_session_subject()
         decoded.claims["exp"].as_i64().unwrap() - decoded.claims["iat"].as_i64().unwrap(),
         300
     );
-    assert!(!decoded.claims["jti"].as_str().unwrap().is_empty());
+    assert_ne!(
+        decoded.claims["jti"].as_str().unwrap(),
+        "",
+        "issued JWT must include a token identifier"
+    );
     assert_eq!(f.auth.verify_token(&token).unwrap().sub, user.id.0);
 }
 
@@ -213,7 +217,8 @@ async fn jwks_contains_public_ed25519_keys_but_no_private_material() {
     let f = fixture().await;
     let jwks = f.auth.jwks();
     let keys = jwks["keys"].as_array().unwrap();
-    assert!(!keys.is_empty());
+    assert_eq!(keys.len(), 1, "configured signing key must be published");
+    assert_eq!(keys[0]["kid"], "old-key");
     for key in keys {
         assert_eq!(key["kty"], "OKP");
         assert_eq!(key["crv"], "Ed25519");

@@ -2,27 +2,27 @@
 //!
 //! - §4.1, §4.3: this file rejects missing PostgreSQL, invalid mount paths,
 //!   short OTP keys, inconsistent RP/origin, and absent JWT signing material.
-//! - §4.2, §5.1: auth_session.rs, auth_session_failures.rs, and auth_http.rs
+//! - §4.2, §5.1: `auth_session.rs`, `auth_session_failures.rs`, and `auth_http.rs`
 //!   cover current-user extraction, rotation/revocation, optional anonymity,
 //!   session expiry, write failures, and failed server-side logout deletion.
-//! - §5.2: auth_email_otp.rs covers delivery, verification, limits, resend,
+//! - §5.2: `auth_email_otp.rs` covers delivery, verification, limits, resend,
 //!   expiry, single consumption, and identity resolution.
-//!   auth_smtp.rs checks that a real plaintext-only SMTP endpoint cannot
+//!   `auth_smtp.rs` checks that a real plaintext-only SMTP endpoint cannot
 //!   receive credentials or OTP messages from the standard sender.
-//! - §5.3: auth_passkey.rs exercises real authenticator registration and
+//! - §5.3: `auth_passkey.rs` exercises real authenticator registration and
 //!   authentication as well as invalid and cross-browser flows.
-//! - §5.4: auth_oauth.rs covers provider flows, identity and explicit linking.
-//!   auth_oauth_providers.rs uses genuinely RSA-signed ID tokens for trusted
+//! - §5.4: `auth_oauth.rs` covers provider flows, identity and explicit linking.
+//!   `auth_oauth_providers.rs` uses genuinely RSA-signed ID tokens for trusted
 //!   OIDC discovery, nonce/issuer/audience/expiry/signature validation, and
-//!   Google/GitHub stable identities. auth_oauth_transport.rs exercises real
+//!   Google/GitHub stable identities. `auth_oauth_transport.rs` exercises real
 //!   local HTTP redirect refusal, byte limits, and nonresponding-server timeout.
-//! - §5.5: auth_jwt.rs verifies signature/claims, issuance gating, and rotation.
-//! - §6: auth_postgres.rs exercises real PostgreSQL sharing, atomic consumption,
+//! - §5.5: `auth_jwt.rs` verifies signature/claims, issuance gating, and rotation.
+//! - §6: `auth_postgres.rs` exercises real PostgreSQL sharing, atomic consumption,
 //!   rate limits, cleanup, migration isolation, and concurrent migrations.
-//! - §4.3–4.4 / §10.2: auth_boot.rs drives Boot as a subprocess, and auth_http.rs
+//! - §4.3–4.4 / §10.2: `auth_boot.rs` drives Boot as a subprocess, and `auth_http.rs`
 //!   drives the real router/Session/CSRF/Extractor boundaries.
-//! - §3 / §10.1 compatibility: existing boot, csrf_middleware, csrf_spec,
-//!   postgres_session, redirect, DI, and example tests remain unchanged.
+//! - §3 / §10.1 compatibility: existing boot, `csrf_middleware`, `csrf_spec`,
+//!   `postgres_session`, redirect, DI, and example tests remain unchanged.
 //!
 //! Boundaries: these tests do not claim real Google/GitHub account registration,
 //! actual external SMTP delivery, a physical browser authenticator, statistical
@@ -50,13 +50,22 @@ fn base() -> AuthConfig {
 struct CallbackProvider(Option<&'static str>);
 #[async_trait::async_trait]
 impl gluon::auth::OAuthProvider for CallbackProvider {
-    fn name(&self) -> &str { "fixture" }
-    fn callback_url(&self) -> Option<&str> { self.0 }
+    fn name(&self) -> &'static str {
+        "fixture"
+    }
+    fn callback_url(&self) -> Option<&str> {
+        self.0
+    }
     fn authorization_url(&self, _: &str, _: &str, _: &str) -> String {
         "https://provider.example.test/authorize".into()
     }
-    async fn exchange(&self, _: gluon::auth::OAuthExchange) -> Result<gluon::auth::OAuthIdentity, gluon::auth::AuthError> {
-        Err(gluon::auth::AuthError { code: "unused_provider" })
+    async fn exchange(
+        &self,
+        _: gluon::auth::OAuthExchange,
+    ) -> Result<gluon::auth::OAuthIdentity, gluon::auth::AuthError> {
+        Err(gluon::auth::AuthError {
+            code: "unused_provider",
+        })
     }
 }
 
@@ -91,7 +100,9 @@ async fn explicit_oauth_callback_restrictions_remain_enforced() {
     }
     let mut cfg = base();
     cfg.allowed_origins = vec!["http://localhost:3000".into()];
-    cfg.oauth.push(Arc::new(CallbackProvider(Some("https://app.example.test/registered/callback"))));
+    cfg.oauth.push(Arc::new(CallbackProvider(Some(
+        "https://app.example.test/registered/callback",
+    ))));
     assert!(Auth::new(cfg, None).await.is_ok());
 }
 
@@ -113,7 +124,10 @@ macro_rules! invalid_mount {
         async fn $name() {
             let mut config = base();
             config.mount_path = $path.into();
-            assert_eq!(Auth::new(config, None).await.err().unwrap().code, "configuration");
+            assert_eq!(
+                Auth::new(config, None).await.err().unwrap().code,
+                "configuration"
+            );
         }
     };
 }
@@ -139,14 +153,22 @@ async fn short_otp_secret_is_rejected_during_construction() {
 #[tokio::test]
 async fn origin_canonicalization_does_not_relax_configuration_restrictions() {
     for origin in [
-        "http://app.example.test", "https:///", "https://user@app.example.test",
-        "https://user:password@app.example.test", "https://app.example.test/path",
-        "https://app.example.test/?query=1", "https://app.example.test/#fragment",
+        "http://app.example.test",
+        "https:///",
+        "https://user@app.example.test",
+        "https://user:password@app.example.test",
+        "https://app.example.test/path",
+        "https://app.example.test/?query=1",
+        "https://app.example.test/#fragment",
         "ftp://app.example.test",
     ] {
         let mut cfg = base();
         cfg.allowed_origins = vec![origin.into()];
-        assert_eq!(Auth::new(cfg, None).await.err().unwrap().code, "configuration", "{origin}");
+        assert_eq!(
+            Auth::new(cfg, None).await.err().unwrap().code,
+            "configuration",
+            "{origin}"
+        );
     }
 }
 

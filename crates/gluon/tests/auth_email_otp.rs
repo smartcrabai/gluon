@@ -62,10 +62,16 @@ async fn incorrect_code_does_not_authenticate_and_allows_retry_with_valid_code()
             .await,
         "invalid_otp",
     );
-    f.config.store.as_ref().unwrap().transact(&mut |data| {
-        assert_eq!(data.challenges[&challenge.challenge_id].data["attempts"], 1);
-        Ok(())
-    }).await.unwrap();
+    f.config
+        .store
+        .as_ref()
+        .unwrap()
+        .transact(&mut |data| {
+            assert_eq!(data.challenges[&challenge.challenge_id].data["attempts"], 1);
+            Ok(())
+        })
+        .await
+        .unwrap();
     assert_eq!(f.auth.current_user(&ctx).await.unwrap(), None);
     assert!(
         f.auth
@@ -79,20 +85,37 @@ async fn incorrect_code_does_not_authenticate_and_allows_retry_with_valid_code()
 async fn malformed_stored_otp_returns_storage_error_without_mutation() {
     let f = Fixture::new().await;
     let ctx = context();
-    let challenge = f.auth.request_email_otp(&ctx, "malformed@example.test").await.unwrap();
+    let challenge = f
+        .auth
+        .request_email_otp(&ctx, "malformed@example.test")
+        .await
+        .unwrap();
     let store = f.config.store.as_ref().unwrap();
     let mut before = gluon::auth::StoreData::default();
-    store.transact(&mut |data| {
-        data.challenges.get_mut(&challenge.challenge_id).unwrap().data =
-            serde_json::json!({"version":1,"email":123,"tag":[],"attempts":0});
-        before = data.clone();
-        Ok(())
-    }).await.unwrap();
-    assert_code(f.auth.verify_email_otp(&ctx, &challenge.challenge_id, &f.mail.last().code).await, "storage_error");
-    store.transact(&mut |data| {
-        assert!(*data == before, "malformed OTP must not mutate storage");
-        Ok(())
-    }).await.unwrap();
+    store
+        .transact(&mut |data| {
+            data.challenges
+                .get_mut(&challenge.challenge_id)
+                .unwrap()
+                .data = serde_json::json!({"version":1,"email":123,"tag":[],"attempts":0});
+            before = data.clone();
+            Ok(())
+        })
+        .await
+        .unwrap();
+    assert_code(
+        f.auth
+            .verify_email_otp(&ctx, &challenge.challenge_id, &f.mail.last().code)
+            .await,
+        "storage_error",
+    );
+    store
+        .transact(&mut |data| {
+            assert!(*data == before, "malformed OTP must not mutate storage");
+            Ok(())
+        })
+        .await
+        .unwrap();
     assert_eq!(f.auth.current_user(&ctx).await.unwrap(), None);
 }
 

@@ -1,5 +1,5 @@
 //! Plan §6 / §10.2: real PostgreSQL, never a mock or a silent Docker skip.
-//! Run with Docker reachable: cargo test -p gluon --features auth --test auth_postgres.
+//! Run with Docker reachable: cargo test -p gluon --features auth --test `auth_postgres`.
 #![cfg(feature = "auth")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -374,42 +374,79 @@ async fn postgres_preloaded_independent_sessions_cannot_restore_revoked_logins()
     cfg.jwt = Some(keys::jwt_config());
     let first = Auth::new(cfg.clone(), None).await.unwrap();
     let other_pool = sqlx::PgPool::connect_with(db.pool.connect_options().as_ref().clone())
-        .await.unwrap();
+        .await
+        .unwrap();
     let mut other_cfg = cfg;
     other_cfg.store = Some(Arc::new(PostgresAuthStore::new(other_pool.clone())));
     let other = Auth::new(other_cfg, None).await.unwrap();
     for replacement in [false, true] {
         let ctx = db.context().await;
-        let challenge = first.request_email_otp(&ctx,
-            if replacement { "pg-old-replace@example.test" } else { "pg-old-logout@example.test" }
-        ).await.unwrap();
-        let old_user = first.verify_email_otp(&ctx, &challenge.challenge_id, &mail.last().code)
-            .await.unwrap();
+        let challenge = first
+            .request_email_otp(
+                &ctx,
+                if replacement {
+                    "pg-old-replace@example.test"
+                } else {
+                    "pg-old-logout@example.test"
+                },
+            )
+            .await
+            .unwrap();
+        let old_user = first
+            .verify_email_otp(&ctx, &challenge.challenge_id, &mail.last().code)
+            .await
+            .unwrap();
         let stale = AuthContext {
-            session: Session::new(ctx.session.id(),
-                Arc::new(PostgresSessionStore::new(other_pool.clone())), None),
+            session: Session::new(
+                ctx.session.id(),
+                Arc::new(PostgresSessionStore::new(other_pool.clone())),
+                None,
+            ),
             ..ctx.clone()
         };
         let stale_writer = AuthContext {
-            session: Session::new(ctx.session.id(),
-                Arc::new(PostgresSessionStore::new(other_pool.clone())), None),
+            session: Session::new(
+                ctx.session.id(),
+                Arc::new(PostgresSessionStore::new(other_pool.clone())),
+                None,
+            ),
             ..ctx.clone()
         };
-        assert_eq!(other.current_user(&stale).await.unwrap(), Some(old_user.clone()));
-        assert_eq!(other.current_user(&stale_writer).await.unwrap(), Some(old_user));
+        assert_eq!(
+            other.current_user(&stale).await.unwrap(),
+            Some(old_user.clone())
+        );
+        assert_eq!(
+            other.current_user(&stale_writer).await.unwrap(),
+            Some(old_user)
+        );
         let next = if replacement {
-            let challenge = first.request_email_otp(&ctx, "pg-new@example.test").await.unwrap();
-            Some(first.verify_email_otp(&ctx, &challenge.challenge_id, &mail.last().code)
-                .await.unwrap())
+            let challenge = first
+                .request_email_otp(&ctx, "pg-new@example.test")
+                .await
+                .unwrap();
+            Some(
+                first
+                    .verify_email_otp(&ctx, &challenge.challenge_id, &mail.last().code)
+                    .await
+                    .unwrap(),
+            )
         } else {
             first.logout(&ctx).await.unwrap();
             None
         };
-        stale_writer.session.insert("late_write", true).await.unwrap();
+        stale_writer
+            .session
+            .insert("late_write", true)
+            .await
+            .unwrap();
         stale_writer.session.save().await.unwrap();
         let replay = AuthContext {
-            session: Session::new(stale_writer.session.id(),
-                Arc::new(PostgresSessionStore::new(db.pool.clone())), None),
+            session: Session::new(
+                stale_writer.session.id(),
+                Arc::new(PostgresSessionStore::new(db.pool.clone())),
+                None,
+            ),
             ..ctx.clone()
         };
         for cached in [&replay, &stale, &stale_writer] {
@@ -418,7 +455,9 @@ async fn postgres_preloaded_independent_sessions_cannot_restore_revoked_logins()
         }
         assert_eq!(first.current_user(&ctx).await.unwrap(), next);
         let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM gluon_auth_logins")
-            .fetch_one(&db.pool).await.unwrap();
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
         assert_eq!(count, i64::from(replacement));
     }
 }
@@ -427,20 +466,40 @@ async fn postgres_preloaded_independent_sessions_cannot_restore_revoked_logins()
 async fn postgres_login_authority_failure_is_not_anonymous_or_successful_logout() {
     let db = Database::new().await;
     let mail = Arc::new(Mailbox::default());
-    let auth = Auth::new(db.config(Arc::new(TestClock::new()), mail.clone()).await, None)
-        .await.unwrap();
+    let auth = Auth::new(
+        db.config(Arc::new(TestClock::new()), mail.clone()).await,
+        None,
+    )
+    .await
+    .unwrap();
     let ctx = db.context().await;
-    let challenge = auth.request_email_otp(&ctx, "pg-failure@example.test").await.unwrap();
-    let user = auth.verify_email_otp(&ctx, &challenge.challenge_id, &mail.last().code)
-        .await.unwrap();
+    let challenge = auth
+        .request_email_otp(&ctx, "pg-failure@example.test")
+        .await
+        .unwrap();
+    let user = auth
+        .verify_email_otp(&ctx, &challenge.challenge_id, &mail.last().code)
+        .await
+        .unwrap();
     let cookie_id = ctx.session.id();
     sqlx::query("ALTER TABLE gluon_auth_logins RENAME TO unavailable_auth_logins")
-        .execute(&db.pool).await.unwrap();
-    assert_eq!(auth.current_user(&ctx).await.unwrap_err().code, "storage_error");
+        .execute(&db.pool)
+        .await
+        .unwrap();
+    assert_eq!(
+        auth.current_user(&ctx).await.unwrap_err().code,
+        "storage_error"
+    );
     assert_eq!(auth.logout(&ctx).await.unwrap_err().code, "storage_error");
-    assert_eq!(ctx.session.id(), cookie_id, "failed revocation must not flush the cookie");
+    assert_eq!(
+        ctx.session.id(),
+        cookie_id,
+        "failed revocation must not flush the cookie"
+    );
     sqlx::query("ALTER TABLE unavailable_auth_logins RENAME TO gluon_auth_logins")
-        .execute(&db.pool).await.unwrap();
+        .execute(&db.pool)
+        .await
+        .unwrap();
     assert_eq!(auth.current_user(&ctx).await.unwrap(), Some(user));
     auth.logout(&ctx).await.unwrap();
 }
@@ -449,22 +508,32 @@ async fn postgres_login_authority_failure_is_not_anonymous_or_successful_logout(
 async fn postgres_v1_upgrade_adds_login_authority_without_changing_existing_data() {
     let db = Database::new().await;
     sqlx::raw_sql(include_str!("../src/auth/migrations/0001_auth.sql"))
-        .execute(&db.pool).await.unwrap();
+        .execute(&db.pool)
+        .await
+        .unwrap();
     sqlx::raw_sql("CREATE TABLE gluon_auth_schema_migrations (version BIGINT PRIMARY KEY, description TEXT NOT NULL); INSERT INTO gluon_auth_schema_migrations VALUES (1, 'authentication storage v1')")
         .execute(&db.pool).await.unwrap();
     let sentinel = serde_json::json!({"count": 1, "expires": TestClock::new().now()});
     sqlx::query("INSERT INTO gluon_auth_rate_limits VALUES ('sentinel', $1::jsonb)")
-        .bind(sentinel.to_string()).execute(&db.pool).await.unwrap();
+        .bind(sentinel.to_string())
+        .execute(&db.pool)
+        .await
+        .unwrap();
     let store = PostgresAuthStore::new(db.pool.clone());
     assert!(store.check_schema().await.is_err());
     store.migrate().await.unwrap();
     store.migrate().await.unwrap();
     store.check_schema().await.unwrap();
     let sentinel: String = sqlx::query_scalar("SELECT id FROM gluon_auth_rate_limits")
-        .fetch_one(&db.pool).await.unwrap();
+        .fetch_one(&db.pool)
+        .await
+        .unwrap();
     assert_eq!(sentinel, "sentinel");
-    let versions: Vec<i64> = sqlx::query_scalar("SELECT version FROM gluon_auth_schema_migrations ORDER BY version")
-        .fetch_all(&db.pool).await.unwrap();
+    let versions: Vec<i64> =
+        sqlx::query_scalar("SELECT version FROM gluon_auth_schema_migrations ORDER BY version")
+            .fetch_all(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(versions, vec![1, 2]);
 }
 
@@ -472,22 +541,40 @@ async fn postgres_v1_upgrade_adds_login_authority_without_changing_existing_data
 async fn postgres_login_authority_write_failure_cannot_leave_an_authenticated_cookie() {
     let db = Database::new().await;
     let mail = Arc::new(Mailbox::default());
-    let auth = Auth::new(db.config(Arc::new(TestClock::new()), mail.clone()).await, None)
-        .await.unwrap();
+    let auth = Auth::new(
+        db.config(Arc::new(TestClock::new()), mail.clone()).await,
+        None,
+    )
+    .await
+    .unwrap();
     let ctx = db.context().await;
-    let challenge = auth.request_email_otp(&ctx, "pg-authority-write@example.test")
-        .await.unwrap();
+    let challenge = auth
+        .request_email_otp(&ctx, "pg-authority-write@example.test")
+        .await
+        .unwrap();
     let code = mail.last().code;
     sqlx::raw_sql("CREATE FUNCTION reject_login_write() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'injected login authority write failure'; END $$; CREATE TRIGGER reject_login_write BEFORE INSERT ON gluon_auth_logins FOR EACH ROW EXECUTE FUNCTION reject_login_write()")
         .execute(&db.pool).await.unwrap();
-    assert_eq!(auth.verify_email_otp(&ctx, &challenge.challenge_id, &code)
-        .await.unwrap_err().code, "storage_error");
+    assert_eq!(
+        auth.verify_email_otp(&ctx, &challenge.challenge_id, &code)
+            .await
+            .unwrap_err()
+            .code,
+        "storage_error"
+    );
     let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM gluon_auth_logins")
-        .fetch_one(&db.pool).await.unwrap();
+        .fetch_one(&db.pool)
+        .await
+        .unwrap();
     assert_eq!(count, 0);
     assert_eq!(auth.current_user(&ctx).await.unwrap(), None);
-    assert_eq!(auth.verify_email_otp(&ctx, &challenge.challenge_id, &code)
-        .await.unwrap_err().code, "invalid_otp");
+    assert_eq!(
+        auth.verify_email_otp(&ctx, &challenge.challenge_id, &code)
+            .await
+            .unwrap_err()
+            .code,
+        "invalid_otp"
+    );
 }
 
 #[tokio::test]
@@ -502,17 +589,33 @@ async fn postgres_login_cleanup_enforces_idle_and_absolute_deadlines_for_cached_
         let store = cfg.store.clone().unwrap();
         let auth = Auth::new(cfg, None).await.unwrap();
         let ctx = db.context().await;
-        let challenge = auth.request_email_otp(&ctx,
-            if absolute { "pg-absolute@example.test" } else { "pg-idle@example.test" }
-        ).await.unwrap();
-        let user = auth.verify_email_otp(&ctx, &challenge.challenge_id, &mail.last().code)
-            .await.unwrap();
+        let challenge = auth
+            .request_email_otp(
+                &ctx,
+                if absolute {
+                    "pg-absolute@example.test"
+                } else {
+                    "pg-idle@example.test"
+                },
+            )
+            .await
+            .unwrap();
+        let user = auth
+            .verify_email_otp(&ctx, &challenge.challenge_id, &mail.last().code)
+            .await
+            .unwrap();
         let cached = AuthContext {
-            session: Session::new(ctx.session.id(),
-                Arc::new(PostgresSessionStore::new(db.pool.clone())), None),
+            session: Session::new(
+                ctx.session.id(),
+                Arc::new(PostgresSessionStore::new(db.pool.clone())),
+                None,
+            ),
             ..ctx.clone()
         };
-        assert_eq!(auth.current_user(&cached).await.unwrap(), Some(user.clone()));
+        assert_eq!(
+            auth.current_user(&cached).await.unwrap(),
+            Some(user.clone())
+        );
         if absolute {
             for _ in 0..2 {
                 clock.advance(Duration::minutes(4));
@@ -524,7 +627,9 @@ async fn postgres_login_cleanup_enforces_idle_and_absolute_deadlines_for_cached_
         }
         assert!(store.cleanup_expired(clock.now()).await.unwrap() >= 1);
         let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM gluon_auth_logins")
-            .fetch_one(&db.pool).await.unwrap();
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
         assert_eq!(count, 0);
         assert_eq!(auth.current_user(&cached).await.unwrap(), None);
         assert_eq!(auth.current_user(&ctx).await.unwrap(), None);

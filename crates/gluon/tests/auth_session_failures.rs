@@ -76,10 +76,19 @@ async fn authentication_does_not_succeed_when_new_session_cannot_be_persisted() 
         "authentication must persist the new session before reporting success"
     );
     assert_eq!(f.auth.current_user(&ctx).await.unwrap(), None);
-    f.config.store.as_ref().unwrap().transact(&mut |data| {
-        assert!(data.logins.is_empty(), "failed cookie writes must not grant authority");
-        Ok(())
-    }).await.unwrap();
+    f.config
+        .store
+        .as_ref()
+        .unwrap()
+        .transact(&mut |data| {
+            assert!(
+                data.logins.is_empty(),
+                "failed cookie writes must not grant authority"
+            );
+            Ok(())
+        })
+        .await
+        .unwrap();
     assert!(
         f.auth
             .verify_email_otp(&common::context(), &challenge.challenge_id, &code)
@@ -112,8 +121,11 @@ async fn logout_does_not_succeed_when_server_side_deletion_fails() {
         f.auth.logout(&failing).await.is_err(),
         "clearing a client cookie alone must not report a completed logout"
     );
-    assert_eq!(f.auth.current_user(&ctx).await.unwrap(), None,
-        "authority must be revoked even when cookie deletion fails");
+    assert_eq!(
+        f.auth.current_user(&ctx).await.unwrap(),
+        None,
+        "authority must be revoked even when cookie deletion fails"
+    );
 }
 
 #[tokio::test]
@@ -124,21 +136,40 @@ async fn replacement_revokes_old_authority_even_when_cookie_flush_fails() {
     ctx.session = Session::new(None, Arc::new(store.clone()), None);
     f.login(&ctx, "old-flush-failure@example.test").await;
     let failing = gluon::auth::AuthContext {
-        session: Session::new(ctx.session.id(), Arc::new(FaultStore {
-            inner: store,
-            fail_write: false,
-            fail_delete: true,
-        }), None),
+        session: Session::new(
+            ctx.session.id(),
+            Arc::new(FaultStore {
+                inner: store,
+                fail_write: false,
+                fail_delete: true,
+            }),
+            None,
+        ),
         ..ctx.clone()
     };
     assert!(f.auth.current_user(&failing).await.unwrap().is_some());
-    let challenge = f.auth.request_email_otp(&failing, "new-flush-failure@example.test")
-        .await.unwrap();
-    assert_eq!(f.auth.verify_email_otp(&failing, &challenge.challenge_id, &f.mail.last().code)
-        .await.unwrap_err().code, "storage_error");
+    let challenge = f
+        .auth
+        .request_email_otp(&failing, "new-flush-failure@example.test")
+        .await
+        .unwrap();
+    assert_eq!(
+        f.auth
+            .verify_email_otp(&failing, &challenge.challenge_id, &f.mail.last().code)
+            .await
+            .unwrap_err()
+            .code,
+        "storage_error"
+    );
     assert_eq!(f.auth.current_user(&ctx).await.unwrap(), None);
-    f.config.store.as_ref().unwrap().transact(&mut |data| {
-        assert!(data.logins.is_empty());
-        Ok(())
-    }).await.unwrap();
+    f.config
+        .store
+        .as_ref()
+        .unwrap()
+        .transact(&mut |data| {
+            assert!(data.logins.is_empty());
+            Ok(())
+        })
+        .await
+        .unwrap();
 }

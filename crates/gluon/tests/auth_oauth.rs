@@ -1,4 +1,5 @@
 #![cfg(feature = "auth")]
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 #[path = "common/auth/mod.rs"]
 mod common;
 
@@ -21,7 +22,7 @@ struct Provider {
 }
 #[async_trait]
 impl OAuthProvider for Provider {
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         "fixture"
     }
     fn authorization_url(&self, state: &str, challenge: &str, nonce: &str) -> String {
@@ -57,7 +58,7 @@ impl OAuthProvider for Provider {
 struct OtherProvider(Arc<Provider>);
 #[async_trait]
 impl OAuthProvider for OtherProvider {
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         "other-provider"
     }
     fn authorization_url(&self, state: &str, challenge: &str, nonce: &str) -> String {
@@ -172,15 +173,24 @@ async fn callbackless_provider_uses_first_https_origin_and_custom_mount_for_exch
     let provider = Arc::new(Provider::default());
     let mut cfg = config(clock.clone(), mail.clone());
     cfg.mount_path = "/identity".into();
-    cfg.allowed_origins = vec!["https://login.example.test/".into(), "https://other.example.test".into()];
+    cfg.allowed_origins = vec![
+        "https://login.example.test/".into(),
+        "https://other.example.test".into(),
+    ];
     cfg.oauth.push(provider.clone());
     let f = Fixture::with_config(cfg, clock, mail).await;
     let ctx = context();
     let start = f.auth.start_oauth(&ctx, "fixture", false).await.unwrap();
-    f.auth.finish_oauth(&ctx, "fixture", &start.flow_id, "subject").await.unwrap();
+    f.auth
+        .finish_oauth(&ctx, "fixture", &start.flow_id, "subject")
+        .await
+        .unwrap();
     let calls = provider.requests.lock().unwrap();
     assert_eq!(calls.len(), 1);
-    assert_eq!(calls[0].callback, "https://login.example.test/identity/oauth/fixture/callback");
+    assert_eq!(
+        calls[0].callback,
+        "https://login.example.test/identity/oauth/fixture/callback"
+    );
 }
 
 #[tokio::test]

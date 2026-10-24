@@ -1,6 +1,6 @@
 //! Plan §5.4: real signed OIDC responses through the public provider adapter.
 //! HTTP is a deterministic fixture here, not an OIDC verification-success mock.
-//! Real network transport safety is covered by auth_oauth_transport.rs.
+//! Real network transport safety is covered by `auth_oauth_transport.rs`.
 #![cfg(feature = "auth")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 #[path = "common/auth/mod.rs"]
@@ -78,7 +78,7 @@ impl Idp {
             jwks: Mutex::new(jwks(MODULUS, "fixture-rsa")),
             fail_jwks: Mutex::new(false),
             github_user: Mutex::new(
-                json!({"id":123456, "login":"initial-name", "email":"same@example.test"}),
+                json!({"id":123_456, "login":"initial-name", "email":"same@example.test"}),
             ),
             requests: Mutex::new(vec![]),
         }
@@ -529,7 +529,7 @@ async fn github_identity_survives_login_name_and_email_changes() {
     let provider = GitHubProvider::new(client_config(), idp.clone()).unwrap();
     let first = provider.exchange(exchange()).await.unwrap();
     *idp.github_user.lock().unwrap() =
-        json!({"id":123456, "login":"renamed-user", "email":"renamed@example.test"});
+        json!({"id":123_456, "login":"renamed-user", "email":"renamed@example.test"});
     let second = provider.exchange(exchange()).await.unwrap();
     assert_eq!(first.subject, "123456");
     assert_eq!(first.subject, second.subject);

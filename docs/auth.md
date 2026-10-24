@@ -116,3 +116,7 @@ JWT is a short-lived external API credential issued only from a valid Cookie ses
 Logout destroys the Cookie session and blocks new JWT issuance. Already-issued JWTs verified offline remain valid until `exp` (with verifier clock tolerance). Logout is not immediate JWT revocation. Immediate revocation requires an application-specific online check/denylist, which this contract does not provide. No long-lived refresh token is issued.
 
 Rotate to a new active `kid` and retain old verification keys for at least the maximum issued TTL plus clock skew; account for JWKS caches. The example only loads one key, so production rotation needs application configuration and consumer coordination. Keep Cookie, OTP and JWT secrets separate. External SMTP, real Google/GitHub and browser WebAuthn need their own end-to-end checks; local fixtures alone do not establish production interoperability.
+
+## Development checks
+
+Run `taplo fmt --check --option reorder_keys=true Cargo.toml`, `cargo fmt --all -- --check`, and `cargo clippy --workspace --all-targets --all-features -- -D warnings` before submitting authentication changes. The subprocess smoke check is `cargo test --manifest-path examples/Cargo.toml -p sample-auth --test process --locked`; PostgreSQL contracts additionally require Docker with published ports reachable from the test process.

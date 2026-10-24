@@ -1,10 +1,10 @@
 //! HTTP contracts intentionally fail until the compile-only auth API is implemented.
 #![cfg(feature = "auth")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
-#[path = "common/auth/mod.rs"]
-mod support;
 #[path = "common/auth/passkey_device.rs"]
 mod passkey_device;
+#[path = "common/auth/mod.rs"]
+mod support;
 
 use axum::http::{Method, StatusCode};
 use axum::{Json, Router, middleware, routing::get};
@@ -111,10 +111,10 @@ async fn optional(user: Option<CurrentUser>) -> Json<Value> {
 }
 
 // The public router is merged AFTER the normal session/CSRF/HTMX stack.
-fn server(auth: Arc<Auth>, register: bool) -> TestServer {
+fn server(auth: &Arc<Auth>, register: bool) -> TestServer {
     let mut builder = ContainerBuilder::new();
     if register {
-        builder = builder.bind_instance(auth.clone());
+        builder = builder.bind_instance(Arc::clone(auth));
     }
     let app = Router::new()
         .nest("/auth", auth.router())
@@ -137,7 +137,7 @@ fn server(auth: Arc<Auth>, register: bool) -> TestServer {
 #[tokio::test]
 async fn required_extractor_rejects_anonymous_session() {
     let f = support::Fixture::new().await;
-    let app = server(f.auth.clone(), true);
+    let app = server(&f.auth, true);
     assert_eq!(
         app.get("/required").await.status_code(),
         StatusCode::UNAUTHORIZED
@@ -147,14 +147,14 @@ async fn required_extractor_rejects_anonymous_session() {
 #[tokio::test]
 async fn optional_extractor_permits_anonymous_session() {
     let f = support::Fixture::new().await;
-    let app = server(f.auth, true);
+    let app = server(&f.auth, true);
     assert!(app.get("/optional").await.json::<Value>()["user"].is_null());
 }
 
 #[tokio::test]
 async fn extractors_surface_missing_auth_dependency_as_internal_error() {
     let f = support::Fixture::new().await;
-    let missing = server(f.auth, false);
+    let missing = server(&f.auth, false);
     for path in ["/required", "/optional"] {
         assert_eq!(
             missing.get(path).await.status_code(),
@@ -166,7 +166,7 @@ async fn extractors_surface_missing_auth_dependency_as_internal_error() {
 #[tokio::test]
 async fn disabled_methods_are_not_exposed() {
     let f = support::Fixture::new().await;
-    let app = server(f.auth, true);
+    let app = server(&f.auth, true);
     let csrf = app.get("/auth/csrf").await;
     let token = csrf.json::<Value>()["token"].as_str().unwrap().to_owned();
     for path in [
@@ -193,7 +193,7 @@ async fn disabled_methods_are_not_exposed() {
 #[tokio::test]
 async fn auth_session_and_csrf_responses_are_not_cached() {
     let f = support::Fixture::new().await;
-    let app = server(f.auth, true);
+    let app = server(&f.auth, true);
     for path in ["/auth/csrf", "/auth/session"] {
         let response = app.get(path).await;
         assert_no_store(&response);
@@ -220,11 +220,21 @@ async fn passkey_http_fixture() -> (support::Fixture, gluon::auth::AuthContext, 
     });
     let f = support::Fixture::with_config(config, clock, mail).await;
     let context = support::context();
-    context.session.insert("_gluon_auth_browser_binding", &context.browser_binding).await.unwrap();
+    context
+        .session
+        .insert("_gluon_auth_browser_binding", &context.browser_binding)
+        .await
+        .unwrap();
     // Supply the same session to the HTTP extractor and direct service reference.
-    let app = f.auth.router()
+    let app = f
+        .auth
+        .router()
         .layer(axum::Extension(context.session.clone()))
-        .with_state(Arc::new(ContainerBuilder::new().bind_instance(f.auth.clone()).build()));
+        .with_state(Arc::new(
+            ContainerBuilder::new()
+                .bind_instance(f.auth.clone())
+                .build(),
+        ));
     (f, context, TestServer::new(app))
 }
 
@@ -236,14 +246,21 @@ fn assert_flow_response(response: &axum_test::TestResponse, mut expected_options
     let fields = body.as_object().unwrap();
     assert_eq!(fields.len(), 2);
     assert!(fields.contains_key("flow_id") && fields.contains_key("options"));
-    assert!(!body["flow_id"].as_str().unwrap().is_empty());
-    assert!(!body["options"]["publicKey"]["challenge"].as_str().unwrap().is_empty());
+    assert_ne!(body["flow_id"].as_str().unwrap(), "");
+    assert_ne!(
+        body["options"]["publicKey"]["challenge"].as_str().unwrap(),
+        ""
+    );
     // Each start generates fresh randomness. All other nested options must match
     // the direct service result, including arrays, booleans and optional fields.
     expected_options["publicKey"]["challenge"] = body["options"]["publicKey"]["challenge"].clone();
     if expected_options["publicKey"].get("user").is_some() {
-        assert!(!body["options"]["publicKey"]["user"]["id"].as_str().unwrap().is_empty());
-        expected_options["publicKey"]["user"]["id"] = body["options"]["publicKey"]["user"]["id"].clone();
+        assert_ne!(
+            body["options"]["publicKey"]["user"]["id"].as_str().unwrap(),
+            ""
+        );
+        expected_options["publicKey"]["user"]["id"] =
+            body["options"]["publicKey"]["user"]["id"].clone();
     }
     assert_eq!(body["options"], expected_options);
     body
@@ -255,30 +272,46 @@ async fn enabled_passkey_starts_preserve_public_flows_and_nested_options() {
     let user = f.login(&context, "http-passkey@example.test").await;
     let reference = f.auth.start_passkey_registration(&context).await.unwrap();
     let registration = assert_flow_response(
-        &app.post("/passkeys/registration/start").json(&json!({})).await,
+        &app.post("/passkeys/registration/start")
+            .json(&json!({}))
+            .await,
         reference.options,
     );
     let mut device = passkey_device::Device::new();
     let credential = device.register(registration["options"].clone());
-    app.post("/passkeys/registration/finish").json(&json!({
-        "flow_id": registration["flow_id"], "response": credential,
-    })).await.assert_status_ok();
+    app.post("/passkeys/registration/finish")
+        .json(&json!({
+            "flow_id": registration["flow_id"], "response": credential,
+        }))
+        .await
+        .assert_status_ok();
 
     for identified in [true, false] {
-        let reference = f.auth.start_passkey_authentication(
-            &context, identified.then_some(&user.id),
-        ).await.unwrap();
-        let request = if identified { json!({"user": user.id}) } else { json!({}) };
+        let reference = f
+            .auth
+            .start_passkey_authentication(&context, identified.then_some(&user.id))
+            .await
+            .unwrap();
+        let request = if identified {
+            json!({"user": user.id})
+        } else {
+            json!({})
+        };
         let flow = assert_flow_response(
-            &app.post("/passkeys/authentication/start").json(&request).await,
+            &app.post("/passkeys/authentication/start")
+                .json(&request)
+                .await,
             reference.options,
         );
         // A signed completion also binds the returned challenge and credential
         // options to the returned flow_id rather than merely checking a schema.
         let assertion = device.authenticate(flow["options"].clone());
-        let finished = app.post("/passkeys/authentication/finish").json(&json!({
-            "flow_id": flow["flow_id"], "response": assertion,
-        })).await;
+        let finished = app
+            .post("/passkeys/authentication/finish")
+            .json(&json!({
+                "flow_id": flow["flow_id"], "response": assertion,
+            }))
+            .await;
         assert_eq!(finished.status_code(), StatusCode::OK);
         assert_eq!(finished.json::<Value>(), json!({"user": user}));
     }
@@ -295,28 +328,51 @@ fn assert_passkey_error(response: &axum_test::TestResponse, status: StatusCode, 
 async fn enabled_passkey_start_service_errors_keep_status_and_body() {
     let (f, context, app) = passkey_http_fixture().await;
     assert_passkey_error(
-        &app.post("/passkeys/registration/start").json(&json!({})).await,
-        StatusCode::UNAUTHORIZED, "unauthorized",
+        &app.post("/passkeys/registration/start")
+            .json(&json!({}))
+            .await,
+        StatusCode::UNAUTHORIZED,
+        "unauthorized",
     );
     assert_passkey_error(
-        &app.post("/passkeys/authentication/start").json(&json!({"user": "missing"})).await,
-        StatusCode::BAD_REQUEST, "invalid_passkey",
+        &app.post("/passkeys/authentication/start")
+            .json(&json!({"user": "missing"}))
+            .await,
+        StatusCode::BAD_REQUEST,
+        "invalid_passkey",
     );
     let user = f.login(&context, "http-errors@example.test").await;
     f.clock.advance(time::Duration::minutes(6));
     assert_passkey_error(
-        &app.post("/passkeys/registration/start").json(&json!({})).await,
-        StatusCode::FORBIDDEN, "reauthentication_required",
+        &app.post("/passkeys/registration/start")
+            .json(&json!({}))
+            .await,
+        StatusCode::FORBIDDEN,
+        "reauthentication_required",
     );
-    f.config.store.as_ref().unwrap().transact(&mut |data| {
-        data.passkeys.insert("malformed".into(), gluon::auth::StoredPasskey {
-            user: user.id.0.clone(), data: json!({"format": 1}), version: 0,
-        });
-        Ok(())
-    }).await.unwrap();
+    f.config
+        .store
+        .as_ref()
+        .unwrap()
+        .transact(&mut |data| {
+            data.passkeys.insert(
+                "malformed".into(),
+                gluon::auth::StoredPasskey {
+                    user: user.id.0.clone(),
+                    data: json!({"format": 1}),
+                    version: 0,
+                },
+            );
+            Ok(())
+        })
+        .await
+        .unwrap();
     assert_passkey_error(
-        &app.post("/passkeys/authentication/start").json(&json!({"user": user.id})).await,
-        StatusCode::INTERNAL_SERVER_ERROR, "storage_error",
+        &app.post("/passkeys/authentication/start")
+            .json(&json!({"user": user.id}))
+            .await,
+        StatusCode::INTERNAL_SERVER_ERROR,
+        "storage_error",
     );
 }
 
@@ -328,7 +384,7 @@ async fn direct_api_and_http_share_destination_rate_budget() {
     config.email_otp.as_mut().unwrap().destination_limit = 1;
     config.email_otp.as_mut().unwrap().resend_interval = time::Duration::ZERO;
     let f = support::Fixture::with_config(config, clock, mail).await;
-    let app = server(f.auth.clone(), true);
+    let app = server(&f.auth, true);
     f.auth
         .request_email_otp(&support::context(), "shared@example.test")
         .await
@@ -364,7 +420,7 @@ async fn assert_cors_for_configured_origin(origin: &str) {
     let mut config = support::config(clock.clone(), mail.clone());
     config.allowed_origins = vec![origin.into()];
     let f = support::Fixture::with_config(config, clock, mail).await;
-    let app = server(f.auth, true);
+    let app = server(&f.auth, true);
     for (origin, allowed) in [
         ("https://app.example.test", true),
         ("https://evil.example.test", false),
@@ -386,15 +442,25 @@ async fn assert_cors_for_configured_origin(origin: &str) {
                 response.headers()["access-control-allow-credentials"],
                 "true"
             );
-            assert_eq!(response.headers()["access-control-allow-methods"], "GET, HEAD, POST, DELETE, OPTIONS");
-            assert_eq!(response.headers()["access-control-allow-headers"], "content-type, x-csrf-token");
+            assert_eq!(
+                response.headers()["access-control-allow-methods"],
+                "GET, HEAD, POST, DELETE, OPTIONS"
+            );
+            assert_eq!(
+                response.headers()["access-control-allow-headers"],
+                "content-type, x-csrf-token"
+            );
         } else {
             assert!(
                 !response
                     .headers()
                     .contains_key("access-control-allow-origin")
             );
-            assert!(!response.headers().contains_key("access-control-allow-credentials"));
+            assert!(
+                !response
+                    .headers()
+                    .contains_key("access-control-allow-credentials")
+            );
         }
         let normal = app.get("/auth/session").add_header("origin", origin).await;
         assert!(normal.status_code().is_success());
@@ -404,7 +470,11 @@ async fn assert_cors_for_configured_origin(origin: &str) {
             assert_eq!(normal.headers()["access-control-allow-credentials"], "true");
         } else {
             assert!(!normal.headers().contains_key("access-control-allow-origin"));
-            assert!(!normal.headers().contains_key("access-control-allow-credentials"));
+            assert!(
+                !normal
+                    .headers()
+                    .contains_key("access-control-allow-credentials")
+            );
         }
     }
 }

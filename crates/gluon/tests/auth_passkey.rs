@@ -1,4 +1,5 @@
 #![cfg(feature = "auth")]
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 #[path = "common/auth/mod.rs"]
 mod common;
 #[path = "common/auth/passkey_device.rs"]
@@ -152,7 +153,7 @@ async fn registration_start_exposes_only_public_options_and_opaque_flow_id() {
     let f = fixture().await;
     let (ctx, _) = owner(&f).await;
     let flow = f.auth.start_passkey_registration(&ctx).await.unwrap();
-    assert!(!flow.flow_id.is_empty());
+    assert_ne!(flow.flow_id, "");
     let public = serde_json::to_value(&flow).unwrap();
     assert_public_only(&public);
     assert_eq!(flow.options["publicKey"]["rp"]["id"], "app.example.test");
@@ -290,7 +291,7 @@ async fn discoverable_start_returns_public_challenge_without_server_state() {
             .is_some_and(|s| !s.is_empty())
     );
     let allow = &flow.options["publicKey"]["allowCredentials"];
-    assert!(allow.is_null() || allow.as_array().is_some_and(|list| list.is_empty()));
+    assert!(allow.is_null() || allow.as_array().is_some_and(std::vec::Vec::is_empty));
 }
 
 #[tokio::test]
@@ -307,7 +308,7 @@ async fn discoverable_signed_assertion_restores_the_credential_owner() {
         .await
         .unwrap();
     let allow = &flow.options["publicKey"]["allowCredentials"];
-    assert!(allow.is_null() || allow.as_array().is_some_and(|list| list.is_empty()));
+    assert!(allow.is_null() || allow.as_array().is_some_and(std::vec::Vec::is_empty));
     let response = device.authenticate(flow.options.clone());
     assert_eq!(
         client_data(&response)["challenge"],
@@ -449,17 +450,27 @@ async fn successful_signed_assertion_cannot_be_replayed() {
 
 async fn stored_data(f: &Fixture) -> gluon::auth::StoreData {
     let mut snapshot = gluon::auth::StoreData::default();
-    f.config.store.as_ref().unwrap().transact(&mut |data| {
-        snapshot = data.clone();
-        Ok(())
-    }).await.unwrap();
+    f.config
+        .store
+        .as_ref()
+        .unwrap()
+        .transact(&mut |data| {
+            snapshot = data.clone();
+            Ok(())
+        })
+        .await
+        .unwrap();
     snapshot
 }
 
 fn verifier() -> webauthn_rs::prelude::Webauthn {
     webauthn_rs::prelude::WebauthnBuilder::new(
-        "app.example.test", &reqwest::Url::parse(ORIGIN).unwrap(),
-    ).unwrap().build().unwrap()
+        "app.example.test",
+        &reqwest::Url::parse(ORIGIN).unwrap(),
+    )
+    .unwrap()
+    .build()
+    .unwrap()
 }
 
 #[tokio::test]
@@ -473,23 +484,39 @@ async fn fresh_signed_registration_collision_preserves_existing_owner_and_record
     let other = context();
     f.login(&other, "collision@example.test").await;
     let flow = f.auth.start_passkey_registration(&other).await.unwrap();
-    let response = device::register_with_id(flow.options.clone(), &id);
-    assert_eq!(client_data(&response)["challenge"], flow.options["publicKey"]["challenge"]);
+    let response = device::register_with_id(&flow.options, &id);
+    assert_eq!(
+        client_data(&response)["challenge"],
+        flow.options["publicKey"]["challenge"]
+    );
     let snapshot = stored_data(&f).await;
     let state = serde_json::from_value::<webauthn_rs::prelude::PasskeyRegistration>(
         snapshot.challenges[&flow.flow_id].data["state"].clone(),
-    ).unwrap();
+    )
+    .unwrap();
     // Independently verify the packed signature and this fresh ceremony before
     // testing the global-ID guard, so cryptographic rejection cannot satisfy it.
-    verifier().finish_passkey_registration(&serde_json::from_value(response.clone()).unwrap(), &state).unwrap();
-    assert_eq!(f.auth.finish_passkey_registration(&other, &flow.flow_id, response).await.unwrap_err().code, "invalid_passkey");
+    verifier()
+        .finish_passkey_registration(&serde_json::from_value(response.clone()).unwrap(), &state)
+        .unwrap();
+    assert_eq!(
+        f.auth
+            .finish_passkey_registration(&other, &flow.flow_id, response)
+            .await
+            .unwrap_err()
+            .code,
+        "invalid_passkey"
+    );
     let after = stored_data(&f).await;
     assert_eq!(after.passkeys.len(), 1);
     assert_eq!(after.passkeys[&id].user, before.user);
     assert_eq!(after.passkeys[&id].data, before.data);
     assert_eq!(after.passkeys[&id].version, before.version);
     assert!(!after.challenges.contains_key(&flow.flow_id));
-    assert!(f.auth.passkeys(&other).await.unwrap().is_empty());
+    assert_eq!(
+        f.auth.passkeys(&other).await.unwrap(),
+        [] as [serde_json::Value; 0]
+    );
 }
 
 #[tokio::test]
@@ -503,23 +530,48 @@ async fn signed_authentication_advances_state_and_fences_a_distinct_live_flow() 
     let (first_ctx, first, first_response) = assertion(&f, &user, &mut device).await;
     let (second_ctx, second, second_response) = assertion(&f, &user, &mut device).await;
     assert_ne!(first.flow_id, second.flow_id);
-    assert_ne!(first.options["publicKey"]["challenge"], second.options["publicKey"]["challenge"]);
+    assert_ne!(
+        first.options["publicKey"]["challenge"],
+        second.options["publicKey"]["challenge"]
+    );
     let pending = stored_data(&f).await;
     for flow in [&first, &second] {
-        assert_eq!(pending.challenges[&flow.flow_id].data["versions"][&id], before.version);
+        assert_eq!(
+            pending.challenges[&flow.flow_id].data["versions"][&id],
+            before.version
+        );
     }
     let state = serde_json::from_value::<webauthn_rs::prelude::PasskeyAuthentication>(
         pending.challenges[&second.flow_id].data["state"].clone(),
-    ).unwrap();
-    verifier().finish_passkey_authentication(&serde_json::from_value(second_response.clone()).unwrap(), &state).unwrap();
-    assert_eq!(f.auth.finish_passkey_authentication(&first_ctx, &first.flow_id, first_response).await.unwrap(), user);
+    )
+    .unwrap();
+    verifier()
+        .finish_passkey_authentication(
+            &serde_json::from_value(second_response.clone()).unwrap(),
+            &state,
+        )
+        .unwrap();
+    assert_eq!(
+        f.auth
+            .finish_passkey_authentication(&first_ctx, &first.flow_id, first_response)
+            .await
+            .unwrap(),
+        user
+    );
     let advanced = stored_data(&f).await;
     let current = &advanced.passkeys[&id];
     assert_eq!(current.user, before.user);
     assert_eq!(current.version, before.version + 1);
     assert_ne!(current.data, before.data);
     assert!(advanced.challenges.contains_key(&second.flow_id));
-    assert_eq!(f.auth.finish_passkey_authentication(&second_ctx, &second.flow_id, second_response).await.unwrap_err().code, "invalid_passkey");
+    assert_eq!(
+        f.auth
+            .finish_passkey_authentication(&second_ctx, &second.flow_id, second_response)
+            .await
+            .unwrap_err()
+            .code,
+        "invalid_passkey"
+    );
     let after = stored_data(&f).await;
     assert_eq!(after.passkeys[&id].user, current.user);
     assert_eq!(after.passkeys[&id].data, current.data);
@@ -549,26 +601,48 @@ async fn malformed_stored_credentials_and_both_ceremony_states_consume_flow_with
         let (owner, user) = owner(&f).await;
         let (mut device, id) = enroll_device(&f, &owner).await;
         let ctx = context();
-        let flow = f.auth.start_passkey_authentication(
-            &ctx, if discoverable { None } else { Some(&user.id) },
-        ).await.unwrap();
+        let flow = f
+            .auth
+            .start_passkey_authentication(&ctx, if discoverable { None } else { Some(&user.id) })
+            .await
+            .unwrap();
         let response = device.authenticate(flow.options);
-        f.config.store.as_ref().unwrap().transact(&mut |data| {
-            if corrupt_key {
-                data.passkeys.get_mut(&id).unwrap().data = Value::Null;
-            } else {
-                data.challenges.get_mut(&flow.flow_id).unwrap().data["state"] = Value::Null;
-            }
-            Ok(())
-        }).await.unwrap();
+        f.config
+            .store
+            .as_ref()
+            .unwrap()
+            .transact(&mut |data| {
+                if corrupt_key {
+                    data.passkeys.get_mut(&id).unwrap().data = Value::Null;
+                } else {
+                    data.challenges.get_mut(&flow.flow_id).unwrap().data["state"] = Value::Null;
+                }
+                Ok(())
+            })
+            .await
+            .unwrap();
         let before = stored_data(&f).await.passkeys[&id].clone();
-        assert_eq!(f.auth.finish_passkey_authentication(&ctx, &flow.flow_id, response.clone()).await.unwrap_err().code, "storage_error");
+        assert_eq!(
+            f.auth
+                .finish_passkey_authentication(&ctx, &flow.flow_id, response.clone())
+                .await
+                .unwrap_err()
+                .code,
+            "storage_error"
+        );
         let after = stored_data(&f).await;
         assert!(!after.challenges.contains_key(&flow.flow_id));
         assert_eq!(after.passkeys[&id].user, before.user);
         assert_eq!(after.passkeys[&id].data, before.data);
         assert_eq!(after.passkeys[&id].version, before.version);
-        assert_eq!(f.auth.finish_passkey_authentication(&ctx, &flow.flow_id, response).await.unwrap_err().code, "invalid_passkey");
+        assert_eq!(
+            f.auth
+                .finish_passkey_authentication(&ctx, &flow.flow_id, response)
+                .await
+                .unwrap_err()
+                .code,
+            "invalid_passkey"
+        );
         assert_eq!(f.auth.current_user(&ctx).await.unwrap(), None);
     }
 }
@@ -586,7 +660,10 @@ async fn registration_valid_response_rejects_wrong_browser_binding() {
             .await
             .is_err()
     );
-    assert!(f.auth.passkeys(&ctx).await.unwrap().is_empty());
+    assert_eq!(
+        f.auth.passkeys(&ctx).await.unwrap(),
+        [] as [serde_json::Value; 0]
+    );
 }
 #[tokio::test]
 async fn registration_valid_response_rejects_different_authenticated_user() {
@@ -602,8 +679,14 @@ async fn registration_valid_response_rejects_different_authenticated_user() {
             .await
             .is_err()
     );
-    assert!(f.auth.passkeys(&other).await.unwrap().is_empty());
-    assert!(f.auth.passkeys(&ctx).await.unwrap().is_empty());
+    assert_eq!(
+        f.auth.passkeys(&other).await.unwrap(),
+        [] as [serde_json::Value; 0]
+    );
+    assert_eq!(
+        f.auth.passkeys(&ctx).await.unwrap(),
+        [] as [serde_json::Value; 0]
+    );
 }
 #[tokio::test]
 async fn registration_valid_response_rejects_expired_flow_not_expired_session() {
@@ -741,7 +824,10 @@ async fn another_user_cannot_delete_owner_credential() {
     f.login(&other, "other@example.test").await;
     assert!(f.auth.delete_passkey(&other, &id).await.is_err());
     assert_eq!(f.auth.passkeys(&owner).await.unwrap().len(), 1);
-    assert!(f.auth.passkeys(&other).await.unwrap().is_empty());
+    assert_eq!(
+        f.auth.passkeys(&other).await.unwrap(),
+        [] as [serde_json::Value; 0]
+    );
     let (ctx, flow, response) = assertion(&f, &user, &mut device).await;
     assert_eq!(
         f.auth
@@ -757,7 +843,10 @@ async fn owner_can_delete_credential_when_email_identity_remains() {
     let (owner, user) = owner(&f).await;
     let (_, id) = enroll_device(&f, &owner).await;
     f.auth.delete_passkey(&owner, &id).await.unwrap();
-    assert!(f.auth.passkeys(&owner).await.unwrap().is_empty());
+    assert_eq!(
+        f.auth.passkeys(&owner).await.unwrap(),
+        [] as [serde_json::Value; 0]
+    );
     assert_eq!(f.auth.current_user(&owner).await.unwrap(), Some(user));
 }
 
