@@ -34,7 +34,7 @@ lettre = { version = "0.11", default-features = false, features = [
   "ring",
   "webpki-roots",
 ] }
-minijinja = "2"
+minijinja = "3"
 notify = "8"
 oauth2 = { version = "5", default-features = false }
 openidconnect = { version = "4", default-features = false }
