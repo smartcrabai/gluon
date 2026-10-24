@@ -6,6 +6,8 @@ root="$PWD"
 export QUINT_HOME="$root/target/formal-tools/quint"
 quint="$root/crates/gluon/tests/specs/node_modules/.bin/quint"
 model="$root/crates/gluon/tests/specs/csrf.qnt"
+concurrent_model="$root/crates/gluon/tests/specs/csrf_concurrent.qnt"
+[[ -f "$model" && -f "$concurrent_model" ]]
 printf '%s  %s\n' "$APALACHE_SHA256" target/formal-tools/apalache.tgz | shasum -a 256 --check
 [[ -x "$QUINT_HOME/apalache-dist-$APALACHE_VERSION/apalache/bin/apalache-mc" ]]
 [[ "$("$quint" --version)" == "$QUINT_VERSION" ]]
@@ -38,6 +40,27 @@ for property in "${properties[@]}"; do
     printf '%s PASS\n' "$property" | tee -a verification-status.log || failed=1
   else
     printf '%s FAIL\n' "$property" | tee -a verification-status.log || true
+    failed=1
+  fi
+done
+printf 'Checking existing-token concurrent model\n'
+"$quint" typecheck "$concurrent_model" 2>&1 | tee concurrent-typecheck.log
+"$quint" test "$concurrent_model" --match '_test$' --max-samples=1 --seed=0x43535246 \
+  --out-itf='concurrent_witness_{test}_{seq}.itf.json' --verbosity=3 2>&1 | tee concurrent-witnesses.log
+"$quint" run "$concurrent_model" --invariant=contract --max-steps=6 --max-samples=1000 \
+  --seed=0x43535246 --out-itf='concurrent_simulation_{seq}.itf.json' --verbosity=3 2>&1 | tee concurrent-simulation.log
+concurrent_properties=(
+  token_reuse admission_from_snapshot foreign_token_rejected
+  save_uses_snapshot save_preserves_other_session contract
+)
+for property in "${concurrent_properties[@]}"; do
+  printf 'Verifying concurrent %s through 6 steps\n' "$property"
+  if "$quint" verify "$concurrent_model" --invariant="$property" --max-steps=6 \
+    --apalache-version="$APALACHE_VERSION" --server-endpoint=localhost:18822 \
+    --out-itf="concurrent-$property.counterexample.itf.json" --verbosity=3 2>&1 | tee "concurrent-verification-$property.log"; then
+    printf 'concurrent %s PASS\n' "$property" | tee -a verification-status.log || failed=1
+  else
+    printf 'concurrent %s FAIL\n' "$property" | tee -a verification-status.log || true
     failed=1
   fi
 done

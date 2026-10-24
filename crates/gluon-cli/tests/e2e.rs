@@ -33,6 +33,30 @@ fn run_cargo_check(app: &Path) {
     );
 }
 
+fn snapshot_tree(root: &Path) -> Vec<(PathBuf, Option<Vec<u8>>)> {
+    fn visit(root: &Path, directory: &Path, entries: &mut Vec<(PathBuf, Option<Vec<u8>>)>) {
+        for entry in std::fs::read_dir(directory).expect("read app directory") {
+            let entry = entry.expect("read app directory entry");
+            let path = entry.path();
+            let relative = path
+                .strip_prefix(root)
+                .expect("entry is inside app")
+                .to_path_buf();
+            if entry.file_type().expect("read entry type").is_dir() {
+                entries.push((relative, None));
+                visit(root, &path, entries);
+            } else {
+                entries.push((relative, Some(std::fs::read(&path).expect("read app file"))));
+            }
+        }
+    }
+
+    let mut entries = Vec::new();
+    visit(root, root, &mut entries);
+    entries.sort_unstable_by(|(left, _), (right, _)| left.cmp(right));
+    entries
+}
+
 #[test]
 fn new_agent_flags_install_expected_files() {
     let tmp = tempfile::tempdir().expect("create tempdir");
@@ -250,6 +274,34 @@ fn validation_rejects_unsafe_inputs() {
         stderr.contains("must start with a letter"),
         "stderr: {stderr}"
     );
+}
+
+#[test]
+fn domain_collision_leaves_generated_files_and_registrations_unchanged() {
+    let tmp = tempfile::tempdir().expect("create tempdir");
+    let app = fresh_app(tmp.path(), "myapp");
+    let collision = app.join("src/infrastructure/persistence/user_repository.rs");
+    let existing = b"keep this repository implementation";
+    std::fs::write(&collision, existing).expect("write collision fixture");
+    let before = snapshot_tree(&app);
+
+    let _ = run_gluon_expect_failure(&app, &["g", "domain", "user"]);
+    assert_eq!(snapshot_tree(&app), before);
+}
+
+#[test]
+fn resource_nested_route_collision_leaves_app_unchanged() {
+    let tmp = tempfile::tempdir().expect("create tempdir");
+    let app = fresh_app(tmp.path(), "myapp");
+    let collision = app.join("app/posts/[id]/edit/page.tsx");
+    std::fs::create_dir_all(collision.parent().expect("collision parent"))
+        .expect("create collision parent");
+    let existing = b"keep this nested controller";
+    std::fs::write(&collision, existing).expect("write collision fixture");
+    let before = snapshot_tree(&app);
+
+    let _ = run_gluon_expect_failure(&app, &["g", "resource", "posts"]);
+    assert_eq!(snapshot_tree(&app), before);
 }
 
 #[test]

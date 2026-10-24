@@ -3,11 +3,13 @@
 use axum::{Router, routing::get};
 use axum_test::TestServer;
 use gluon::PostgresSessionStore;
+use serde_json::json;
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::runners::AsyncRunner;
 use time::{Duration, OffsetDateTime};
 use tower_sessions::cookie::Key;
 use tower_sessions::session::{Id, Record};
+use tower_sessions::session_store::Error as SessionStoreError;
 use tower_sessions::{Session, SessionManagerLayer, SessionStore};
 
 async fn counter(session: Session) -> String {
@@ -69,9 +71,24 @@ async fn postgres_sessions_persist_across_instances() {
     store.delete(&deletable.id).await.unwrap();
     assert!(store.load(&deletable.id).await.unwrap().is_none());
 
+    assert_snapshot_save_is_last_write_wins(&store).await;
+
+    let corrupt_id = Id::default();
+    sqlx::query("INSERT INTO gluon_sessions (id, data, expiry) VALUES ($1, $2, $3)")
+        .bind(corrupt_id.to_string())
+        .bind("{not-json")
+        .bind(OffsetDateTime::now_utc() + Duration::minutes(5))
+        .execute(&pool)
+        .await
+        .unwrap();
+    assert!(matches!(
+        store.load(&corrupt_id).await,
+        Err(SessionStoreError::Decode(_))
+    ));
+
     let key = Key::generate();
     let first_server = server(store.clone(), key.clone());
-    let second_server = server(store, key);
+    let second_server = server(store.clone(), key);
 
     let first = first_server.get("/").await;
     first.assert_text("0");
@@ -88,4 +105,50 @@ async fn postgres_sessions_persist_across_instances() {
         .add_header("cookie", format!("gluon_sid={cookie}"))
         .await;
     third.assert_text("2");
+
+    pool.close().await;
+    assert!(matches!(
+        store.load(&deletable.id).await,
+        Err(SessionStoreError::Backend(_))
+    ));
+}
+
+async fn assert_snapshot_save_is_last_write_wins(store: &PostgresSessionStore) {
+    let mut conflicted = Record {
+        id: Id::default(),
+        data: std::collections::HashMap::from([("value".to_owned(), json!("initial"))]),
+        expiry_date: OffsetDateTime::now_utc() + Duration::minutes(5),
+    };
+    store.create(&mut conflicted).await.unwrap();
+    let mut isolated = Record {
+        id: Id::default(),
+        data: std::collections::HashMap::from([("value".to_owned(), json!("isolated"))]),
+        expiry_date: OffsetDateTime::now_utc() + Duration::minutes(5),
+    };
+    store.create(&mut isolated).await.unwrap();
+
+    let mut snapshot_a = store.load(&conflicted.id).await.unwrap().unwrap();
+    let mut snapshot_b = store.load(&conflicted.id).await.unwrap().unwrap();
+    snapshot_a.data.insert("value".to_owned(), json!("save A"));
+    snapshot_a.data.insert("only_a".to_owned(), json!(true));
+    snapshot_b.data.insert("value".to_owned(), json!("save B"));
+    snapshot_b.data.insert("only_b".to_owned(), json!(true));
+    store.save(&snapshot_a).await.unwrap();
+    store.save(&snapshot_b).await.unwrap();
+
+    let saved = store.load(&conflicted.id).await.unwrap().unwrap();
+    assert_eq!(
+        saved.data.get("value").and_then(serde_json::Value::as_str),
+        Some("save B")
+    );
+    assert_eq!(saved.data.get("only_b"), Some(&json!(true)));
+    assert!(!saved.data.contains_key("only_a"));
+    let isolated_after = store.load(&isolated.id).await.unwrap().unwrap();
+    assert_eq!(
+        isolated_after
+            .data
+            .get("value")
+            .and_then(serde_json::Value::as_str),
+        Some("isolated")
+    );
 }
