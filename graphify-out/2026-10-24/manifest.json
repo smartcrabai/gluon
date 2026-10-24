@@ -1,0 +1,1094 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1792773091.5311382,
+    "seen": 1792807481.245912,
+    "ast_hash": "7efbbef5db3efc05a47c095c7215b57a",
+    "semantic_hash": "7efbbef5db3efc05a47c095c7215b57a"
+  },
+  "crates/gluon-build/Cargo.toml": {
+    "mtime": 1792773091.5352964,
+    "seen": 1792807481.245915,
+    "ast_hash": "f6237ddee5bfcc4e56cdd38ffd541817",
+    "semantic_hash": "f6237ddee5bfcc4e56cdd38ffd541817"
+  },
+  "crates/gluon-build/src/lib.rs": {
+    "mtime": 1792773091.5354555,
+    "seen": 1792807481.245916,
+    "ast_hash": "5c042dac2a77c928a227ab85727653d8",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/Cargo.toml": {
+    "mtime": 1792773091.5355482,
+    "seen": 1792807481.2459168,
+    "ast_hash": "7b48c631e28e8c265d4c9417d2173caf",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/src/commands/build_run.rs": {
+    "mtime": 1792773091.535993,
+    "seen": 1792807481.245919,
+    "ast_hash": "8f3609322a58bfe9106d0b79ad931167",
+    "semantic_hash": "8f3609322a58bfe9106d0b79ad931167"
+  },
+  "crates/gluon-cli/src/commands/db.rs": {
+    "mtime": 1792773091.5360603,
+    "seen": 1792807481.24592,
+    "ast_hash": "7beeec85c455eac049bfef9e807f7f1c",
+    "semantic_hash": "7beeec85c455eac049bfef9e807f7f1c"
+  },
+  "crates/gluon-cli/src/commands/destroy.rs": {
+    "mtime": 1792773091.5363758,
+    "seen": 1792807481.2459211,
+    "ast_hash": "b3d98add6f335e19f6ad939f20ee93ed",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/src/commands/dev.rs": {
+    "mtime": 1792773091.5366461,
+    "seen": 1792807481.2459211,
+    "ast_hash": "d5410592fca50eb26b82a5f422dd5d33",
+    "semantic_hash": "d5410592fca50eb26b82a5f422dd5d33"
+  },
+  "crates/gluon-cli/src/commands/generate.rs": {
+    "mtime": 1792773091.5367517,
+    "seen": 1792807481.245922,
+    "ast_hash": "55a52fba76069c48f612bb6d3771256a",
+    "semantic_hash": "55a52fba76069c48f612bb6d3771256a"
+  },
+  "crates/gluon-cli/src/commands/mod.rs": {
+    "mtime": 1792773091.5368166,
+    "seen": 1792807481.245923,
+    "ast_hash": "b6eec067c609f8524dc23b966e235858",
+    "semantic_hash": "b6eec067c609f8524dc23b966e235858"
+  },
+  "crates/gluon-cli/src/commands/new.rs": {
+    "mtime": 1792773091.5369167,
+    "seen": 1792807481.245924,
+    "ast_hash": "aab65211aefaa064b4f04a7cacdac717",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/src/commands/routes.rs": {
+    "mtime": 1792773091.5369985,
+    "seen": 1792807481.2459252,
+    "ast_hash": "78d90272d32be03003e2069a6c4c62bf",
+    "semantic_hash": "78d90272d32be03003e2069a6c4c62bf"
+  },
+  "crates/gluon-cli/src/embed.rs": {
+    "mtime": 1792773091.5370626,
+    "seen": 1792807481.245926,
+    "ast_hash": "d55739bd45beea2a7dc72691a9f807b5",
+    "semantic_hash": "d55739bd45beea2a7dc72691a9f807b5"
+  },
+  "crates/gluon-cli/src/main.rs": {
+    "mtime": 1792773091.537136,
+    "seen": 1792807481.2459269,
+    "ast_hash": "3e59910c09d292cabc807815d863032e",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/src/templating.rs": {
+    "mtime": 1792773091.5372097,
+    "seen": 1792807481.2459269,
+    "ast_hash": "b791f7ebf4455d37eeaa5a795003d786",
+    "semantic_hash": "b791f7ebf4455d37eeaa5a795003d786"
+  },
+  "crates/gluon-cli/src/wiring.rs": {
+    "mtime": 1792773091.5372841,
+    "seen": 1792807481.245928,
+    "ast_hash": "c6bee8e2d4de67bd0c44ca88355cae32",
+    "semantic_hash": "c6bee8e2d4de67bd0c44ca88355cae32"
+  },
+  "crates/gluon-cli/templates/new/app/_error/404.tsx": {
+    "mtime": 1792773091.5385797,
+    "seen": 1792807481.245929,
+    "ast_hash": "83f1db7c2f65071db29c3589d815e069",
+    "semantic_hash": "83f1db7c2f65071db29c3589d815e069"
+  },
+  "crates/gluon-cli/templates/new/app/_error/500.tsx": {
+    "mtime": 1792773091.5386412,
+    "seen": 1792807481.24593,
+    "ast_hash": "a853e0f8a9ff5ef63f3d091373537b2d",
+    "semantic_hash": "a853e0f8a9ff5ef63f3d091373537b2d"
+  },
+  "crates/gluon-cli/templates/new/app/components/csrf_token.tsx": {
+    "mtime": 1792773091.5387309,
+    "seen": 1792807481.24593,
+    "ast_hash": "fca6c556d9681ff3a217b9d6636173e9",
+    "semantic_hash": "fca6c556d9681ff3a217b9d6636173e9"
+  },
+  "crates/gluon-cli/templates/new/app/layout.tsx": {
+    "mtime": 1792773091.5387905,
+    "seen": 1792807481.245931,
+    "ast_hash": "7c3b173e597201f92e09810410f69cae",
+    "semantic_hash": "7c3b173e597201f92e09810410f69cae"
+  },
+  "crates/gluon-cli/templates/new/app/page.tsx": {
+    "mtime": 1792773091.5389338,
+    "seen": 1792807481.245932,
+    "ast_hash": "7576e2c1047918ea4f2f4d67674a29c1",
+    "semantic_hash": "7576e2c1047918ea4f2f4d67674a29c1"
+  },
+  "crates/gluon-cli/templates/new/src/domain/mod.rs": {
+    "mtime": 1792773091.5393384,
+    "seen": 1792807481.245933,
+    "ast_hash": "48c4d086e97c64cb85d18a8b0aaa4024",
+    "semantic_hash": "48c4d086e97c64cb85d18a8b0aaa4024"
+  },
+  "crates/gluon-cli/templates/new/src/dto/mod.rs": {
+    "mtime": 1792773091.5394254,
+    "seen": 1792807481.245934,
+    "ast_hash": "aabad2264a88b13e146a8dc0511bc876",
+    "semantic_hash": "aabad2264a88b13e146a8dc0511bc876"
+  },
+  "crates/gluon-cli/templates/new/src/infrastructure/mocks/mod.rs": {
+    "mtime": 1792773091.5395448,
+    "seen": 1792807481.245934,
+    "ast_hash": "874b4fa19cb310bedbf21288d14e3651",
+    "semantic_hash": "874b4fa19cb310bedbf21288d14e3651"
+  },
+  "crates/gluon-cli/templates/new/src/infrastructure/mod.rs": {
+    "mtime": 1792773091.5396013,
+    "seen": 1792807481.2459352,
+    "ast_hash": "99e7f7518ffc020e2c3da2a7a91547af",
+    "semantic_hash": "99e7f7518ffc020e2c3da2a7a91547af"
+  },
+  "crates/gluon-cli/templates/new/src/infrastructure/persistence/mod.rs": {
+    "mtime": 1792773091.539706,
+    "seen": 1792807481.2459362,
+    "ast_hash": "c5ac2afece70360ef8e40780c5c2f7d1",
+    "semantic_hash": "c5ac2afece70360ef8e40780c5c2f7d1"
+  },
+  "crates/gluon-cli/templates/new/src/usecases/mod.rs": {
+    "mtime": 1792773091.539861,
+    "seen": 1792807481.2459369,
+    "ast_hash": "3b0ff36cb3a44b8363c791d63d666607",
+    "semantic_hash": "3b0ff36cb3a44b8363c791d63d666607"
+  },
+  "crates/gluon-cli/tests/db_postgres.rs": {
+    "mtime": 1792773091.5405378,
+    "seen": 1792807481.245939,
+    "ast_hash": "95b2b9c912fac645ffb86697d1b480ca",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/tests/e2e.rs": {
+    "mtime": 1792773091.540627,
+    "seen": 1792807481.24594,
+    "ast_hash": "cf42f338b6a3e07f95fc78fe7a90f8ac",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/tests/e2e_destroy_loop.rs": {
+    "mtime": 1792773091.5409312,
+    "seen": 1792807481.245941,
+    "ast_hash": "895b7b53eb11dc13f2703af41e88e4dd",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/tests/e2e_idempotency.rs": {
+    "mtime": 1792773091.5410168,
+    "seen": 1792807481.245942,
+    "ast_hash": "28cc8aad35d68cfa059e74d594212b11",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/tests/http_csrf.rs": {
+    "mtime": 1792773091.5411813,
+    "seen": 1792807481.245944,
+    "ast_hash": "7be0cb0380f536590c5bc7aab7ecee11",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/tests/http_smoke.rs": {
+    "mtime": 1792773091.541244,
+    "seen": 1792807481.245945,
+    "ast_hash": "458f143abaac88debc2dde151a7c56ba",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/tests/repository_postgres.rs": {
+    "mtime": 1792773091.541318,
+    "seen": 1792807481.245945,
+    "ast_hash": "ddd0c383273e31b40feacc018bb8fb71",
+    "semantic_hash": ""
+  },
+  "crates/gluon-macros/Cargo.toml": {
+    "mtime": 1792773091.5414264,
+    "seen": 1792807481.2459462,
+    "ast_hash": "815540c819ca7590416e49efca861d52",
+    "semantic_hash": "815540c819ca7590416e49efca861d52"
+  },
+  "crates/gluon-macros/src/lib.rs": {
+    "mtime": 1792773091.5415325,
+    "seen": 1792807481.245947,
+    "ast_hash": "c38f965c614093cfc0473bb287971adb",
+    "semantic_hash": "c38f965c614093cfc0473bb287971adb"
+  },
+  "crates/gluon-macros/tests/ui.rs": {
+    "mtime": 1792773091.541622,
+    "seen": 1792807481.2459478,
+    "ast_hash": "53860bd3d7fa52b56a595e222c483852",
+    "semantic_hash": "53860bd3d7fa52b56a595e222c483852"
+  },
+  "crates/gluon-macros/tests/ui/pass/entity_basic.rs": {
+    "mtime": 1792773091.5417402,
+    "seen": 1792807481.2459478,
+    "ast_hash": "9a12376c8ec43892dcd07eb536248d09",
+    "semantic_hash": "9a12376c8ec43892dcd07eb536248d09"
+  },
+  "crates/gluon-macros/tests/ui/pass/gluon_test_basic.rs": {
+    "mtime": 1792773091.541803,
+    "seen": 1792807481.245949,
+    "ast_hash": "565723997ba3e8da456a48cda8ebedb9",
+    "semantic_hash": "565723997ba3e8da456a48cda8ebedb9"
+  },
+  "crates/gluon/Cargo.toml": {
+    "mtime": 1792813748.4322863,
+    "seen": 1792813779.901709,
+    "ast_hash": "83ba563361218a6d5ae0543318c478ca",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/boot.rs": {
+    "mtime": 1792812608.4547608,
+    "seen": 1792812785.9562528,
+    "ast_hash": "bf120df1cb9f042803ce49fa6262c1bd",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/container.rs": {
+    "mtime": 1792773091.5423121,
+    "seen": 1792807481.245953,
+    "ast_hash": "0d09b88ee15c149ceb7012db1a3e2399",
+    "semantic_hash": "0d09b88ee15c149ceb7012db1a3e2399"
+  },
+  "crates/gluon/src/error.rs": {
+    "mtime": 1792773091.5423868,
+    "seen": 1792807481.245954,
+    "ast_hash": "46cc7d273a3d24e7ef214c4a8758c1ed",
+    "semantic_hash": "46cc7d273a3d24e7ef214c4a8758c1ed"
+  },
+  "crates/gluon/src/flash.rs": {
+    "mtime": 1792773091.5424633,
+    "seen": 1792807481.245955,
+    "ast_hash": "2b15a46f66110a7570549034dfb9b1e5",
+    "semantic_hash": "2b15a46f66110a7570549034dfb9b1e5"
+  },
+  "crates/gluon/src/inject.rs": {
+    "mtime": 1792773091.5425377,
+    "seen": 1792807481.2459562,
+    "ast_hash": "d14951f73b257bfabd331f915ede43f1",
+    "semantic_hash": "d14951f73b257bfabd331f915ede43f1"
+  },
+  "crates/gluon/src/lib.rs": {
+    "mtime": 1792808660.7116733,
+    "seen": 1792808923.000917,
+    "ast_hash": "659f87cebe2c3116988e445ea2dad8d4",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/middleware/csrf.rs": {
+    "mtime": 1792773091.5427237,
+    "seen": 1792807481.2459571,
+    "ast_hash": "b35cea2609d61d7583a884460fc80efe",
+    "semantic_hash": "b35cea2609d61d7583a884460fc80efe"
+  },
+  "crates/gluon/src/middleware/htmx.rs": {
+    "mtime": 1792773091.542797,
+    "seen": 1792807481.2459579,
+    "ast_hash": "2438f62bf1b062d5ed5feae008c3b305",
+    "semantic_hash": "2438f62bf1b062d5ed5feae008c3b305"
+  },
+  "crates/gluon/src/middleware/mod.rs": {
+    "mtime": 1792773091.5428503,
+    "seen": 1792807481.2459588,
+    "ast_hash": "5c802e4dbe9cb2e402196d43ca696cd6",
+    "semantic_hash": "5c802e4dbe9cb2e402196d43ca696cd6"
+  },
+  "crates/gluon/src/middleware/static_files.rs": {
+    "mtime": 1792773091.542917,
+    "seen": 1792807481.24596,
+    "ast_hash": "313aaa3d32faab56977f1f1df9eadccf",
+    "semantic_hash": "313aaa3d32faab56977f1f1df9eadccf"
+  },
+  "crates/gluon/src/prelude.rs": {
+    "mtime": 1792808916.3353639,
+    "seen": 1792808923.0009222,
+    "ast_hash": "0b5bb50749efd941dbea954e5c2a2b5b",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/redirect.rs": {
+    "mtime": 1792773091.5430448,
+    "seen": 1792807481.245962,
+    "ast_hash": "0c76f390dbe3c0c2b9544f7bdae0e608",
+    "semantic_hash": "0c76f390dbe3c0c2b9544f7bdae0e608"
+  },
+  "crates/gluon/src/session.rs": {
+    "mtime": 1792773091.5431159,
+    "seen": 1792807481.245962,
+    "ast_hash": "4869dcb668dbe0c7d6915c8bcab22f1c",
+    "semantic_hash": "4869dcb668dbe0c7d6915c8bcab22f1c"
+  },
+  "crates/gluon/src/testing.rs": {
+    "mtime": 1792773091.5431745,
+    "seen": 1792807481.245963,
+    "ast_hash": "92ac26ed021ff3e0addff3f29f6d6087",
+    "semantic_hash": "92ac26ed021ff3e0addff3f29f6d6087"
+  },
+  "crates/gluon/src/view.rs": {
+    "mtime": 1792773091.543244,
+    "seen": 1792807481.245964,
+    "ast_hash": "c9aac21991d0a692cdb280a33ded51c6",
+    "semantic_hash": "c9aac21991d0a692cdb280a33ded51c6"
+  },
+  "crates/gluon/tests/app_macro.rs": {
+    "mtime": 1792773091.543339,
+    "seen": 1792807481.245965,
+    "ast_hash": "300ef132133fdf52d77bf1234200e9da",
+    "semantic_hash": "300ef132133fdf52d77bf1234200e9da"
+  },
+  "crates/gluon/tests/csrf_middleware.rs": {
+    "mtime": 1792773091.5434146,
+    "seen": 1792807481.245973,
+    "ast_hash": "45ae90bc9951ce25bed961b1a31bc4eb",
+    "semantic_hash": "45ae90bc9951ce25bed961b1a31bc4eb"
+  },
+  "crates/gluon/tests/htmx_middleware.rs": {
+    "mtime": 1792773091.5440278,
+    "seen": 1792807481.245975,
+    "ast_hash": "3c7565c4b74e0f454d4496faac6eb9a5",
+    "semantic_hash": "3c7565c4b74e0f454d4496faac6eb9a5"
+  },
+  "crates/gluon/tests/postgres_session.rs": {
+    "mtime": 1792773091.5441098,
+    "seen": 1792807481.245975,
+    "ast_hash": "62db0a65806590ce1ab32020d6461894",
+    "semantic_hash": "62db0a65806590ce1ab32020d6461894"
+  },
+  "crates/gluon/tests/static_files.rs": {
+    "mtime": 1792773091.5460734,
+    "seen": 1792807481.2459772,
+    "ast_hash": "e50943f4d74350c0ea383ca0a3396574",
+    "semantic_hash": "e50943f4d74350c0ea383ca0a3396574"
+  },
+  "crates/gluon/tests/testing_dogfood.rs": {
+    "mtime": 1792773091.546122,
+    "seen": 1792807481.245978,
+    "ast_hash": "7d2ecaebec8d1da33fe4799ce6df6eb7",
+    "semantic_hash": "7d2ecaebec8d1da33fe4799ce6df6eb7"
+  },
+  "scripts/remote_session_start.sh": {
+    "mtime": 1792773091.5614786,
+    "seen": 1792807481.2460082,
+    "ast_hash": "63c56dd0d42fd9fa2c8c1c21c8e90790",
+    "semantic_hash": "63c56dd0d42fd9fa2c8c1c21c8e90790"
+  },
+  ".claude/skills/improve-review-from-pr-gap/SKILL.md": {
+    "mtime": 1792773091.531305,
+    "seen": 1792807481.24601,
+    "ast_hash": "ffaa01885ce9ac435e03a540613c1229",
+    "semantic_hash": "ffaa01885ce9ac435e03a540613c1229"
+  },
+  ".claude/skills/improve-review-from-session/SKILL.md": {
+    "mtime": 1792773091.5314438,
+    "seen": 1792807481.2460108,
+    "ast_hash": "cdef0b2661fbd6c1c6583b9e3f6245b9",
+    "semantic_hash": "cdef0b2661fbd6c1c6583b9e3f6245b9"
+  },
+  ".claude/skills/review-pr/SKILL.md": {
+    "mtime": 1792773091.5315626,
+    "seen": 1792807481.246012,
+    "ast_hash": "8ec8f6d3fd12ad7cad032cc1672639d9",
+    "semantic_hash": "8ec8f6d3fd12ad7cad032cc1672639d9"
+  },
+  ".claude/skills/review-uncommitted/SKILL.md": {
+    "mtime": 1792773091.5316908,
+    "seen": 1792807481.246012,
+    "ast_hash": "fdb8b0f3d7ad5543872f9c821b7d2e90",
+    "semantic_hash": "fdb8b0f3d7ad5543872f9c821b7d2e90"
+  },
+  ".github/workflows/ci.yml": {
+    "mtime": 1792813563.144384,
+    "seen": 1792813779.904781,
+    "ast_hash": "7c0c6cd84bccf92fbf17a7f15fb4c34e",
+    "semantic_hash": ""
+  },
+  ".github/workflows/release.yml": {
+    "mtime": 1792773091.5322294,
+    "seen": 1792807481.2460139,
+    "ast_hash": "4aa69f2f3300a26b0e4aed1c32854fc6",
+    "semantic_hash": ""
+  },
+  ".github/workflows/update-skills.yml": {
+    "mtime": 1792773091.532476,
+    "seen": 1792807481.2460139,
+    "ast_hash": "1a8c2c18969a69e7a4ae9bcc097dc5d7",
+    "semantic_hash": ""
+  },
+  "CONTRIBUTING.md": {
+    "mtime": 1792773091.53302,
+    "seen": 1792807481.246017,
+    "ast_hash": "8780ec29711482161ae297d71b7b1407",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1792773091.534912,
+    "seen": 1792807481.246018,
+    "ast_hash": "8a44a03b97e8e02c336985d0da14d5e4",
+    "semantic_hash": "8a44a03b97e8e02c336985d0da14d5e4"
+  },
+  "SECURITY.md": {
+    "mtime": 1792773091.5351548,
+    "seen": 1792807481.246018,
+    "ast_hash": "b7e8f265703836bc54f8d3c9a6af438c",
+    "semantic_hash": "b7e8f265703836bc54f8d3c9a6af438c"
+  },
+  "skills/gluon-cli/SKILL.md": {
+    "mtime": 1792773091.561952,
+    "seen": 1792807481.246041,
+    "ast_hash": "08dd2c2838fcf5a41618bb4e07e1bb51",
+    "semantic_hash": ""
+  },
+  "skills/gluon-cli/references/commands.md": {
+    "mtime": 1792773091.562064,
+    "seen": 1792807481.246042,
+    "ast_hash": "3ab89f8c9764e8a55be77111e0c8cc5d",
+    "semantic_hash": ""
+  },
+  "skills/gluon-cli/references/conventions.md": {
+    "mtime": 1792773091.5621378,
+    "seen": 1792807481.246043,
+    "ast_hash": "72c9a3520c2136d19b5fbe0b69a5e10e",
+    "semantic_hash": ""
+  },
+  "skills/gluon-cli/references/environment.md": {
+    "mtime": 1792773091.5622008,
+    "seen": 1792807481.246043,
+    "ast_hash": "a6f56ceb38760c2d78ec6f2b4f81383c",
+    "semantic_hash": ""
+  },
+  "skills/gluon-cli/references/limitations.md": {
+    "mtime": 1792773091.5622647,
+    "seen": 1792807481.246044,
+    "ast_hash": "3ce5d7b7ac51d2e898c22117398fccdf",
+    "semantic_hash": ""
+  },
+  "skills/gluon-cli/references/testing.md": {
+    "mtime": 1792773091.562343,
+    "seen": 1792807481.2460449,
+    "ast_hash": "fe9b0280fe52cb5221a24e98e3cfcd96",
+    "semantic_hash": ""
+  },
+  "skills/gluon-cli/references/validation.md": {
+    "mtime": 1792773091.5624132,
+    "seen": 1792807481.246046,
+    "ast_hash": "8beffdfbfea7c55d8b3defbba937bc9a",
+    "semantic_hash": ""
+  },
+  "skills/gluon-cli/references/workflows.md": {
+    "mtime": 1792773091.5624936,
+    "seen": 1792807481.246046,
+    "ast_hash": "c5e952732c7b06e1dd9a4fda8a13a0ae",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/tests/examples.rs": {
+    "mtime": 1792809637.1312711,
+    "seen": 1792809721.421283,
+    "ast_hash": "ca94edd016dd69b73cdc4e600320b38f",
+    "semantic_hash": ""
+  },
+  "examples/api/Cargo.toml": {
+    "mtime": 1792773091.5464864,
+    "seen": 1792807481.2459798,
+    "ast_hash": "0d8a8b9b5fad7ea03e5416a13facd6c1",
+    "semantic_hash": ""
+  },
+  "examples/api/app/api/health/route.rs": {
+    "mtime": 1792773091.5466259,
+    "seen": 1792807481.245981,
+    "ast_hash": "17f43451dbc23643e7dc3e97d4873198",
+    "semantic_hash": ""
+  },
+  "examples/api/app/api/items/[id]/route.rs": {
+    "mtime": 1792773091.5467298,
+    "seen": 1792807481.245982,
+    "ast_hash": "79a67a26acae03dd8c16c21922c85c38",
+    "semantic_hash": ""
+  },
+  "examples/api/build.rs": {
+    "mtime": 1792773091.5467784,
+    "seen": 1792807481.245982,
+    "ast_hash": "a09f3445aefb7fe18d473f5be538652d",
+    "semantic_hash": ""
+  },
+  "examples/api/src/main.rs": {
+    "mtime": 1792773091.5468528,
+    "seen": 1792807481.245983,
+    "ast_hash": "593083eb7e9120f3f85d7b74bf6bf992",
+    "semantic_hash": ""
+  },
+  "examples/api/src/wiring.rs": {
+    "mtime": 1792773091.5469172,
+    "seen": 1792807481.245984,
+    "ast_hash": "b78a1fa66c6b67142bf1ea3a636d2a46",
+    "semantic_hash": ""
+  },
+  "examples/di/Cargo.toml": {
+    "mtime": 1792773091.5469928,
+    "seen": 1792807481.245985,
+    "ast_hash": "4129e5ee581db132f267a94e4501cdbd",
+    "semantic_hash": ""
+  },
+  "examples/di/app/greet/[name]/route.rs": {
+    "mtime": 1792773091.5471246,
+    "seen": 1792807481.245985,
+    "ast_hash": "07464dd46170e73865ceef81766aa9f1",
+    "semantic_hash": ""
+  },
+  "examples/di/build.rs": {
+    "mtime": 1792773091.547168,
+    "seen": 1792807481.245986,
+    "ast_hash": "a09f3445aefb7fe18d473f5be538652d",
+    "semantic_hash": ""
+  },
+  "examples/di/src/main.rs": {
+    "mtime": 1792773091.5472372,
+    "seen": 1792807481.2459872,
+    "ast_hash": "593083eb7e9120f3f85d7b74bf6bf992",
+    "semantic_hash": ""
+  },
+  "examples/di/src/wiring.rs": {
+    "mtime": 1792773091.5472815,
+    "seen": 1792807481.2459881,
+    "ast_hash": "d172a92440191c350afcad80959a059c",
+    "semantic_hash": ""
+  },
+  "examples/htmx/Cargo.toml": {
+    "mtime": 1792773091.5474088,
+    "seen": 1792807481.2459881,
+    "ast_hash": "3902f8fd9150cbed9cc93c2a7feb4f2d",
+    "semantic_hash": ""
+  },
+  "examples/htmx/app/page.rs": {
+    "mtime": 1792773091.547511,
+    "seen": 1792807481.245989,
+    "ast_hash": "7138b9ed569cdeafdd033f80f069e3c0",
+    "semantic_hash": ""
+  },
+  "examples/htmx/app/page.tsx": {
+    "mtime": 1792773091.5475738,
+    "seen": 1792807481.2459898,
+    "ast_hash": "c923a90a9a5429a47cc185969105daae",
+    "semantic_hash": ""
+  },
+  "examples/htmx/build.rs": {
+    "mtime": 1792773091.547627,
+    "seen": 1792807481.245991,
+    "ast_hash": "a09f3445aefb7fe18d473f5be538652d",
+    "semantic_hash": ""
+  },
+  "examples/htmx/src/main.rs": {
+    "mtime": 1792773091.5477118,
+    "seen": 1792807481.245992,
+    "ast_hash": "593083eb7e9120f3f85d7b74bf6bf992",
+    "semantic_hash": ""
+  },
+  "examples/htmx/src/wiring.rs": {
+    "mtime": 1792773091.5477664,
+    "seen": 1792807481.245992,
+    "ast_hash": "b78a1fa66c6b67142bf1ea3a636d2a46",
+    "semantic_hash": ""
+  },
+  "examples/pages/Cargo.toml": {
+    "mtime": 1792773091.5478547,
+    "seen": 1792807481.245993,
+    "ast_hash": "627abd7138b5fe465ec6ea5b1f68fb65",
+    "semantic_hash": ""
+  },
+  "examples/pages/app/page.rs": {
+    "mtime": 1792773091.5480328,
+    "seen": 1792807481.245994,
+    "ast_hash": "909470664866c766fe00b0357a829b33",
+    "semantic_hash": ""
+  },
+  "examples/pages/app/page.tsx": {
+    "mtime": 1792773091.548106,
+    "seen": 1792807481.245995,
+    "ast_hash": "c923a90a9a5429a47cc185969105daae",
+    "semantic_hash": ""
+  },
+  "examples/pages/app/users/[id]/page.rs": {
+    "mtime": 1792773091.5482285,
+    "seen": 1792807481.245996,
+    "ast_hash": "ea2f6d523f7843b4c3108340d6b1f7ba",
+    "semantic_hash": ""
+  },
+  "examples/pages/app/users/[id]/page.tsx": {
+    "mtime": 1792773091.5482814,
+    "seen": 1792807481.245996,
+    "ast_hash": "c923a90a9a5429a47cc185969105daae",
+    "semantic_hash": ""
+  },
+  "examples/pages/build.rs": {
+    "mtime": 1792773091.5483387,
+    "seen": 1792807481.245997,
+    "ast_hash": "a09f3445aefb7fe18d473f5be538652d",
+    "semantic_hash": ""
+  },
+  "examples/pages/src/main.rs": {
+    "mtime": 1792773091.5485466,
+    "seen": 1792807481.2459981,
+    "ast_hash": "593083eb7e9120f3f85d7b74bf6bf992",
+    "semantic_hash": ""
+  },
+  "examples/pages/src/wiring.rs": {
+    "mtime": 1792773091.5485964,
+    "seen": 1792807481.245999,
+    "ast_hash": "b78a1fa66c6b67142bf1ea3a636d2a46",
+    "semantic_hash": ""
+  },
+  "examples/sessions/Cargo.toml": {
+    "mtime": 1792773091.5486853,
+    "seen": 1792807481.246,
+    "ast_hash": "39ecac0836e791e5333a715ab8aa860c",
+    "semantic_hash": ""
+  },
+  "examples/sessions/app/counter/route.rs": {
+    "mtime": 1792773091.5487983,
+    "seen": 1792807481.246001,
+    "ast_hash": "8e5c45da0fb08942a80a491bf30b7302",
+    "semantic_hash": ""
+  },
+  "examples/sessions/app/token/route.rs": {
+    "mtime": 1792773091.5488837,
+    "seen": 1792807481.246002,
+    "ast_hash": "5f8ec248376b11c74a6e8b9635a62033",
+    "semantic_hash": ""
+  },
+  "examples/sessions/build.rs": {
+    "mtime": 1792773091.5489395,
+    "seen": 1792807481.246003,
+    "ast_hash": "a09f3445aefb7fe18d473f5be538652d",
+    "semantic_hash": ""
+  },
+  "examples/sessions/src/main.rs": {
+    "mtime": 1792773091.5490956,
+    "seen": 1792807481.246003,
+    "ast_hash": "593083eb7e9120f3f85d7b74bf6bf992",
+    "semantic_hash": ""
+  },
+  "examples/sessions/src/wiring.rs": {
+    "mtime": 1792773091.5491858,
+    "seen": 1792807481.2460039,
+    "ast_hash": "b78a1fa66c6b67142bf1ea3a636d2a46",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1792773091.532698,
+    "seen": 1792807481.246015,
+    "ast_hash": "82efb97a359f5c7290bf2513d14686be",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1792773091.5327592,
+    "seen": 1792807481.246016,
+    "ast_hash": "a4d908b00a3ca344de952dba273af340",
+    "semantic_hash": ""
+  },
+  "examples/pages/public/marker.txt": {
+    "mtime": 1792773091.5484264,
+    "seen": 1792807481.24604,
+    "ast_hash": "a46c33c8905dabf312a00c692d9d7c53",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/tests/common/mod.rs": {
+    "mtime": 1792773091.540295,
+    "seen": 1792807481.2459378,
+    "ast_hash": "af372d08aa210879b2e7f8310da3733e",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/skill/gluon/SKILL.md": {
+    "mtime": 1792812777.7456663,
+    "seen": 1792812785.959203,
+    "ast_hash": "04f2f21a9c8cc00aee7a146d538f60ef",
+    "semantic_hash": ""
+  },
+  "skills/gluon/SKILL.md": {
+    "mtime": 1792812777.7402847,
+    "seen": 1792812785.959523,
+    "ast_hash": "04f2f21a9c8cc00aee7a146d538f60ef",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/build.rs": {
+    "mtime": 1792773091.535829,
+    "seen": 1792807481.245918,
+    "ast_hash": "a28b5261bef4045d957c565321aa08e0",
+    "semantic_hash": ""
+  },
+  "Cargo.toml": {
+    "mtime": 1792809587.2346764,
+    "seen": 1792809721.41906,
+    "ast_hash": "e753af69eb9d11a21cc0ae4f00e9b2eb",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/csrf_spec.rs": {
+    "mtime": 1792773091.5436718,
+    "seen": 1792807481.245974,
+    "ast_hash": "d297db1f27ec7223535c41f33bb14555",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/specs/package.json": {
+    "mtime": 1792773091.5460107,
+    "seen": 1792807481.245976,
+    "ast_hash": "a4dce858ac8db134ec39ef8ef6bcc958",
+    "semantic_hash": ""
+  },
+  "examples/Cargo.toml": {
+    "mtime": 1792809225.0999804,
+    "seen": 1792809284.798997,
+    "ast_hash": "f5631cb9f4dd418d0ffe05002a42a02a",
+    "semantic_hash": ""
+  },
+  "scripts/check-csrf-alloy-results.cjs": {
+    "mtime": 1792773091.560422,
+    "seen": 1792807481.246005,
+    "ast_hash": "306826cbf7429ef4b43135d1486369b9",
+    "semantic_hash": ""
+  },
+  "scripts/check-csrf-alloy.sh": {
+    "mtime": 1792773091.5606968,
+    "seen": 1792807481.246006,
+    "ast_hash": "fd3654f271d2e04649691421f819888a",
+    "semantic_hash": ""
+  },
+  "scripts/check-csrf-quint.sh": {
+    "mtime": 1792773091.560943,
+    "seen": 1792807481.246007,
+    "ast_hash": "e87aef37bed2611c40ecb975953c545e",
+    "semantic_hash": ""
+  },
+  "scripts/check-csrf-runners.test.cjs": {
+    "mtime": 1792773091.561183,
+    "seen": 1792807481.246007,
+    "ast_hash": "d9ceceb4d7cfa5ce4d8eb9e95fa4c474",
+    "semantic_hash": ""
+  },
+  "scripts/setup-csrf-specs.sh": {
+    "mtime": 1792773091.5616987,
+    "seen": 1792807481.246009,
+    "ast_hash": "96b2fe8a2e977fe23f5e4ea83f5f0606",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/controller/page.rs.j2": {
+    "mtime": 1792773091.5373971,
+    "seen": 1792807481.2460191,
+    "ast_hash": "7ed2ef1e87596ebbb41717e0ad4dbedd",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/controller/page.tsx.j2": {
+    "mtime": 1792773091.537455,
+    "seen": 1792807481.24602,
+    "ast_hash": "e602129ac8a37e78f34466f1b5cb7883",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/controller/route.rs.j2": {
+    "mtime": 1792773091.5375302,
+    "seen": 1792807481.246021,
+    "ast_hash": "2741eef23c8f12524905295e1b8d8038",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/domain/entity.rs.j2": {
+    "mtime": 1792773091.5376267,
+    "seen": 1792807481.246022,
+    "ast_hash": "558336ebfb0bd2cadbb77a0d5fbc801c",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/domain/error.rs.j2": {
+    "mtime": 1792773091.5376873,
+    "seen": 1792807481.246022,
+    "ast_hash": "b9e36036df97f5c57191b9c96e79f6a1",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/domain/mock.rs.j2": {
+    "mtime": 1792773091.5377476,
+    "seen": 1792807481.246023,
+    "ast_hash": "0eece00842065c9c0c7d046d233d9d53",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/domain/mod.rs.j2": {
+    "mtime": 1792773091.537803,
+    "seen": 1792807481.246024,
+    "ast_hash": "bdddb88f606b6fa8e0e4d77175139ae7",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/domain/repository.rs.j2": {
+    "mtime": 1792773091.5378675,
+    "seen": 1792807481.2460248,
+    "ast_hash": "48811e064f5d77a458766f121da21e2a",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/domain/repository_impl.rs.j2": {
+    "mtime": 1792773091.5379403,
+    "seen": 1792807481.246026,
+    "ast_hash": "9795a73f1bb50bc4c79a528c4657f46f",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/domain/value_objects.rs.j2": {
+    "mtime": 1792773091.537989,
+    "seen": 1792807481.246026,
+    "ast_hash": "423785843be8e9b486db222ae0860e99",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/dto/dto.rs.j2": {
+    "mtime": 1792773091.5381033,
+    "seen": 1792807481.246027,
+    "ast_hash": "3f6a8fa6021833099a8ad0b228b73c15",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/migration/down.sql.j2": {
+    "mtime": 1792773091.5382009,
+    "seen": 1792807481.246028,
+    "ast_hash": "2cce270da49991aff4e1dcd83b7e0652",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/migration/up.sql.j2": {
+    "mtime": 1792773091.5382552,
+    "seen": 1792807481.2460291,
+    "ast_hash": "7ff50264fd9bb703e1884ad17ebf4e69",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/new/Cargo.toml.j2": {
+    "mtime": 1792773091.5384445,
+    "seen": 1792807481.24603,
+    "ast_hash": "61a7bf3b8479c4ef8a44cec364646eff",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/new/app/page.rs.j2": {
+    "mtime": 1792773091.5388672,
+    "seen": 1792807481.246031,
+    "ast_hash": "f15a9c6c5050a7493f3d111f899dfcf6",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/new/build.rs.j2": {
+    "mtime": 1792773091.5390096,
+    "seen": 1792807481.246031,
+    "ast_hash": "a117a60bf89f0c89e0843f559aae50f6",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/new/gluon.toml.j2": {
+    "mtime": 1792773091.5390756,
+    "seen": 1792807481.2460318,
+    "ast_hash": "a41f100b3da1fed1a63634cb95053ab1",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/new/src/main.rs.j2": {
+    "mtime": 1792773091.5397677,
+    "seen": 1792807481.246036,
+    "ast_hash": "a8cdd6717cb1e9a5e2239ad6f7de41e9",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/new/src/wiring.rs.j2": {
+    "mtime": 1792773091.5399222,
+    "seen": 1792807481.246037,
+    "ast_hash": "d638e059151cef6dea5d5eb9200090c7",
+    "semantic_hash": ""
+  },
+  "crates/gluon-cli/templates/usecase/usecase.rs.j2": {
+    "mtime": 1792773091.5401328,
+    "seen": 1792807481.246038,
+    "ast_hash": "71bf67befa13179ba6c50c83f8e755cb",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/specs/VERIFICATION.md": {
+    "mtime": 1792773091.5446475,
+    "seen": 1792807481.2460392,
+    "ast_hash": "da4525d7708279f6d0d94ec65344011a",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/auth/mod.rs": {
+    "mtime": 1792813550.440708,
+    "seen": 1792813779.901864,
+    "ast_hash": "20bee0d000af9ad2a8a0c4b0da44e266",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_boot.rs": {
+    "mtime": 1792812696.5006633,
+    "seen": 1792812785.9567301,
+    "ast_hash": "f1aebf7b54c2cdb0831ba194e6f435cf",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_contracts.rs": {
+    "mtime": 1792813748.4375134,
+    "seen": 1792813779.9025369,
+    "ast_hash": "1313dd2f997ba5d00508c79942d0c0ba",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_email_otp.rs": {
+    "mtime": 1792812741.4097555,
+    "seen": 1792812785.9567318,
+    "ast_hash": "8eb56cc2832cac2ec416f48a12282c09",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_http.rs": {
+    "mtime": 1792813550.4457185,
+    "seen": 1792813779.902569,
+    "ast_hash": "71412cbc559fd09fe5aab6023f14ea2a",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_jwt.rs": {
+    "mtime": 1792808660.7257066,
+    "seen": 1792808923.000931,
+    "ast_hash": "d93e8e9cd531b55d6c24c7647d39fb24",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_oauth.rs": {
+    "mtime": 1792812669.2814357,
+    "seen": 1792812785.9567611,
+    "ast_hash": "38dfbebf13b0a6688726a6c46f155a05",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_passkey.rs": {
+    "mtime": 1792813720.8263962,
+    "seen": 1792813779.902696,
+    "ast_hash": "100ca5ff4171704cccb124ea922eed96",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_session.rs": {
+    "mtime": 1792811902.7533548,
+    "seen": 1792812785.956827,
+    "ast_hash": "3f5244dba6ed31ab71cd3319e53fb54a",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/common/auth/jwt.rs": {
+    "mtime": 1792808660.7180126,
+    "seen": 1792808923.000939,
+    "ast_hash": "24f701b9a0a1860ef27e4e1632f8feee",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/common/auth/mod.rs": {
+    "mtime": 1792808668.408269,
+    "seen": 1792808923.00094,
+    "ast_hash": "44d6c276d75eed27af4576f4c08d1ed9",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/auth/oauth.rs": {
+    "mtime": 1792811981.008917,
+    "seen": 1792812785.95622,
+    "ast_hash": "2e07e5514a4566af0685ee3d79733187",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_postgres.rs": {
+    "mtime": 1792811902.7586136,
+    "seen": 1792812785.956797,
+    "ast_hash": "a4058053ffda5e102e070a8c85dd9f0e",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/common/auth/passkey_device.rs": {
+    "mtime": 1792813655.8811452,
+    "seen": 1792813779.902934,
+    "ast_hash": "f706a6714cdda85356bd67c9c2863079",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_oauth_providers.rs": {
+    "mtime": 1792812121.4259906,
+    "seen": 1792812785.956762,
+    "ast_hash": "eb47ea72471e792a4e541f28f76497b8",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_oauth_transport.rs": {
+    "mtime": 1792808660.7311032,
+    "seen": 1792808923.0009332,
+    "ast_hash": "f7bf38f7bdd310a287e69b845e3d61a4",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_session_failures.rs": {
+    "mtime": 1792811632.312898,
+    "seen": 1792812785.9568279,
+    "ast_hash": "f73dc14b6770f7efcbe9b48a11e5778a",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_smtp.rs": {
+    "mtime": 1792808660.739782,
+    "seen": 1792808923.000938,
+    "ast_hash": "49cf2e376923635e2681c8a39283c1eb",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/auth/extractors.rs": {
+    "mtime": 1792809475.8197415,
+    "seen": 1792809521.160077,
+    "ast_hash": "0ddfc0d360302889c63f1a813d4961cf",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/auth/http.rs": {
+    "mtime": 1792812717.7003472,
+    "seen": 1792812785.956156,
+    "ast_hash": "d1d1845eb899da09efb925e65050bb87",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/auth/jwt.rs": {
+    "mtime": 1792809692.46294,
+    "seen": 1792809721.4220328,
+    "ast_hash": "d546489b5256ac5732554e21e992f1da",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/auth/mail.rs": {
+    "mtime": 1792809692.4627593,
+    "seen": 1792809721.422034,
+    "ast_hash": "696d8f689a5c43db056cd45c842869e4",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/auth/passkey.rs": {
+    "mtime": 1792813720.816646,
+    "seen": 1792813779.9019022,
+    "ast_hash": "c3a2d8033ce3b240e663f19797ce58e0",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/auth/store.rs": {
+    "mtime": 1792811499.0431058,
+    "seen": 1792812785.9562519,
+    "ast_hash": "ac7cb33e6ff74a2f874bef3fc99a5648",
+    "semantic_hash": ""
+  },
+  "examples/auth/Cargo.toml": {
+    "mtime": 1792809970.9119933,
+    "seen": 1792810103.028717,
+    "ast_hash": "2e82561b170864076e5c2888fd1c3043",
+    "semantic_hash": ""
+  },
+  "examples/auth/src/main.rs": {
+    "mtime": 1792810015.5965362,
+    "seen": 1792810103.028747,
+    "ast_hash": "529c722c498c3f31ab77f7878db94c00",
+    "semantic_hash": ""
+  },
+  "docs/auth.md": {
+    "mtime": 1792812753.236722,
+    "seen": 1792812785.959264,
+    "ast_hash": "ef244fdfc49978e7a7269a1217062d8b",
+    "semantic_hash": ""
+  },
+  "crates/gluon/src/auth/service.rs": {
+    "mtime": 1792813733.6520166,
+    "seen": 1792813779.9019032,
+    "ast_hash": "a2a1e320912a66c3a34de063675855de",
+    "semantic_hash": ""
+  },
+  "examples/auth/README.md": {
+    "mtime": 1792810026.0520527,
+    "seen": 1792810103.030619,
+    "ast_hash": "b06c42fc93fa89cee7faa40980fb7602",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_registration_policy.rs": {
+    "mtime": 1792810626.0716445,
+    "seen": 1792810775.262081,
+    "ast_hash": "8ad8daea016b5171e1f8d9d51904030d",
+    "semantic_hash": ""
+  },
+  "examples/auth/src/lib.rs": {
+    "mtime": 1792809899.6677928,
+    "seen": 1792809912.579305,
+    "ast_hash": "3e783b5f5a39313e27312ace7fe1870e",
+    "semantic_hash": ""
+  },
+  "examples/auth/tests/process.rs": {
+    "mtime": 1792810015.5984464,
+    "seen": 1792810103.028748,
+    "ast_hash": "554c7776184f67c9e18063a5c2117d9c",
+    "semantic_hash": ""
+  },
+  "crates/gluon/tests/auth_api.rs": {
+    "mtime": 1792810180.3832254,
+    "seen": 1792810189.335127,
+    "ast_hash": "c181a8523f876917f31f26df52ce7b69",
+    "semantic_hash": ""
+  }
+}

@@ -8,18 +8,38 @@ version.workspace = true
 
 [lib]
 
+[features]
+auth = ["dep:base64", "dep:hmac", "dep:sha2", "dep:jsonwebtoken", "dep:ed25519-dalek", "dep:lettre", "dep:webauthn-rs", "dep:uuid", "dep:reqwest", "dep:oauth2", "dep:openidconnect"]
+
 [[test]]
 harness = false
 name = "csrf_spec"
 
 [dev-dependencies]
+base64.workspace = true
 cucumber = { version = "=0.23.0", features = ["output-junit"] }
+jsonwebtoken.workspace = true
+openssl = "=0.10.81"
 reqwest.workspace = true
+serde_cbor_2 = "=0.13.0"
 serial_test.workspace = true
+sha2.workspace = true
 tempfile.workspace = true
 testcontainers-modules.workspace = true
+webauthn-authenticator-rs = { version = "=0.5.5", default-features = false, features = ["softpasskey"] }
 
 [dependencies]
+base64 = { workspace = true, optional = true }
+hmac = { workspace = true, optional = true }
+sha2 = { workspace = true, optional = true }
+jsonwebtoken = { workspace = true, optional = true }
+ed25519-dalek = { workspace = true, optional = true }
+lettre = { workspace = true, optional = true }
+webauthn-rs = { workspace = true, optional = true }
+uuid = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true }
+oauth2 = { workspace = true, optional = true }
+openidconnect = { workspace = true, optional = true }
 anyhow.workspace = true
 async-trait.workspace = true
 axum.workspace = true

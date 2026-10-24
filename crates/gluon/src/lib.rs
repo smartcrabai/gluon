@@ -8,6 +8,8 @@
     )
 )]
 
+#[cfg(feature = "auth")]
+pub mod auth;
 mod boot;
 mod container;
 mod error;

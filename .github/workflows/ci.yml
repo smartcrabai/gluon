@@ -42,6 +42,22 @@ jobs:
         shell: bash
         run: cargo fmt --all -- --check
 
+      - name: Install authentication native dependencies
+        shell: bash
+        run: sudo apt-get update && sudo apt-get install -y pkg-config libssl-dev
+
+      - name: Run cargo check without authentication
+        shell: bash
+        run: cargo check -p gluon --no-default-features --lib --locked
+
+      - name: Build all examples including screenless authentication
+        shell: bash
+        run: cargo build --manifest-path examples/Cargo.toml --workspace
+
+      - name: Run authentication example OTP session JWT process contract
+        shell: bash
+        run: cargo test --manifest-path examples/Cargo.toml -p sample-auth --test process
+
       - name: Run cargo check
         shell: bash
         run: cargo check --workspace --all-features
@@ -49,6 +65,10 @@ jobs:
       - name: Run tests
         shell: bash
         run: cargo test --workspace --all-features
+
+      - name: Run PostgreSQL authentication contracts explicitly
+        shell: bash
+        run: cargo test -p gluon --features auth --test auth_postgres --locked
 
       - name: Run clippy
         shell: bash
@@ -146,10 +166,31 @@ jobs:
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
 
+      - name: Install macOS authentication native dependencies
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew install openssl@3 pkg-config
+          echo "OPENSSL_DIR=$(brew --prefix openssl@3)" >> "$GITHUB_ENV"
+
+      - name: Configure Windows authentication native dependencies
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          & "$env:VCPKG_INSTALLATION_ROOT/vcpkg.exe" install openssl:x64-windows-static-md
+          "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" >> $env:GITHUB_ENV
+          "VCPKGRS_TRIPLET=x64-windows-static-md" >> $env:GITHUB_ENV
+          "OPENSSL_STATIC=1" >> $env:GITHUB_ENV
+
       - name: Run platform tests
         run: >-
           cargo test --workspace --all-features --
           --skip database_lifecycle_and_seed_work_against_postgres
           --skip generated_postgres_repository_supports_crud
           --skip postgres_sessions_persist_across_instances
-
+          --skip postgres_auth_store_contracts
+          --skip postgres_preloaded_independent_sessions_cannot_restore_revoked_logins
+          --skip postgres_login_authority_failure_is_not_anonymous_or_successful_logout
+          --skip postgres_v1_upgrade_adds_login_authority_without_changing_existing_data
+          --skip postgres_login_authority_write_failure_cannot_leave_an_authenticated_cookie
+          --skip postgres_login_cleanup_enforces_idle_and_absolute_deadlines_for_cached_cookies
