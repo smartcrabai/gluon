@@ -1,5 +1,8 @@
 # CSRF specifications verification evidence
 
+The original report below records the 2026-10-23 execution. The concurrent
+snapshot follow-up at the end records the additional model and later checks.
+
 Date: 2026-10-23 (local execution on macOS arm64).
 
 ## Status and provenance
@@ -265,3 +268,63 @@ uses that full release selector; the runtime checks retain `21.0.6+7`.
 After this correction, [CI run 39936355289](https://github.com/smartcrabai/gluon/actions/runs/39936355289)
 passed all four jobs, including the formal checks and both platform suites,
 at commit `068c4a690e7d0d09dd43ec607fa4360507bb68ff`.
+
+## Concurrent snapshot follow-up
+
+`csrf_concurrent.qnt` adds two requests with separate load, check, and save
+transitions over two sessions with already-persisted, distinct CSRF tokens.
+Each request loads a full snapshot; an admitted request may change unrelated
+session data, and a save replaces the stored snapshot. Saving is modeled as a
+possible store operation, not something every CSRF request must perform.
+
+The five properties check existing-token reuse, admission against the loaded
+token, foreign-token rejection, snapshot replacement, and isolation of the
+other session. The aggregate `contract` includes all five. Four executable
+witnesses cover overlapping accepted requests, foreign-token rejection,
+isolation, and an allowed stale-snapshot overwrite. The overwrite witness
+documents last-save-wins, not atomic increments or merging.
+
+The bound is **six transitions**, enough for both requests to load, check, and
+save. First-token issuance, expiry, arbitrary I/O failures, durable database
+commits, and unbounded executions remain outside this concurrent model.
+This is a bounded specification check, not a refinement proof of Rust code.
+Runtime correspondence is exercised by
+`csrf_middleware::concurrent_unsafe_requests_keep_token_and_restore_each_body`
+and the snapshot-replacement scenario in
+`postgres_session::postgres_sessions_persist_across_instances`.
+
+Executed locally on macOS arm64 with Node 22.14.0 and Temurin 21.0.6+7:
+
+```sh
+mise exec node@22.14.0 -- node --test scripts/check-csrf-runners.test.cjs
+mise exec node@22.14.0 java@temurin-21.0.6+7.0.LTS -- bash scripts/check-csrf-quint.sh
+mise exec node@22.14.0 java@temurin-21.0.6+7.0.LTS -- bash scripts/check-csrf-alloy.sh
+```
+
+All 17 runner tests passed. Both Quint models typechecked; their 12 sequential
+and four concurrent witnesses passed, as did both 1,000-sample simulations.
+All 10 sequential and six concurrent SMT checks passed through six transitions.
+Artifacts are in `target/csrf-spec/quint/run-hJ5rSW5H/`. The unchanged Alloy
+model again produced nine UNSAT assertion results and 12 SAT witnesses;
+its validated receipt and instances are in
+`target/csrf-spec/alloy-2GqwMjVG/instances/`.
+
+The runner regression injects both an earlier-model verification failure and
+a concurrent-model failure, checking continuation and a failing gate. Its
+synthetic CLI fixture is not evidence of actual model verification; the real
+Quint and Alloy executions above provide that evidence.
+
+The full workspace command
+`cargo test --workspace --all-features --locked --no-fail-fast` passed,
+including all three PostgreSQL targets, the 35 Gherkin scenarios, generated
+application HTTP checks, and the two new generation-conflict regressions.
+After the session scenario was extracted into a focused helper, the
+PostgreSQL session target passed again. Workspace Clippy with `-D warnings`
+and `cargo fmt --all -- --check` also passed.
+
+The local published-port problem remains an environment limitation. For these
+database runs, a disposable loopback transport forwarded published PostgreSQL
+ports through `docker exec ... nc 127.0.0.1 5432`. A PostgreSQL protocol handshake
+confirmed the transport before the suites ran. No repository runtime settings
+or global Docker configuration were changed; this is not evidence that native
+OrbStack port forwarding was repaired. No new remote CI execution was observed.

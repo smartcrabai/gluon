@@ -118,22 +118,54 @@ pub fn run(kind: GenerateKind) -> Result<()> {
 // controller
 // ---------------------------------------------------------------------------
 
+enum ControllerOutputs {
+    Api(PathBuf),
+    Pages { page_rs: PathBuf, page_tsx: PathBuf },
+}
+
+fn controller_output_paths(route: &str, api: bool) -> ControllerOutputs {
+    let dir = PathBuf::from("app").join(route_to_dir(route));
+    if api {
+        ControllerOutputs::Api(dir.join("route.rs"))
+    } else {
+        ControllerOutputs::Pages {
+            page_rs: dir.join("page.rs"),
+            page_tsx: dir.join("page.tsx"),
+        }
+    }
+}
+
+fn ensure_controller_outputs(outputs: &ControllerOutputs) -> Result<()> {
+    match outputs {
+        ControllerOutputs::Api(path) => ensure_no_existing_file(path),
+        ControllerOutputs::Pages { page_rs, page_tsx } => {
+            ensure_no_existing_outputs([page_rs.as_path(), page_tsx.as_path()])
+        }
+    }
+}
 fn generate_controller(route: &str, api: bool) -> Result<()> {
     let trimmed = route.trim_matches('/');
     validate_route(trimmed)?;
+    let outputs = controller_output_paths(trimmed, api);
+    ensure_controller_outputs(&outputs)?;
+    render_controller(trimmed, &outputs)
+}
 
-    let dir = PathBuf::from("app").join(route_to_dir(trimmed));
-    let pascal_name = route_to_pascal(trimmed);
+fn render_controller(route: &str, outputs: &ControllerOutputs) -> Result<()> {
+    let pascal_name = route_to_pascal(route);
     let ctx = json!({
         "pascal_name": pascal_name,
-        "route": format!("/{trimmed}"),
+        "route": format!("/{route}"),
     });
 
-    if api {
-        render_to_file("controller/route.rs.j2", &ctx, &dir.join("route.rs"))?;
-    } else {
-        render_to_file("controller/page.rs.j2", &ctx, &dir.join("page.rs"))?;
-        render_to_file("controller/page.tsx.j2", &ctx, &dir.join("page.tsx"))?;
+    match outputs {
+        ControllerOutputs::Api(path) => {
+            render_to_file("controller/route.rs.j2", &ctx, path)?;
+        }
+        ControllerOutputs::Pages { page_rs, page_tsx } => {
+            render_to_file("controller/page.rs.j2", &ctx, page_rs)?;
+            render_to_file("controller/page.tsx.j2", &ctx, page_tsx)?;
+        }
     }
     Ok(())
 }
@@ -183,17 +215,32 @@ fn generate_resource(name: &str) -> Result<()> {
         format!("{snake}/[id]"),      // show    -> /users/[id]
         format!("{snake}/[id]/edit"), // edit    -> /users/[id]/edit
     ];
-    for route in &page_routes {
-        generate_controller(route, false)?;
-    }
-
     // JSON endpoints for the mutating actions.
     let api_routes = [
         format!("api/{snake}"),      // create  -> POST   /api/users
         format!("api/{snake}/[id]"), // update/destroy -> PATCH/DELETE
     ];
-    for route in &api_routes {
-        generate_controller(route, true)?;
+
+    for route in page_routes.iter().chain(&api_routes) {
+        validate_route(route)?;
+    }
+
+    let page_controllers = page_routes.map(|route| {
+        let outputs = controller_output_paths(&route, false);
+        (route, outputs)
+    });
+    let api_controllers = api_routes.map(|route| {
+        let outputs = controller_output_paths(&route, true);
+        (route, outputs)
+    });
+    for (_, outputs) in page_controllers.iter().chain(&api_controllers) {
+        ensure_controller_outputs(outputs)?;
+    }
+    for (route, outputs) in &page_controllers {
+        render_controller(route, outputs)?;
+    }
+    for (route, outputs) in &api_controllers {
+        render_controller(route, outputs)?;
     }
     Ok(())
 }
@@ -213,6 +260,7 @@ fn generate_usecase(name: &str) -> Result<()> {
     });
 
     let file = PathBuf::from("src/usecases").join(format!("{snake}.rs"));
+    ensure_no_existing_file(&file)?;
     render_to_file("usecase/usecase.rs.j2", &ctx, &file)?;
     insert_pub_mod_if_present(Path::new("src/usecases/mod.rs"), "usecase-mods", &snake)?;
 
@@ -266,30 +314,32 @@ fn generate_domain(name: &str, fields: &[String]) -> Result<()> {
     });
 
     let dir = PathBuf::from("src/domain").join(&snake);
-    render_to_file("domain/mod.rs.j2", &ctx, &dir.join("mod.rs"))?;
-    render_to_file("domain/entity.rs.j2", &ctx, &dir.join("entity.rs"))?;
-    render_to_file(
-        "domain/value_objects.rs.j2",
-        &ctx,
-        &dir.join("value_objects.rs"),
-    )?;
-    render_to_file("domain/repository.rs.j2", &ctx, &dir.join("repository.rs"))?;
-    render_to_file("domain/error.rs.j2", &ctx, &dir.join("error.rs"))?;
-
     let persistence_dir = PathBuf::from("src/infrastructure/persistence");
-    render_to_file(
-        "domain/repository_impl.rs.j2",
-        &ctx,
-        &persistence_dir.join(format!("{snake}_repository.rs")),
-    )?;
-
     let mocks_dir = PathBuf::from("src/infrastructure/mocks");
-    render_to_file(
-        "domain/mock.rs.j2",
-        &ctx,
-        &mocks_dir.join(format!("{snake}_repository.rs")),
-    )?;
+    let mod_file = dir.join("mod.rs");
+    let entity_file = dir.join("entity.rs");
+    let value_objects_file = dir.join("value_objects.rs");
+    let repository_file = dir.join("repository.rs");
+    let error_file = dir.join("error.rs");
+    let repository_impl_file = persistence_dir.join(format!("{snake}_repository.rs"));
+    let mock_file = mocks_dir.join(format!("{snake}_repository.rs"));
+    ensure_no_existing_outputs([
+        mod_file.as_path(),
+        entity_file.as_path(),
+        value_objects_file.as_path(),
+        repository_file.as_path(),
+        error_file.as_path(),
+        repository_impl_file.as_path(),
+        mock_file.as_path(),
+    ])?;
 
+    render_to_file("domain/mod.rs.j2", &ctx, &mod_file)?;
+    render_to_file("domain/entity.rs.j2", &ctx, &entity_file)?;
+    render_to_file("domain/value_objects.rs.j2", &ctx, &value_objects_file)?;
+    render_to_file("domain/repository.rs.j2", &ctx, &repository_file)?;
+    render_to_file("domain/error.rs.j2", &ctx, &error_file)?;
+    render_to_file("domain/repository_impl.rs.j2", &ctx, &repository_impl_file)?;
+    render_to_file("domain/mock.rs.j2", &ctx, &mock_file)?;
     insert_pub_mod_if_present(Path::new("src/domain/mod.rs"), "domain-mods", &snake)?;
     insert_pub_mod_if_present(
         Path::new("src/infrastructure/persistence/mod.rs"),
@@ -433,6 +483,7 @@ fn generate_dto(name: &str) -> Result<()> {
     });
 
     let file = PathBuf::from("src/dto").join(format!("{snake}.rs"));
+    ensure_no_existing_file(&file)?;
     render_to_file("dto/dto.rs.j2", &ctx, &file)?;
     insert_pub_mod_if_present(Path::new("src/dto/mod.rs"), "dto-mods", &snake)?;
     Ok(())
@@ -455,6 +506,7 @@ fn generate_migration(name: &str) -> Result<()> {
     let dir = PathBuf::from("migrations");
     let up_path = dir.join(format!("{timestamp}_{snake}.up.sql"));
     let down_path = dir.join(format!("{timestamp}_{snake}.down.sql"));
+    ensure_no_existing_outputs([up_path.as_path(), down_path.as_path()])?;
     render_to_file("migration/up.sql.j2", &ctx, &up_path)?;
     render_to_file("migration/down.sql.j2", &ctx, &down_path)?;
     Ok(())
@@ -464,12 +516,51 @@ fn generate_migration(name: &str) -> Result<()> {
 // shared helpers
 // ---------------------------------------------------------------------------
 
+fn ensure_no_existing_file(dest: &Path) -> Result<()> {
+    ensure_no_symlinked_parent_dirs(dest)?;
+    if inspect_output_path(dest)?.is_some() {
+        bail!("refusing to overwrite existing file: {}", dest.display());
+    }
+    Ok(())
+}
+
+fn ensure_no_symlinked_parent_dirs(dest: &Path) -> Result<()> {
+    for parent in dest
+        .ancestors()
+        .skip(1)
+        .filter(|parent| !parent.as_os_str().is_empty())
+    {
+        if inspect_output_path(parent)?.is_some_and(|metadata| metadata.file_type().is_symlink()) {
+            bail!(
+                "refusing to write through symlinked parent directory: {}",
+                parent.display()
+            );
+        }
+    }
+    Ok(())
+}
+
+fn inspect_output_path(path: &Path) -> Result<Option<std::fs::Metadata>> {
+    match std::fs::symlink_metadata(path) {
+        Ok(metadata) => Ok(Some(metadata)),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(error) => {
+            Err(error).with_context(|| format!("failed to inspect output path: {}", path.display()))
+        }
+    }
+}
+
+fn ensure_no_existing_outputs<'a>(paths: impl IntoIterator<Item = &'a Path>) -> Result<()> {
+    for path in paths {
+        ensure_no_existing_file(path)?;
+    }
+    Ok(())
+}
+
 /// Render an embedded template to a file, creating parent directories as
 /// needed. Refuses to overwrite an existing file.
 fn render_to_file(template: &str, ctx: &Value, dest: &Path) -> Result<()> {
-    if dest.exists() {
-        bail!("refusing to overwrite existing file: {}", dest.display());
-    }
+    ensure_no_existing_file(dest)?;
     if let Some(parent) = dest.parent()
         && !parent.as_os_str().is_empty()
     {

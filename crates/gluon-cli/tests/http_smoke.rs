@@ -23,6 +23,18 @@ async fn http_smoke_serves_basic_routes() {
     run_gluon(&app, &["g", "controller", "users"]);
     run_gluon(&app, &["g", "controller", "api/health", "--api"]);
 
+    // Give the rendered pages distinct route-specific content.
+    std::fs::write(
+        app.join("app/page.tsx"),
+        "export default function HomePage() {\n  return <main><h1>Application home</h1><p>Project overview</p></main>;\n}\n",
+    )
+    .expect("set home page fixture");
+    std::fs::write(
+        app.join("app/users/page.tsx"),
+        "export default function Users() {\n  return <main><h1>User directory</h1><p>All users</p></main>;\n}\n",
+    )
+    .expect("set users page fixture");
+
     run_cargo_build(&app);
 
     let port = pick_port();
@@ -61,8 +73,8 @@ async fn http_smoke_serves_basic_routes() {
     assert_eq!(resp.status().as_u16(), 200, "GET / status");
     let body = resp.text().await.expect("body");
     assert!(
-        body.contains("Hello, gluon") || body.contains("HomeProps") || !body.is_empty(),
-        "GET / body unexpected: {body}"
+        body.contains("<h1>Application home</h1>"),
+        "GET / did not render the home page: {body}"
     );
 
     // 2. GET /users
@@ -73,7 +85,10 @@ async fn http_smoke_serves_basic_routes() {
         .expect("GET /users");
     assert_eq!(resp.status().as_u16(), 200, "GET /users status");
     let body = resp.text().await.expect("users body");
-    assert!(!body.is_empty(), "GET /users body should not be empty");
+    assert!(
+        body.contains("<h1>User directory</h1>"),
+        "GET /users did not render the users page: {body}"
+    );
 
     // 3. GET /api/health
     let resp = client
@@ -82,8 +97,15 @@ async fn http_smoke_serves_basic_routes() {
         .await
         .expect("GET /api/health");
     assert_eq!(resp.status().as_u16(), 200, "GET /api/health status");
-    let body = resp.text().await.expect("health body");
-    assert!(body.contains("\"ok\":true"), "GET /api/health body: {body}");
+    let body = resp
+        .json::<serde_json::Value>()
+        .await
+        .expect("GET /api/health JSON");
+    assert_eq!(
+        body,
+        serde_json::json!({"ok": true}),
+        "GET /api/health body"
+    );
 
     // 4. GET /nonexistent
     let resp = client

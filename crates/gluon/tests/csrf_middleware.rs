@@ -8,9 +8,11 @@
 //! inner handler.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
+use std::sync::Arc;
 
 use axum::Extension;
 use axum::body::Bytes;
+use axum::extract::State;
 use axum::http::{Method, StatusCode};
 use axum::response::IntoResponse;
 use axum::routing::{get, options, post};
@@ -18,6 +20,7 @@ use axum::{Router, middleware};
 use axum_test::TestServer;
 use gluon::middleware::CsrfToken;
 use gluon::middleware::csrf::csrf_middleware;
+use tokio::sync::Barrier;
 use tower_sessions::cookie::SameSite;
 use tower_sessions::{MemoryStore, SessionManagerLayer};
 
@@ -41,8 +44,17 @@ async fn options_handler() -> StatusCode {
     StatusCode::NO_CONTENT
 }
 
-/// Builds the router under test. POST `/` and POST `/echo` both echo the body
-/// so each scenario can choose which path to drive.
+async fn concurrent_echo(
+    Extension(token): Extension<CsrfToken>,
+    State(barrier): State<Arc<Barrier>>,
+    body: Bytes,
+) -> impl IntoResponse {
+    barrier.wait().await;
+    ([("x-observed-csrf-token", token.as_str().to_owned())], body).into_response()
+}
+
+/// Builds the router under test. POST routes echo their bodies so scenarios
+/// can assert that the middleware restores the payload before the handler.
 fn build_app() -> Router {
     let session_layer = SessionManagerLayer::new(MemoryStore::default())
         .with_name(SESSION_COOKIE_NAME)
@@ -50,6 +62,7 @@ fn build_app() -> Router {
         .with_http_only(true)
         .with_secure(false);
 
+    let barrier = Arc::new(Barrier::new(2));
     Router::new()
         .route(
             "/",
@@ -58,10 +71,11 @@ fn build_app() -> Router {
                 .merge(options(options_handler)),
         )
         .route("/echo", post(echo_body))
+        .route("/concurrent", post(concurrent_echo))
+        .with_state(barrier)
         .layer(middleware::from_fn(csrf_middleware))
         .layer(session_layer)
 }
-
 fn server() -> TestServer {
     let mut server = TestServer::new(build_app());
     server.save_cookies();
@@ -222,4 +236,56 @@ async fn head_and_options_are_safe() {
         status.is_success() || status == StatusCode::NO_CONTENT,
         "OPTIONS / should be treated as a safe method, got {status}"
     );
+}
+
+#[tokio::test]
+async fn concurrent_unsafe_requests_keep_token_and_restore_each_body() {
+    let server = TestServer::new(build_app());
+
+    let initial = server.get("/").await;
+    let token = initial.text();
+    let cookie = initial
+        .cookies()
+        .get(SESSION_COOKIE_NAME)
+        .unwrap()
+        .value()
+        .to_owned();
+    let cookie = format!("{SESSION_COOKIE_NAME}={cookie}");
+    let first_body = br#"{"operation":"debit","amount":17}"#;
+    let second_body = br#"{"operation":"credit","amount":29}"#;
+
+    let first_request = server
+        .post("/concurrent")
+        .add_header("cookie", cookie.clone())
+        .add_header("x-csrf-token", token.clone())
+        .bytes(Bytes::from_static(first_body))
+        .content_type("application/json");
+    let second_request = server
+        .post("/concurrent")
+        .add_header("cookie", cookie.clone())
+        .add_header("x-csrf-token", token.clone())
+        .bytes(Bytes::from_static(second_body))
+        .content_type("application/json");
+    let (first, second) = tokio::time::timeout(std::time::Duration::from_secs(10), async {
+        tokio::join!(first_request, second_request)
+    })
+    .await
+    .expect("both concurrent unsafe requests should reach the handler");
+
+    for response in [&first, &second] {
+        assert_eq!(response.status_code(), StatusCode::OK);
+        assert_eq!(
+            response
+                .headers()
+                .get("x-observed-csrf-token")
+                .unwrap()
+                .to_str()
+                .unwrap(),
+            token
+        );
+    }
+    assert_eq!(first.as_bytes().as_ref(), first_body);
+    assert_eq!(second.as_bytes().as_ref(), second_body);
+    let after = server.get("/").add_header("cookie", cookie).await;
+    assert_eq!(after.text(), token);
 }

@@ -45,13 +45,16 @@ for (const [name, mutate, error] of [
   });
 }
 
-test('Quint runner invokes all ten bounded verifications even after failure', () => {
+test('Quint runner checks both models and continues all bounded verifications after failure', () => {
   const root = fs.mkdtempSync(path.join(process.env.JCODE_SCRATCH_DIR || os.tmpdir(), 'csrf-runner-test-'));
   try {
-    for (const dir of ['scripts', 'crates/gluon/tests/specs/node_modules/.bin', 'target/formal-tools/quint/apalache-dist-0.51.1/apalache/bin']) {
+    for (const dir of ['scripts', 'crates/gluon/tests/specs', 'crates/gluon/tests/specs/node_modules/.bin', 'target/formal-tools/quint/apalache-dist-0.51.1/apalache/bin']) {
       fs.mkdirSync(path.join(root, dir), { recursive: true });
     }
     fs.copyFileSync('scripts/check-csrf-quint.sh', path.join(root, 'scripts/check-csrf-quint.sh'));
+    for (const name of ['csrf.qnt', 'csrf_concurrent.qnt']) {
+      fs.copyFileSync(`crates/gluon/tests/specs/${name}`, path.join(root, 'crates/gluon/tests/specs', name));
+    }
     fs.writeFileSync(path.join(root, 'target/formal-tools/apalache.tgz'), 'fixture');
     const hash = require('node:crypto').createHash('sha256').update('fixture').digest('hex');
     fs.writeFileSync(path.join(root, 'scripts/csrf-tools.env'), `QUINT_VERSION=0.29.1\nAPALACHE_VERSION=0.51.1\nAPALACHE_SHA256=${hash}\n`);
@@ -63,26 +66,69 @@ const args = process.argv.slice(2);
 if (args[0] === '--version') { console.log('0.29.1'); process.exit(0); }
 fs.appendFileSync(${JSON.stringify(calls)}, JSON.stringify(args) + '\\n');
 console.log('mock ' + args.join(' '));
-if (args.includes('--invariant=reuse')) process.exit(7);
+if (process.env.MOCK_FAILURE && args.includes('--invariant=' + process.env.MOCK_FAILURE)) process.exit(7);
 `, { mode: 0o755 });
-    const result = spawnSync('bash', ['scripts/check-csrf-quint.sh'], { cwd: root, encoding: 'utf8' });
-    assert.equal(result.status, 1, result.stderr);
-    const invocations = fs.readFileSync(calls, 'utf8').trim().split('\n').map(JSON.parse);
-    assert.deepEqual(invocations.slice(0, 3).map(a => a[0]), ['typecheck', 'test', 'run']);
-    for (const command of invocations.slice(1, 3)) assert.ok(command.includes('--seed=0x43535246'));
-    const verifies = invocations.filter(a => a[0] === 'verify');
-    const properties = ['issuance', 'reuse', 'isolation', 'safe_admission', 'unsafe_admission', 'precedence', 'body_limit', 'payload_preserved', 'store_failure', 'contract'];
-    assert.deepEqual(verifies.map(a => a.find(v => v.startsWith('--invariant='))), properties.map(p => `--invariant=${p}`));
-    for (const args of verifies) {
-      assert.ok(args.includes('--max-steps=6'));
-      assert.ok(args.includes('--apalache-version=0.51.1'));
+    const sequential = 'csrf.qnt';
+    const concurrent = 'csrf_concurrent.qnt';
+    const properties = [
+      ['issuance', 'reuse', 'isolation', 'safe_admission', 'unsafe_admission', 'precedence', 'body_limit', 'payload_preserved', 'store_failure', 'contract'],
+      ['token_reuse', 'admission_from_snapshot', 'foreign_token_rejected', 'save_uses_snapshot', 'save_preserves_other_session', 'contract'],
+    ];
+    const assertCoverage = invocations => {
+      const typechecks = invocations.filter(a => a[0] === 'typecheck');
+      assert.deepEqual(typechecks.map(a => path.basename(a[1])), [sequential, concurrent]);
+      const modelCommands = invocations.filter(a => ['test', 'run'].includes(a[0]));
+      assert.deepEqual(modelCommands.map(a => path.basename(a[1])), [sequential, sequential, concurrent, concurrent]);
+      for (const command of modelCommands) assert.ok(command.includes('--seed=0x43535246'));
+      for (const command of modelCommands.filter(a => a[0] === 'run')) {
+        assert.ok(command.includes('--max-steps=6'));
+      }
+      const verifies = invocations.filter(a => a[0] === 'verify');
+      assert.deepEqual(
+        [verifies.slice(0, 10), verifies.slice(10)].map(group =>
+          group.map(a => a.find(v => v.startsWith('--invariant=')))),
+        properties.map(group => group.map(p => `--invariant=${p}`)),
+      );
+      for (const args of verifies) {
+        assert.ok(args.includes('--max-steps=6'));
+        assert.ok(args.includes('--apalache-version=0.51.1'));
+      }
+      for (const args of verifies.slice(0, 10)) assert.ok(args.some(a => path.basename(a) === sequential));
+      for (const args of verifies.slice(10)) assert.ok(args.some(a => path.basename(a) === concurrent));
+    };
+    const runGate = failure => {
+      fs.writeFileSync(calls, '');
+      const result = spawnSync('bash', ['scripts/check-csrf-quint.sh'], {
+        cwd: root, encoding: 'utf8', env: { ...process.env, MOCK_FAILURE: failure },
+      });
+      assert.equal(result.status, 1, result.stderr);
+      const artifactDir = result.stdout.match(/Quint artifacts: (.+)/);
+      assert.ok(artifactDir, result.stdout);
+      const invocations = fs.readFileSync(calls, 'utf8').trim().split('\n').map(JSON.parse);
+      assertCoverage(invocations);
+      return {
+        invocations,
+        run: artifactDir[1],
+        status: fs.readFileSync(path.join(artifactDir[1], 'verification-status.log'), 'utf8'),
+      };
+    };
+
+    // A failed sequential property must not suppress the concurrent model.
+    const priorFailure = runGate('reuse');
+    assert.match(priorFailure.status, /reuse FAIL/);
+    assert.match(priorFailure.status, /contract PASS/);
+    assert.match(priorFailure.status, /concurrent contract PASS/);
+    for (const property of properties[0]) {
+      assert.match(fs.readFileSync(path.join(priorFailure.run, `verification-${property}.log`), 'utf8'), /mock verify/);
     }
-    const output = path.join(root, 'target/csrf-spec/quint');
-    const run = path.join(output, fs.readdirSync(output)[0]);
-    for (const property of properties) assert.match(fs.readFileSync(path.join(run, `verification-${property}.log`), 'utf8'), /mock verify/);
-    const status = fs.readFileSync(path.join(run, 'verification-status.log'), 'utf8');
-    assert.match(status, /reuse FAIL/);
-    assert.match(status, /contract PASS/);
+    for (const property of properties[1]) {
+      assert.match(fs.readFileSync(path.join(priorFailure.run, `concurrent-verification-${property}.log`), 'utf8'), /mock verify/);
+    }
+
+    // A failure in a concurrent invariant itself reaches the consumer-visible gate.
+    const concurrentFailure = runGate('save_uses_snapshot');
+    assert.match(concurrentFailure.status, /concurrent save_uses_snapshot FAIL/);
+    assert.match(concurrentFailure.status, /concurrent contract PASS/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

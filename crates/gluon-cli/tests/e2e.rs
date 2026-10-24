@@ -33,6 +33,34 @@ fn run_cargo_check(app: &Path) {
     );
 }
 
+fn snapshot_tree(root: &Path) -> Vec<(PathBuf, Option<Vec<u8>>)> {
+    fn visit(root: &Path, directory: &Path, entries: &mut Vec<(PathBuf, Option<Vec<u8>>)>) {
+        for entry in std::fs::read_dir(directory).expect("read app directory") {
+            let entry = entry.expect("read app directory entry");
+            let path = entry.path();
+            let relative = path
+                .strip_prefix(root)
+                .expect("entry is inside app")
+                .to_path_buf();
+            let file_type = entry.file_type().expect("read entry type");
+            if file_type.is_symlink() {
+                let target = std::fs::read_link(&path).expect("read symlink target");
+                entries.push((relative, Some(target.to_string_lossy().as_bytes().to_vec())));
+            } else if file_type.is_dir() {
+                entries.push((relative, None));
+                visit(root, &path, entries);
+            } else {
+                entries.push((relative, Some(std::fs::read(&path).expect("read app file"))));
+            }
+        }
+    }
+
+    let mut entries = Vec::new();
+    visit(root, root, &mut entries);
+    entries.sort_unstable_by(|(left, _), (right, _)| left.cmp(right));
+    entries
+}
+
 #[test]
 fn new_agent_flags_install_expected_files() {
     let tmp = tempfile::tempdir().expect("create tempdir");
@@ -249,6 +277,87 @@ fn validation_rejects_unsafe_inputs() {
     assert!(
         stderr.contains("must start with a letter"),
         "stderr: {stderr}"
+    );
+}
+
+#[test]
+fn domain_collision_leaves_generated_files_and_registrations_unchanged() {
+    let tmp = tempfile::tempdir().expect("create tempdir");
+    let app = fresh_app(tmp.path(), "myapp");
+    let collision = app.join("src/infrastructure/persistence/user_repository.rs");
+    let existing = b"keep this repository implementation";
+    std::fs::write(&collision, existing).expect("write collision fixture");
+    let before = snapshot_tree(&app);
+
+    let _ = run_gluon_expect_failure(&app, &["g", "domain", "user"]);
+    assert_eq!(snapshot_tree(&app), before);
+}
+
+#[test]
+fn resource_nested_route_collision_leaves_app_unchanged() {
+    let tmp = tempfile::tempdir().expect("create tempdir");
+    let app = fresh_app(tmp.path(), "myapp");
+    let collision = app.join("app/posts/[id]/edit/page.tsx");
+    std::fs::create_dir_all(collision.parent().expect("collision parent"))
+        .expect("create collision parent");
+    let existing = b"keep this nested controller";
+    std::fs::write(&collision, existing).expect("write collision fixture");
+    let before = snapshot_tree(&app);
+
+    let _ = run_gluon_expect_failure(&app, &["g", "resource", "posts"]);
+    assert_eq!(snapshot_tree(&app), before);
+}
+
+#[cfg(unix)]
+#[test]
+fn dto_dangling_output_symlink_is_rejected_without_side_effects() {
+    let tmp = tempfile::tempdir().expect("create tempdir");
+    let app = fresh_app(tmp.path(), "myapp");
+    let outside_file = tmp.path().join("outside.rs");
+    let output = app.join("src/dto/report.rs");
+    std::os::unix::fs::symlink(&outside_file, &output).expect("create dangling output symlink");
+    let target_before = std::fs::read_link(&output).expect("read symlink target");
+    let before = snapshot_tree(&app);
+
+    let stderr = run_gluon_expect_failure(&app, &["g", "dto", "report"]);
+
+    assert!(
+        stderr.contains("refusing to overwrite existing file"),
+        "stderr: {stderr}"
+    );
+    assert!(
+        !outside_file.exists(),
+        "dangling symlink target was created"
+    );
+    assert_eq!(snapshot_tree(&app), before);
+    assert_eq!(
+        std::fs::read_link(&output).expect("read symlink target after generation"),
+        target_before
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn resource_parent_symlink_is_rejected_without_side_effects() {
+    let tmp = tempfile::tempdir().expect("create tempdir");
+    let app = fresh_app(tmp.path(), "myapp");
+    let posts = app.join("app/posts");
+    std::fs::create_dir_all(&posts).expect("create resource parent");
+    let alias = posts.join("new");
+    std::os::unix::fs::symlink(".", &alias).expect("create resource parent symlink");
+    let target_before = std::fs::read_link(&alias).expect("read symlink target");
+    let before = snapshot_tree(&app);
+
+    let stderr = run_gluon_expect_failure(&app, &["g", "resource", "posts"]);
+
+    assert!(
+        stderr.contains("refusing to write through symlinked parent directory"),
+        "stderr: {stderr}"
+    );
+    assert_eq!(snapshot_tree(&app), before);
+    assert_eq!(
+        std::fs::read_link(&alias).expect("read symlink target after generation"),
+        target_before
     );
 }
 

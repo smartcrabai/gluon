@@ -7,7 +7,9 @@ use tower_sessions::session_store::{self, ExpiredDeletion};
 pub use tower_sessions::Session;
 
 /// PostgreSQL-backed session store shared safely by multiple application
-/// processes using the same database.
+/// processes using the same database. Loads return snapshots and saves replace
+/// the stored snapshot: concurrent read-modify-write operations are not atomic,
+/// and the last save wins.
 #[derive(Clone, Debug)]
 pub struct PostgresSessionStore {
     pool: sqlx::PgPool,
