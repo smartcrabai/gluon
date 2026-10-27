@@ -1698,7 +1698,7 @@ dependencies = [
 
 [[package]]
 name = "gluon"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1748,7 +1748,7 @@ dependencies = [
 
 [[package]]
 name = "gluon-build"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "insta",
  "proc-macro2",
@@ -1761,7 +1761,7 @@ dependencies = [
 
 [[package]]
 name = "gluon-cli"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1784,7 +1784,7 @@ dependencies = [
 
 [[package]]
 name = "gluon-macros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "proc-macro2",
  "quote",
