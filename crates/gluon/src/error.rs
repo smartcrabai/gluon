@@ -90,14 +90,7 @@ impl IntoResponse for AppError {
         };
         let mut response = match self {
             Self::Validation(fields) => (status, axum::Json(fields)).into_response(),
-            error => {
-                let body = if status == StatusCode::INTERNAL_SERVER_ERROR {
-                    "internal server error".to_owned()
-                } else {
-                    error.to_string()
-                };
-                (status, body).into_response()
-            }
+            _ => (status, message.clone()).into_response(),
         };
         response
             .extensions_mut()

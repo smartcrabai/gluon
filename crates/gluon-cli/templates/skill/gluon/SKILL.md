@@ -36,7 +36,7 @@ gluon dev | gluon build | gluon run [--release] | gluon routes
 - Layouts receive the page's serialized object fields, plus `children` containing the rendered inner HTML. Non-object page props are available as `pageProps`; `children` is raw HTML and should be inserted directly.
 - `<Head>` entries from the page and inherited layouts are merged into the document. `HX-Request: true` returns the page fragment without layouts or the document wrapper, except when `HX-Boosted: true` or `HX-History-Restore-Request: true`; boosted and history-restore requests keep the inherited layouts and full document.
 - HTML-accepting page requests render `app/_error/<status>.tsx`, falling back to `app/_error/500.tsx`; error templates receive `status` and `message` and use only the root layout for full-document requests. Ordinary HTMX fragment requests return fragments without layouts; boosted and history-restore requests retain the root layout and full document. Route handlers in `route.rs` keep their response bodies, and 422 validation errors remain JSON.
-- Boot's outer `ViewConfig` middleware scopes `CURRENT_RENDER_CONFIG`; generated page wrappers scope the template and layout task locals.
+- The generated page wrappers scope template and layout task locals. Custom jsxrs rendering options are read from `CURRENT_RENDER_CONFIG` when that task-local is scoped; otherwise defaults apply.
 
 ## Authentication (opt-in)
 

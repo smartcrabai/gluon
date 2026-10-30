@@ -1,8 +1,9 @@
 //! View response type for rendering templated pages.
 //!
 //! `View<P>` resolves its template and inherited layouts from task-local values
-//! scoped by generated page wrappers. Boot's outer `ViewConfig` middleware
-//! scopes application rendering options in `CURRENT_RENDER_CONFIG`.
+//! scoped by generated page wrappers. Optional application rendering options
+//! are read from `CURRENT_RENDER_CONFIG` when that task-local is scoped.
+//!
 
 use std::fmt;
 use std::path::{Path, PathBuf};
@@ -56,7 +57,8 @@ tokio::task_local! {
     /// Layout paths for the current page, ordered from the app root inward;
     /// scoped alongside `CURRENT_TEMPLATE` by the generated page wrapper.
     pub static CURRENT_LAYOUTS: Vec<PathBuf>;
-    /// Rendering options scoped by Boot's outer `ViewConfig` middleware.
+    /// Optional jsxrs rendering options; the default configuration is used
+    /// when this task-local is not scoped.
     pub static CURRENT_RENDER_CONFIG: jsxrs::RenderConfig;
 }
 
@@ -136,7 +138,15 @@ fn render_error_response(
     };
     let status = response.status();
     let message = error.message.clone();
-    add_error_vary_headers(&mut response);
+    add_vary_headers(
+        &mut response,
+        &[
+            "Accept",
+            "HX-Request",
+            "HX-Boosted",
+            "HX-History-Restore-Request",
+        ],
+    );
     if !html_accepted
         || status == StatusCode::UNPROCESSABLE_ENTITY
         || !(status.is_client_error() || status.is_server_error())
@@ -178,8 +188,8 @@ fn render_error_response(
     Response::from_parts(parts, Body::from(html))
 }
 
-fn add_error_vary_headers(response: &mut Response) {
-    for name in ["Accept", "HX-Request"] {
+fn add_vary_headers(response: &mut Response, names: &[&'static str]) {
+    for &name in names {
         let present = response
             .headers()
             .get_all(header::VARY)
@@ -228,9 +238,10 @@ impl<P: Serialize> IntoResponse for View<P> {
         match jsxrs::render_with_layouts(&template, &layouts, &props, &config) {
             Ok(html) => {
                 let mut response = Html(html).into_response();
-                response
-                    .headers_mut()
-                    .append(header::VARY, HeaderValue::from_static("HX-Request"));
+                add_vary_headers(
+                    &mut response,
+                    &["HX-Request", "HX-Boosted", "HX-History-Restore-Request"],
+                );
                 response
             }
             Err(err) => AppError::Internal(Box::new(ViewError(format!(
@@ -275,8 +286,8 @@ mod tests {
         String::from_utf8_lossy(&bytes).into_owned()
     }
 
-    fn assert_error_vary_headers(response: &Response) {
-        for name in ["Accept", "HX-Request"] {
+    fn assert_vary_headers(response: &Response, names: &[&str]) {
+        for name in names {
             let count = response
                 .headers()
                 .get_all(header::VARY)
@@ -287,6 +298,18 @@ mod tests {
                 .count();
             assert_eq!(count, 1, "expected one Vary token for {name}");
         }
+    }
+
+    fn assert_error_vary_headers(response: &Response) {
+        assert_vary_headers(
+            response,
+            &[
+                "Accept",
+                "HX-Request",
+                "HX-Boosted",
+                "HX-History-Restore-Request",
+            ],
+        );
     }
 
     #[tokio::test]
@@ -308,6 +331,10 @@ mod tests {
             .await;
 
         assert_eq!(response.status(), StatusCode::OK);
+        assert_vary_headers(
+            &response,
+            &["HX-Request", "HX-Boosted", "HX-History-Restore-Request"],
+        );
         let body = body_string(response).await;
         assert!(
             body.contains("hello"),

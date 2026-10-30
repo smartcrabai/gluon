@@ -105,8 +105,8 @@ pub async fn get(Inject(list): Inject<dyn ListUsers>) -> gluon::Result<View<User
 }
 ```
 
-- `View::new(props)` is the only public API. `props` must be `Serialize`.
-- The generated page wrapper resolves the sibling `page.tsx` and scopes `CURRENT_TEMPLATE` and `CURRENT_LAYOUTS`. Boot's outer `ViewConfig` middleware scopes `CURRENT_RENDER_CONFIG: jsxrs::RenderConfig`. Users do not provide template paths.
+- `View::new(props)` is the handler API. `props` must be `Serialize`.
+- The generated page wrapper resolves the sibling `page.tsx` and scopes `CURRENT_TEMPLATE` and `CURRENT_LAYOUTS`. Custom jsxrs rendering options are available through `CURRENT_RENDER_CONFIG`; users do not provide template paths.
 - Ancestor `layout.tsx` files wrap a page from `app/layout.tsx` inward, including layouts inside route-group directories such as `(marketing)`. Layouts receive the same serialized page props; non-object props are kept under `pageProps`. `children` contains the rendered inner HTML as raw HTML.
 - The page and inherited layouts contribute to one merged `<Head>`. `HX-Request: true` skips all layouts and the document wrapper, returning only the page fragment, except when `HX-Boosted: true` or `HX-History-Restore-Request: true`; these requests retain all layouts and the document wrapper.
 - `app/_error/<status>.tsx` handles `AppError` on HTML-accepting page requests, with `500.tsx` as fallback. Full-document errors use only `app/layout.tsx`; ordinary HTMX fragment errors are layout-free, while boosted and history-restore errors retain the root layout and full document. `route.rs` responses are not wrapped.
