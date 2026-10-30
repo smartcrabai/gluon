@@ -75,7 +75,7 @@ jobs:
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   csrf-spec:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
       contents: read
