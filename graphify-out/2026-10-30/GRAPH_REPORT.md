@@ -1,7 +1,7 @@
 # Graph Report - sse  (2026-10-30)
 
 ## Corpus Check
-- 168 files · ~77,058 words
+- 168 files · ~77,069 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 16 file(s) not represented in the graph (top: (none) 9, .qnt 2, .feature 1)
 
@@ -499,7 +499,7 @@ Nodes (8): AuthBuilder, AuthConfig, Clock, oauth_callback(), OAuthProvider, Syst
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `AuthError` connect `service.rs` to `http.rs`, `service.rs`, `.finish_passkey_authentication`, `process.rs`, `auth_http.rs`, `store.rs`, `passkey.rs`, `oauth.rs`, `AuthConfig`, `EmailSender`, `auth_boot.rs`, `auth_oauth_providers.rs`, `.context`?**
-  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+  _High betweenness centrality (0.069) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `AuthError` (e.g. with `.exchange()` and `.send()`) actually correct?**
   _`AuthError` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `gluon-build`, `gluon-cli`, `Pages` to the rest of the system?**
@@ -511,4 +511,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Boot` be split into smaller, more focused modules?**
   _Cohesion score 0.11578947368421053 - nodes in this community are weakly interconnected._
 - **Why does `Result` connect `result` to `boot.rs`, `Value Object Extraction`, `testing_dogfood.rs`, `new.rs`, `Destroy Command Logic`, `Wiring File Parsing`, `AppError`, `tests/sse.rs`, `deserialize`, `passkey.rs`, `CsrfToken`, `post`, `health/route.rs`, `templating.rs`, `src/sse.rs`, `AppError`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+  _High betweenness centrality (0.049) - this node is a cross-community bridge._
