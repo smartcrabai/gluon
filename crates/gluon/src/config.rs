@@ -2,10 +2,20 @@
 
 use std::io;
 use std::path::Path;
+use std::sync::OnceLock;
 
 use serde::Deserialize;
 
-/// Application configuration read from `gluon.toml` at the application root.
+static EMBEDDED_CONFIG: OnceLock<&'static str> = OnceLock::new();
+
+/// Called by the generated application router to provide its build-time config.
+#[doc(hidden)]
+pub fn __register_embedded_config(source: &'static str) {
+    EMBEDDED_CONFIG.get_or_init(|| source);
+}
+
+/// Application configuration loaded from `gluon.toml`.
+/// `Config::load` falls back to its build-time copy when needed.
 #[derive(Clone, Debug, Default, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Config {
@@ -17,13 +27,13 @@ pub struct Config {
 }
 
 impl Config {
-    /// Loads `gluon.toml` from the current directory, or returns defaults if it is absent.
+    /// Loads `gluon.toml` from the current directory, falling back to the build-time copy.
     ///
     /// # Errors
     ///
     /// Returns an error when the file cannot be read or contains invalid configuration.
     pub fn load() -> io::Result<Self> {
-        Self::load_from("gluon.toml")
+        Self::load_with_embedded("gluon.toml", EMBEDDED_CONFIG.get().copied())
     }
 
     /// Loads configuration from `path`, falling back to defaults if it does not exist.
@@ -32,10 +42,19 @@ impl Config {
     ///
     /// Returns an error when the file cannot be read or contains invalid configuration.
     pub fn load_from(path: impl AsRef<Path>) -> io::Result<Self> {
+        Self::load_with_embedded(path, None)
+    }
+
+    fn load_with_embedded(path: impl AsRef<Path>, embedded: Option<&str>) -> io::Result<Self> {
         let path = path.as_ref();
         let source = match std::fs::read_to_string(path) {
             Ok(source) => source,
-            Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(Self::default()),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {
+                return match embedded {
+                    Some(source) => Self::parse(source, "embedded gluon.toml"),
+                    None => Ok(Self::default()),
+                };
+            }
             Err(error) => {
                 return Err(io::Error::new(
                     error.kind(),
@@ -43,28 +62,26 @@ impl Config {
                 ));
             }
         };
-        let config: Self = toml::from_str(&source).map_err(|error| {
+        Self::parse(&source, path.display())
+    }
+
+    fn parse(source: &str, source_name: impl std::fmt::Display) -> io::Result<Self> {
+        let config: Self = toml::from_str(source).map_err(|error| {
             io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("invalid {}: {error}", path.display()),
+                format!("invalid {source_name}: {error}"),
             )
         })?;
         if config.database.driver != "postgres" {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!(
-                    "invalid {}: database.driver must be \"postgres\"",
-                    path.display()
-                ),
+                format!("invalid {source_name}: database.driver must be \"postgres\""),
             ));
         }
         if config.database.pool_size == 0 {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!(
-                    "invalid {}: database.pool_size must be greater than zero",
-                    path.display()
-                ),
+                format!("invalid {source_name}: database.pool_size must be greater than zero"),
             ));
         }
         Ok(config)
@@ -164,6 +181,37 @@ mod tests {
         assert!(!config.view.pretty);
         assert!(!config.view.tailwind);
         assert_eq!(config.telemetry.enabled_env, "OTEL_ENABLED");
+    }
+
+    #[test]
+    fn uses_embedded_config_when_runtime_file_is_missing() {
+        let dir = tempfile::tempdir().unwrap();
+        let config = Config::load_with_embedded(
+            dir.path().join("gluon.toml"),
+            Some("[app]\nname = \"embedded\"\n[view]\ntailwind = true\n"),
+        )
+        .unwrap();
+        assert_eq!(config.app.name, "embedded");
+        assert!(config.view.tailwind);
+    }
+
+    #[test]
+    fn runtime_config_overrides_embedded_config() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("gluon.toml");
+        std::fs::write(
+            &path,
+            "[app]\nname = \"runtime\"\n[view]\ntailwind = false\n",
+        )
+        .unwrap();
+
+        let config = Config::load_with_embedded(
+            path,
+            Some("[app]\nname = \"embedded\"\n[view]\ntailwind = true\n"),
+        )
+        .unwrap();
+        assert_eq!(config.app.name, "runtime");
+        assert!(!config.view.tailwind);
     }
 
     #[test]

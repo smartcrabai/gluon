@@ -24,6 +24,8 @@ pub mod sse;
 pub mod testing;
 pub mod view;
 pub use boot::Boot;
+#[doc(hidden)]
+pub use config::__register_embedded_config;
 pub use config::{AppConfig, Config, DatabaseConfig, ServerConfig, TelemetryConfig, ViewConfig};
 pub use container::{Container, ContainerBuilder};
 pub use error::{AppError, FieldError, Result};
