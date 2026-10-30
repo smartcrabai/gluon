@@ -29,7 +29,10 @@ pub enum BuildError {
     /// I/O failure while reading the `app/` tree or writing the generated file.
     Io(std::io::Error),
     /// `syn` failed to parse a discovered Rust source file.
-    Syn(syn::Error),
+    Syn {
+        path: Option<PathBuf>,
+        source: syn::Error,
+    },
     /// Other build-time failures (environment variables, malformed paths, ...).
     Other(String),
 }
@@ -38,7 +41,11 @@ impl fmt::Display for BuildError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Io(e) => write!(f, "gluon-build io error: {e}"),
-            Self::Syn(e) => write!(f, "gluon-build parse error: {e}"),
+            Self::Syn {
+                path: Some(path),
+                source,
+            } => write!(f, "gluon-build parse error in {}: {source}", path.display()),
+            Self::Syn { path: None, source } => write!(f, "gluon-build parse error: {source}"),
             Self::Other(msg) => write!(f, "gluon-build error: {msg}"),
         }
     }
@@ -48,7 +55,7 @@ impl std::error::Error for BuildError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Io(e) => Some(e),
-            Self::Syn(e) => Some(e),
+            Self::Syn { source, .. } => Some(source),
             Self::Other(_) => None,
         }
     }
@@ -62,7 +69,10 @@ impl From<std::io::Error> for BuildError {
 
 impl From<syn::Error> for BuildError {
     fn from(e: syn::Error) -> Self {
-        Self::Syn(e)
+        Self::Syn {
+            path: None,
+            source: e,
+        }
     }
 }
 
@@ -196,7 +206,10 @@ fn scan_app_dir(app_dir: &Path) -> Result<Vec<Entry>, BuildError> {
         }
 
         let source = fs::read_to_string(&abs_path)?;
-        let parsed = syn::parse_file(&source)?;
+        let parsed = syn::parse_file(&source).map_err(|source| BuildError::Syn {
+            path: Some(abs_path.clone()),
+            source,
+        })?;
         let methods = extract_http_methods(&parsed);
 
         entries.push(Entry {
@@ -602,6 +615,15 @@ mod tests {
     }
 
     #[test]
+    fn scan_parse_error_includes_source_file_path() {
+        let tmp = tempfile::tempdir().unwrap();
+        let app = tmp.path().join("app");
+        write_file(&app, "users/route.rs", "pub async fn get( {\n");
+        let error = scan_app_dir(&app).unwrap_err().to_string();
+        let normalized_error = error.replace('\\', "/");
+        assert!(normalized_error.contains("/users/route.rs"), "{error}");
+    }
+    #[test]
     fn scan_finds_simple_page() {
         let tmp = tempfile::tempdir().unwrap();
         let app = tmp.path().join("app");
@@ -773,9 +795,13 @@ mod tests {
         let Err(syn_err) = syn::parse_str::<syn::File>("fn (") else {
             panic!("expected parse error");
         };
-        let err = BuildError::Syn(syn_err);
+        let err = BuildError::Syn {
+            path: Some(PathBuf::from("app/users/route.rs")),
+            source: syn_err,
+        };
         let s = err.to_string();
         assert!(s.contains("gluon-build parse error"), "s: {s}");
+        assert!(s.contains("app/users/route.rs"), "s: {s}");
     }
 
     #[test]
@@ -801,7 +827,7 @@ mod tests {
             panic!("expected parse error");
         };
         let syn_err: BuildError = raw.into();
-        assert!(matches!(syn_err, BuildError::Syn(_)));
+        assert!(matches!(syn_err, BuildError::Syn { path: None, .. }));
     }
 
     // ---------- generate / empty_generated ----------
