@@ -27,7 +27,8 @@ use walkdir::WalkDir;
 /// Errors that can occur while running the build-time scanner / code generator.
 #[derive(Debug)]
 pub enum BuildError {
-    /// I/O failure while reading the `app/` tree or writing the generated file.
+    /// I/O failure while reading the `app/` tree or `gluon.toml`, or while writing
+    /// the generated file.
     Io(std::io::Error),
     /// `syn` failed to parse a discovered Rust source file.
     Syn {

@@ -14,7 +14,8 @@ pub fn __register_embedded_config(source: &'static str) {
     EMBEDDED_CONFIG.get_or_init(|| source);
 }
 
-/// Application configuration read from `gluon.toml` at the application root.
+/// Application configuration loaded from `gluon.toml`.
+/// `Config::load` falls back to its build-time copy when needed.
 #[derive(Clone, Debug, Default, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Config {
