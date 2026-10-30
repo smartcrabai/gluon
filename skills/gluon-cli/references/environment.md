@@ -1,6 +1,6 @@
 # Environment Variables
 
-`Boot::run()` loads `gluon.toml` from the application root. If the file is missing, defaults are used. Unknown or unsupported keys cause a boot error.
+`Boot::run()` reads `gluon.toml` from the current working directory first. If absent, it uses the copy embedded by `gluon-build` at compile time; defaults are used only if neither exists. A runtime file is an explicit override, so it can be used for local development or deployment overrides without rebuilding. Unknown or unsupported keys cause a boot error.
 
 `gluon dev` watches an existing `gluon.toml` and restarts the app when it changes.
 
