@@ -622,7 +622,6 @@ mod tests {
     fn scan_parse_error_includes_source_file_path() {
         let tmp = tempfile::tempdir().unwrap();
         let app = tmp.path().join("app");
-        let route = app.join("users/route.rs");
         write_file(&app, "users/route.rs", "pub async fn get( {\n");
         let error = scan_app_dir(&app).unwrap_err().to_string();
         let normalized_error = error.replace('\\', "/");
