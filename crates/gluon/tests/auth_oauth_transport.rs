@@ -262,6 +262,7 @@ impl Drop for TlsServer {
 async fn oauth_http_extra_root_certificate_is_opt_in() {
     let server = TlsServer::start();
     let timeout = Duration::from_secs(2);
+    assert!(ReqwestOAuthClient::new_with_root_certificates(timeout, 1024, b"").is_err());
     let unconfigured = ReqwestOAuthClient::new(timeout, 1024);
     assert!(unconfigured.execute(server.request()).await.is_err());
 
