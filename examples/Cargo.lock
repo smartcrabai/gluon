@@ -1338,6 +1338,7 @@ dependencies = [
  "jsonwebtoken",
  "jsxrs",
  "lettre",
+ "mime_guess",
  "oauth2",
  "openidconnect",
  "opentelemetry",

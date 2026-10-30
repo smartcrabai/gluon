@@ -62,8 +62,16 @@ fn spawn_app() -> anyhow::Result<Child> {
             "GLUON_INSECURE_COOKIE",
             std::env::var_os("GLUON_INSECURE_COOKIE").unwrap_or_else(|| "1".into()),
         )
+        .env(
+            "GLUON_DEV_TEMPLATES",
+            dev_templates_value(std::env::var_os("GLUON_DEV_TEMPLATES")),
+        )
         .spawn()
         .context("spawn cargo run")
+}
+
+fn dev_templates_value(override_value: Option<std::ffi::OsString>) -> std::ffi::OsString {
+    override_value.unwrap_or_else(|| "1".into())
 }
 
 pub(crate) fn should_restart(event: &Event) -> bool {
@@ -81,9 +89,10 @@ pub(crate) fn should_restart(event: &Event) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::should_restart;
+    use super::{dev_templates_value, should_restart};
     use notify::Event;
     use notify::event::{EventKind, ModifyKind};
+    use std::ffi::OsString;
     use std::path::PathBuf;
 
     fn make_event(paths: &[&str]) -> Event {
@@ -92,6 +101,19 @@ mod tests {
             paths: paths.iter().map(PathBuf::from).collect(),
             attrs: notify::event::EventAttributes::default(),
         }
+    }
+
+    #[test]
+    fn dev_templates_are_enabled_by_default() {
+        assert_eq!(dev_templates_value(None), OsString::from("1"));
+    }
+
+    #[test]
+    fn dev_templates_preserve_an_explicit_override() {
+        assert_eq!(
+            dev_templates_value(Some(OsString::from("0"))),
+            OsString::from("0")
+        );
     }
 
     #[test]

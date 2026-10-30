@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
 
-use std::{path::PathBuf, time::Duration};
+use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use axum::{Router, middleware::from_fn, response::IntoResponse, routing::get};
 use futures_util::{StreamExt, stream};
@@ -9,7 +9,7 @@ use gluon::{
     middleware::{csrf::csrf_middleware, htmx::htmx_middleware},
     prelude::sse,
     testing::TestClient,
-    view::CURRENT_TEMPLATE,
+    view::{CURRENT_SOURCE_MAP, CURRENT_TEMPLATE},
 };
 use http::header;
 use serde::Serialize;
@@ -37,14 +37,17 @@ async fn events() -> Result<impl IntoResponse> {
     ))
 }
 
-fn client(template: PathBuf) -> TestClient {
+fn client(template: PathBuf, source_map: Arc<jsxrs::SourceMap>) -> TestClient {
     let template_layer = from_fn(
         move |request: axum::extract::Request, next: axum::middleware::Next| {
             let template = template.clone();
+            let source_map = Arc::clone(&source_map);
             async move {
-                CURRENT_TEMPLATE
-                    .scope(Some(template), next.run(request))
-                    .await
+                CURRENT_SOURCE_MAP.scope(
+                    Some(source_map),
+                    CURRENT_TEMPLATE.scope(Some(template), next.run(request)),
+                )
+                .await
             }
         },
     );
@@ -60,16 +63,40 @@ fn client(template: PathBuf) -> TestClient {
     TestClient::new(app, ContainerBuilder::new().build()).expect("test client")
 }
 
+struct RestoreDevTemplates(Option<std::ffi::OsString>);
+
+impl Drop for RestoreDevTemplates {
+    fn drop(&mut self) {
+        unsafe {
+            if let Some(value) = self.0.take() {
+                std::env::set_var("GLUON_DEV_TEMPLATES", value);
+            } else {
+                std::env::remove_var("GLUON_DEV_TEMPLATES");
+            }
+        }
+    }
+}
+
 #[tokio::test]
+#[serial_test::serial]
 async fn stream_delivers_named_fragment_events_keepalive_and_no_buffer_header() {
+    let previous = std::env::var_os("GLUON_DEV_TEMPLATES");
+    unsafe {
+        std::env::set_var("GLUON_DEV_TEMPLATES", "0");
+    }
+    let _restore = RestoreDevTemplates(previous);
     let dir = tempfile::tempdir().expect("tempdir");
     let template = dir.path().join("route.tsx");
-    std::fs::write(
-        &template,
-        "export default function Event(props) { return <p>{props.message}</p>; }\n",
-    )
-    .expect("write TSX template");
-    let client = client(template);
+    let template_source =
+        "export default function Event(props) { return <p>{props.message}</p>; }\n";
+    std::fs::write(&template, template_source).expect("write TSX template");
+    let source_map_key = template.to_string_lossy().into_owned();
+    let source_map = Arc::new(jsxrs::SourceMap::new(vec![(
+        source_map_key.as_str(),
+        template_source,
+    )]));
+    std::fs::remove_file(&template).expect("remove source template");
+    let client = client(template, source_map);
 
     let response = client.server().get("/events").await;
     response.assert_status_ok();

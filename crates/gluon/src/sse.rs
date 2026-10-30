@@ -13,7 +13,7 @@ use axum::response::{IntoResponse, Response, sse::Sse as AxumSse};
 use futures_util::{Stream, StreamExt, stream};
 use serde::Serialize;
 
-use crate::view::{CURRENT_RENDER_CONFIG, CURRENT_TEMPLATE};
+use crate::view::{CURRENT_RENDER_CONFIG, CURRENT_SOURCE_MAP, CURRENT_TEMPLATE};
 use crate::{Result, View};
 
 pub use axum::response::sse::{Event, KeepAlive};
@@ -54,18 +54,24 @@ where
     fn into_response(self) -> Response {
         let template = CURRENT_TEMPLATE.try_with(Clone::clone).ok().flatten();
         let render_config = CURRENT_RENDER_CONFIG.try_with(Clone::clone).ok();
+        let source_map = CURRENT_SOURCE_MAP.try_with(Clone::clone).ok().flatten();
         let stream = stream::unfold(Box::pin(self.stream), move |mut stream| {
             let template = template.clone();
             let render_config = render_config.clone();
+            let source_map = source_map.clone();
             async move {
                 let item = CURRENT_TEMPLATE
                     .scope(template, async {
-                        match render_config {
-                            Some(config) => {
-                                CURRENT_RENDER_CONFIG.scope(config, stream.next()).await
-                            }
-                            None => stream.next().await,
-                        }
+                        CURRENT_SOURCE_MAP
+                            .scope(source_map, async {
+                                match render_config {
+                                    Some(config) => {
+                                        CURRENT_RENDER_CONFIG.scope(config, stream.next()).await
+                                    }
+                                    None => stream.next().await,
+                                }
+                            })
+                            .await
                     })
                     .await?;
                 Some((item, stream))

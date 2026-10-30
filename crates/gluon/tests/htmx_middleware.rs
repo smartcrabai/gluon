@@ -5,13 +5,14 @@
 //! exercise the flag bookkeeping in isolation.
 
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use axum::{Router, middleware::from_fn, routing::get};
 use axum_test::TestServer;
 use gluon::AppError;
 use gluon::View;
 use gluon::middleware::{HtmxRequest, htmx::htmx_middleware};
-use gluon::view::render_page_request;
+use gluon::view::{PageRenderContext, render_page_request};
 use serde::Serialize;
 
 async fn handler(htmx: HtmxRequest) -> String {
@@ -92,20 +93,41 @@ async fn missing_page() -> AppError {
     AppError::NotFound
 }
 
-fn view_server(template: PathBuf, layout: PathBuf, error_dir: PathBuf) -> TestServer {
+const PAGE_SOURCE: &str =
+    "export default function Page(props) { return <article>{props.message}</article>; }\n";
+const LAYOUT_SOURCE: &str =
+    "export default function Layout(props) { return <main>layout:{props.children}</main>; }\n";
+const ERROR_SOURCE: &str =
+    "export default function NotFound(props) { return <p>{props.status}:{props.message}</p>; }\n";
+
+fn view_server(source_root: PathBuf) -> TestServer {
+    let template = PathBuf::from("app/page.tsx");
+    let layout = PathBuf::from("app/layout.tsx");
+    let error_dir = PathBuf::from("app/_error");
+    let source_map = Arc::new(jsxrs::SourceMap::new(vec![
+        ("app/page.tsx", PAGE_SOURCE),
+        ("app/layout.tsx", LAYOUT_SOURCE),
+        ("app/_error/404.tsx", ERROR_SOURCE),
+    ]));
     let page_layer = from_fn(
         move |request: axum::extract::Request, next: axum::middleware::Next| {
             let template = template.clone();
             let layout = layout.clone();
             let error_dir = error_dir.clone();
+            let source_map = Arc::clone(&source_map);
+            let source_root = source_root.clone();
             async move {
                 render_page_request(
                     request,
                     next,
-                    Some(template),
-                    vec![layout.clone()],
-                    error_dir,
-                    Some(layout),
+                    PageRenderContext {
+                        template: Some(template),
+                        layouts: vec![layout.clone()],
+                        error_dir,
+                        root_layout: Some(layout),
+                        source_map,
+                        source_root,
+                    },
                 )
                 .await
             }
@@ -122,26 +144,12 @@ fn view_server(template: PathBuf, layout: PathBuf, error_dir: PathBuf) -> TestSe
 #[tokio::test]
 async fn htmx_fragment_excludes_layout_but_boosted_and_history_restore_render_documents() {
     let dir = tempfile::tempdir().expect("tempdir");
-    let template = dir.path().join("page.tsx");
-    let layout = dir.path().join("layout.tsx");
-    let error_dir = dir.path().join("_error");
-    std::fs::write(
-        &template,
-        "export default function Page(props) { return <article>{props.message}</article>; }\n",
-    )
-    .expect("write template");
-    std::fs::write(
-        &layout,
-        "export default function Layout(props) { return <main>layout:{props.children}</main>; }\n",
-    )
-    .expect("write layout");
-    std::fs::create_dir_all(&error_dir).expect("create error directory");
-    std::fs::write(
-        error_dir.join("404.tsx"),
-        "export default function NotFound(props) { return <p>{props.status}:{props.message}</p>; }\n",
-    )
-    .expect("write error template");
-    let server = view_server(template, layout, error_dir);
+    std::fs::create_dir_all(dir.path().join("app/_error")).expect("create app sources");
+    std::fs::write(dir.path().join("app/page.tsx"), PAGE_SOURCE).expect("write template");
+    std::fs::write(dir.path().join("app/layout.tsx"), LAYOUT_SOURCE).expect("write layout");
+    std::fs::write(dir.path().join("app/_error/404.tsx"), ERROR_SOURCE)
+        .expect("write error template");
+    let server = view_server(dir.path().to_path_buf());
 
     let document = server.get("/").await;
     document.assert_status_ok();

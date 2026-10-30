@@ -27,6 +27,20 @@ applications does require Rust and Cargo.
 
 - [Server-Sent Events](docs/sse.md)
 
+## Application templates and assets
+
+`gluon-build` embeds every `app/**/*.tsx` template (including layouts, components,
+and error pages), supported `.jsx`/`.ts`/`.js` import sources, and every file
+under `public/`. Relative component imports resolve from that embedded source
+map, so deployed applications do not need their source `app/` or `public/`
+directories.
+
+`gluon dev` enables `GLUON_DEV_TEMPLATES=1` by default so TSX and public asset
+edits are read from the application source tree. An explicit environment value
+is preserved; set `GLUON_DEV_TEMPLATES=1` yourself when running the app directly.
+The default runtime remains embedded-only. The current JSX source-map API is
+provided by the pinned jsxrs Git revision; a jsxrs crates.io release is needed
+before gluon can replace that dependency pin.
 ## Contributing
 
 Install the CLI from this checkout with:

@@ -22,6 +22,50 @@ fn repository_root() -> PathBuf {
         .to_path_buf()
 }
 
+struct MovedSources(Vec<(PathBuf, PathBuf)>);
+
+impl Drop for MovedSources {
+    fn drop(&mut self) {
+        for (source, moved) in self.0.iter().rev() {
+            if moved.exists() {
+                let _ = std::fs::rename(moved, source);
+            }
+        }
+    }
+}
+
+fn restore_stale_moved_sources(member: &Path) {
+    for name in ["app", "public"] {
+        let source = member.join(name);
+        let moved = member.join(format!(".{name}.embedded-test-moved"));
+        if !source.exists() && moved.exists() {
+            std::fs::rename(&moved, &source).unwrap_or_else(|error| {
+                panic!("restore {} from test backup: {error}", source.display())
+            });
+        }
+    }
+}
+
+fn move_app_and_public_sources(member: &Path) -> MovedSources {
+    let mut moved_sources = MovedSources(Vec::new());
+    for name in ["app", "public"] {
+        let source = member.join(name);
+        if source.exists() {
+            let moved = member.join(format!(".{name}.embedded-test-moved"));
+            assert!(
+                !moved.exists(),
+                "stale embedded test source directory: {}",
+                moved.display()
+            );
+            std::fs::rename(&source, &moved).unwrap_or_else(|error| {
+                panic!("move {} out of runtime path: {error}", source.display())
+            });
+            moved_sources.0.push((source, moved));
+        }
+    }
+    moved_sources
+}
+
 fn compile_examples(workspace: &Path) {
     let output = Command::new("cargo")
         .args(["build", "--workspace", "--quiet"])
@@ -51,6 +95,7 @@ fn spawn_example(workspace: &Path, name: &str, bind: &str) -> ChildGuard {
     let mut child = Command::new(&bin)
         .current_dir(&member)
         .env_remove("DATABASE_URL")
+        .env_remove("GLUON_DEV_TEMPLATES")
         .env("GLUON_BIND", bind)
         .env("GLUON_TELEMETRY_DISABLED", "1")
         .env("GLUON_INSECURE_COOKIE", "1")
@@ -140,6 +185,7 @@ async fn spawn_ready(
 }
 
 async fn run_pages(workspace: &Path) {
+    let _moved_sources = move_app_and_public_sources(&workspace.join("pages"));
     let (_child, http, base) = spawn_ready(workspace, "pages", "/").await;
 
     let response = http
@@ -150,6 +196,14 @@ async fn run_pages(workspace: &Path) {
     assert_eq!(response.status(), 200);
     let body = response.text().await.expect("pages home body");
     assert!(body.contains("sample-pages-home"), "home body: {body}");
+    assert!(
+        body.contains("<span>sample-pages-home</span>"),
+        "embedded component output: {body}"
+    );
+    assert!(
+        body.contains("embedded-root:"),
+        "embedded root layout: {body}"
+    );
 
     let response = http
         .get(format!("{base}/users/42"))
@@ -159,6 +213,38 @@ async fn run_pages(workspace: &Path) {
     assert_eq!(response.status(), 200);
     let body = response.text().await.expect("pages user body");
     assert!(body.contains("sample-pages-user:42"), "user body: {body}");
+    assert!(
+        body.contains("embedded-root:") && body.contains("embedded-user:"),
+        "embedded nested layouts: {body}"
+    );
+
+    let response = http
+        .get(format!("{base}/feed"))
+        .send()
+        .await
+        .expect("GET pages route template");
+    assert_eq!(response.status(), 200);
+    let body = response.text().await.expect("pages route body");
+    assert!(
+        body.contains("<span>sample-pages-route</span>"),
+        "embedded route template component: {body}"
+    );
+    assert!(
+        !body.contains("embedded-root:"),
+        "route templates must not inherit page layouts: {body}"
+    );
+
+    let response = http
+        .get(format!("{base}/errors"))
+        .send()
+        .await
+        .expect("GET pages embedded error");
+    assert_eq!(response.status(), 404);
+    let body = response.text().await.expect("pages error body");
+    assert!(
+        body.contains("embedded-root:") && body.contains("embedded-error:404"),
+        "embedded error page and root layout: {body}"
+    );
 
     let response = http
         .get(format!("{base}/public/marker.txt"))
@@ -166,6 +252,8 @@ async fn run_pages(workspace: &Path) {
         .await
         .expect("GET pages public marker");
     assert_eq!(response.status(), 200);
+    assert_eq!(response.headers()["content-type"], "text/plain");
+    assert_eq!(response.headers()["cache-control"], "public, max-age=3600");
     let body = response.bytes().await.expect("pages marker bytes");
     assert!(
         body.as_ref() == b"sample-pages-public-marker\n"
@@ -466,6 +554,7 @@ async fn run_auth(workspace: &Path) {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn checked_in_examples_match_their_contracts() {
     let workspace = repository_root().join("examples");
+    restore_stale_moved_sources(&workspace.join("pages"));
     compile_examples(&workspace);
 
     // Keep servers sequential: each owns a temporary port and session state,

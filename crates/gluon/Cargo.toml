@@ -49,6 +49,7 @@ futures-util.workspace = true
 gluon-macros = { path = "../gluon-macros", version = "0.1.2" }
 http.workspace = true
 jsxrs.workspace = true
+mime_guess.workspace = true
 opentelemetry.workspace = true
 opentelemetry-otlp.workspace = true
 opentelemetry_sdk.workspace = true
