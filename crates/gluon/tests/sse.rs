@@ -30,7 +30,7 @@ async fn events() -> Result<impl IntoResponse> {
     .then(|(event, message)| async move {
         tokio::time::sleep(Duration::from_millis(25)).await;
         let stylesheet_enabled = CURRENT_TAILWIND_STYLESHEET
-            .try_with(|stylesheet| stylesheet.is_some())
+            .try_with(Option::is_some)
             .unwrap_or(false);
         sse::view_event(
             event,
@@ -109,8 +109,7 @@ async fn stream_delivers_named_fragment_events_keepalive_and_no_buffer_header() 
     }
     let _restore = RestoreDevTemplates(previous);
     let template = PathBuf::from("__gluon_embedded_sse_test__/route.tsx");
-    let template_source =
-        "export default function Event(props) { return <p className=\"bg-blue-500\">{props.message}</p>; }\n";
+    let template_source = "export default function Event(props) { return <p className=\"bg-blue-500\">{props.message}</p>; }\n";
     let source_map = Arc::new(jsxrs::SourceMap::new(vec![(
         "__gluon_embedded_sse_test__/route.tsx",
         template_source,
@@ -131,15 +130,11 @@ async fn stream_delivers_named_fragment_events_keepalive_and_no_buffer_header() 
     let body = response.text();
     assert!(body.contains("event: query-progress\n"), "{body}");
     assert!(
-        body.contains(
-            "data: <p class=\"bg-blue-500\">Query started (stylesheet=true)</p>"
-        ),
+        body.contains("data: <p class=\"bg-blue-500\">Query started (stylesheet=true)</p>"),
         "{body}"
     );
     assert!(
-        body.contains(
-            "data: <p class=\"bg-blue-500\">Query finished (stylesheet=true)</p>"
-        ),
+        body.contains("data: <p class=\"bg-blue-500\">Query finished (stylesheet=true)</p>"),
         "{body}"
     );
     assert!(body.contains(": sse-test-alive\n\n"), "{body}");
