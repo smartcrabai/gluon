@@ -76,23 +76,37 @@ pub async fn serve_tailwind_css(
 }
 
 fn generate_tailwind_css(source_root: &FsPath, embedded_tailwind_content: &[&str]) -> String {
+    let Ok(canonical_source_root) = source_root.canonicalize() else {
+        return String::new();
+    };
     let mut sources = Vec::new();
     let app_glob = source_root.join("app").join("**/*");
     append_glob_sources(
         &app_glob.to_string_lossy(),
         &mut sources,
         &["tsx", "jsx", "ts", "js"],
+        &canonical_source_root,
     );
 
     if let Some(patterns) = runtime_tailwind_content(source_root) {
         for pattern in &patterns {
             let path_pattern = source_root.join(pattern);
-            append_glob_sources(&path_pattern.to_string_lossy(), &mut sources, &[]);
+            append_glob_sources(
+                &path_pattern.to_string_lossy(),
+                &mut sources,
+                &[],
+                &canonical_source_root,
+            );
         }
     } else {
         for pattern in embedded_tailwind_content {
             let path_pattern = source_root.join(pattern);
-            append_glob_sources(&path_pattern.to_string_lossy(), &mut sources, &[]);
+            append_glob_sources(
+                &path_pattern.to_string_lossy(),
+                &mut sources,
+                &[],
+                &canonical_source_root,
+            );
         }
     }
 
@@ -128,7 +142,12 @@ fn runtime_tailwind_content(source_root: &FsPath) -> Option<Vec<String>> {
     )
 }
 
-fn append_glob_sources(pattern: &str, sources: &mut Vec<String>, extensions: &[&str]) {
+fn append_glob_sources(
+    pattern: &str,
+    sources: &mut Vec<String>,
+    extensions: &[&str],
+    canonical_root: &FsPath,
+) {
     let Ok(paths) = glob::glob(pattern) else {
         return;
     };
@@ -137,6 +156,9 @@ fn append_glob_sources(pattern: &str, sources: &mut Vec<String>, extensions: &[&
             .filter_map(Result::ok)
             .filter(|path| {
                 path.is_file()
+                    && path
+                        .canonicalize()
+                        .is_ok_and(|canonical_path| canonical_path.starts_with(canonical_root))
                     && (extensions.is_empty()
                         || path.extension().is_some_and(|extension| {
                             extensions.iter().any(|candidate| extension == *candidate)
@@ -370,5 +392,29 @@ mod tests {
         .await;
         let body = String::from_utf8(body).unwrap();
         assert!(!body.contains(".text-yellow-500"));
+    }
+    #[tokio::test]
+    #[serial]
+    async fn runtime_tailwind_content_cannot_read_outside_project_root() {
+        let _restore = RestoreDevTemplates::set(Some("1"));
+        let tmp = tempdir().unwrap();
+        let project = tmp.path().join("project");
+        let outside = tmp.path().join("outside");
+        std::fs::create_dir_all(&project).unwrap();
+        std::fs::create_dir_all(&outside).unwrap();
+        std::fs::write(
+            project.join("gluon.toml"),
+            "[view]\ntailwind_content = [\"../outside/**/*.html\"]\n",
+        )
+        .unwrap();
+        std::fs::write(
+            outside.join("private.html"),
+            r#"<p class="text-purple-500"></p>"#,
+        )
+        .unwrap();
+
+        let body = response_body(serve_tailwind_css(b"embedded", project, &[]).await).await;
+        let body = String::from_utf8(body).unwrap();
+        assert!(!body.contains(".text-purple-500"), "{body}");
     }
 }

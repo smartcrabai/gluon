@@ -9,7 +9,9 @@ use gluon::{
     middleware::{csrf::csrf_middleware, htmx::htmx_middleware},
     prelude::sse,
     testing::TestClient,
-    view::{CURRENT_SOURCE_MAP, CURRENT_TEMPLATE},
+    view::{
+        CURRENT_RENDER_CONFIG, CURRENT_SOURCE_MAP, CURRENT_TAILWIND_STYLESHEET, CURRENT_TEMPLATE,
+    },
 };
 use http::header;
 use serde::Serialize;
@@ -17,7 +19,7 @@ use tower_sessions::{MemoryStore, SessionManagerLayer};
 
 #[derive(Serialize)]
 struct EventProps {
-    message: &'static str,
+    message: String,
 }
 
 async fn events() -> Result<impl IntoResponse> {
@@ -27,7 +29,15 @@ async fn events() -> Result<impl IntoResponse> {
     ])
     .then(|(event, message)| async move {
         tokio::time::sleep(Duration::from_millis(25)).await;
-        sse::view_event(event, View::new(EventProps { message }))
+        let stylesheet_enabled = CURRENT_TAILWIND_STYLESHEET
+            .try_with(|stylesheet| stylesheet.is_some())
+            .unwrap_or(false);
+        sse::view_event(
+            event,
+            View::new(EventProps {
+                message: format!("{message} (stylesheet={stylesheet_enabled})"),
+            }),
+        )
     });
 
     Ok(sse::Sse::new(updates).keep_alive(
@@ -43,10 +53,22 @@ fn client(template: PathBuf, source_map: Arc<jsxrs::SourceMap>) -> TestClient {
             let template = template.clone();
             let source_map = Arc::clone(&source_map);
             async move {
-                CURRENT_SOURCE_MAP
+                CURRENT_TAILWIND_STYLESHEET
                     .scope(
-                        Some(source_map),
-                        CURRENT_TEMPLATE.scope(Some(template), next.run(request)),
+                        Some("/_gluon/app.test.css"),
+                        CURRENT_TEMPLATE.scope(
+                            Some(template),
+                            CURRENT_SOURCE_MAP.scope(
+                                Some(source_map),
+                                CURRENT_RENDER_CONFIG.scope(
+                                    jsxrs::RenderConfig {
+                                        tailwind: true,
+                                        ..jsxrs::RenderConfig::default()
+                                    },
+                                    next.run(request),
+                                ),
+                            ),
+                        ),
                     )
                     .await
             }
@@ -88,7 +110,7 @@ async fn stream_delivers_named_fragment_events_keepalive_and_no_buffer_header() 
     let _restore = RestoreDevTemplates(previous);
     let template = PathBuf::from("__gluon_embedded_sse_test__/route.tsx");
     let template_source =
-        "export default function Event(props) { return <p>{props.message}</p>; }\n";
+        "export default function Event(props) { return <p className=\"bg-blue-500\">{props.message}</p>; }\n";
     let source_map = Arc::new(jsxrs::SourceMap::new(vec![(
         "__gluon_embedded_sse_test__/route.tsx",
         template_source,
@@ -108,9 +130,20 @@ async fn stream_delivers_named_fragment_events_keepalive_and_no_buffer_header() 
 
     let body = response.text();
     assert!(body.contains("event: query-progress\n"), "{body}");
-    assert!(body.contains("data: <p>Query started</p>"), "{body}");
-    assert!(body.contains("event: query-complete\n"), "{body}");
-    assert!(body.contains("data: <p>Query finished</p>"), "{body}");
+    assert!(
+        body.contains(
+            "data: <p class=\"bg-blue-500\">Query started (stylesheet=true)</p>"
+        ),
+        "{body}"
+    );
+    assert!(
+        body.contains(
+            "data: <p class=\"bg-blue-500\">Query finished (stylesheet=true)</p>"
+        ),
+        "{body}"
+    );
     assert!(body.contains(": sse-test-alive\n\n"), "{body}");
     assert!(!body.contains("<!DOCTYPE html>"), "{body}");
+    assert!(!body.contains("<style>"), "{body}");
+    assert!(!body.contains("/_gluon/app.test.css"), "{body}");
 }

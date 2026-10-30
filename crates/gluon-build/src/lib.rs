@@ -226,6 +226,7 @@ fn build_tailwind_stylesheet(
             .collect::<Result<Vec<_>, _>>()?,
         None => Vec::new(),
     };
+    let canonical_manifest_dir = fs::canonicalize(manifest_dir)?;
 
     let mut source_paths = BTreeSet::new();
     let mut rerun_paths = BTreeSet::new();
@@ -235,7 +236,11 @@ fn build_tailwind_stylesheet(
     }
     for pattern in &patterns {
         let glob_path = manifest_dir.join(pattern);
-        rerun_paths.insert(glob_watch_root(manifest_dir, pattern)?);
+        rerun_paths.insert(glob_watch_root(
+            manifest_dir,
+            &canonical_manifest_dir,
+            pattern,
+        )?);
         let glob_pattern = glob_path.to_string_lossy();
         let paths = glob::glob(&glob_pattern).map_err(|error| {
             BuildError::Other(format!(
@@ -248,6 +253,15 @@ fn build_tailwind_stylesheet(
                     "failed to scan [view].tailwind_content glob '{pattern}': {error}"
                 ))
             })?;
+            if path.is_file() || path.is_dir() {
+                let canonical_path = fs::canonicalize(&path)?;
+                if !canonical_path.starts_with(&canonical_manifest_dir) {
+                    return Err(BuildError::Other(format!(
+                        "[view].tailwind_content glob '{pattern}' resolves outside {}",
+                        manifest_dir.display()
+                    )));
+                }
+            }
             if let Some(parent) = path.parent() {
                 rerun_paths.insert(parent.to_path_buf());
             }
@@ -283,7 +297,11 @@ fn build_tailwind_stylesheet(
     ))
 }
 
-fn glob_watch_root(manifest_dir: &Path, pattern: &str) -> Result<PathBuf, BuildError> {
+fn glob_watch_root(
+    manifest_dir: &Path,
+    canonical_manifest_dir: &Path,
+    pattern: &str,
+) -> Result<PathBuf, BuildError> {
     let glob_path = manifest_dir.join(pattern);
     let mut root = PathBuf::new();
     let mut contains_glob = false;
@@ -310,7 +328,10 @@ fn glob_watch_root(manifest_dir: &Path, pattern: &str) -> Result<PathBuf, BuildE
         };
         root = parent.to_path_buf();
     }
-    if root == manifest_dir || !root.starts_with(manifest_dir) {
+    let canonical_root = fs::canonicalize(&root)?;
+    if canonical_root == canonical_manifest_dir
+        || !canonical_root.starts_with(canonical_manifest_dir)
+    {
         return Err(BuildError::Other(format!(
             "[view].tailwind_content glob '{pattern}' must have an existing directory below {}",
             manifest_dir.display()
@@ -1350,6 +1371,29 @@ mod tests {
             "{generated}"
         );
     }
+    #[test]
+    fn tailwind_content_globs_cannot_escape_the_project_root() {
+        let tmp = tempfile::tempdir().unwrap();
+        let project = tmp.path().join("project");
+        let outside = tmp.path().join("outside");
+        let out = project.join("out");
+        std::fs::create_dir_all(&out).unwrap();
+        write_file(
+            &outside,
+            "private/page.html",
+            r#"<div class="text-red-500">outside</div>"#,
+        );
+        let config = "[view]\ntailwind = true\ntailwind_content = [\"../outside/**/*.html\"]\n";
+
+        let error = build_tailwind_stylesheet(&[], &project, &out, Some(config)).unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains("must have an existing directory below"),
+            "{error}"
+        );
+    }
+
     #[test]
     fn tailwind_content_globs_do_not_watch_the_project_root() {
         let tmp = tempfile::tempdir().unwrap();
