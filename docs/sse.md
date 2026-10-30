@@ -34,7 +34,13 @@ pub async fn get() -> Result<impl IntoResponse> {
 
 `Sse::new(stream)` uses Axum's default keep-alive configuration; `.keep_alive(...)` replaces it. Each stream item can be a named Axum event created by `sse::view_event(name, view)`. The helper renders the view as an HTML fragment and sets that fragment as the event's `data` payload.
 
-For a generated `route.rs` handler, add a sibling `route.tsx` containing the fragment to render. `gluon-build` injects that template path for the handler; the SSE stream re-enters the request's template scope while polling, so views created by later stream items still resolve the correct template. Fragment rendering is explicit and does not depend on the `HX-Request` header.
+For a generated `route.rs` handler, add a sibling `route.tsx` containing the
+fragment to render. `gluon-build` injects that template path for the handler;
+the SSE stream re-enters the request's template and source-map scopes and
+captures any active `CURRENT_RENDER_CONFIG` and `CURRENT_TAILWIND_STYLESHEET`
+values while polling, so later event views retain component imports and
+request rendering options.
+Fragment rendering is explicit and does not depend on the `HX-Request` header.
 
 ## HTMX integration
 

@@ -43,6 +43,8 @@ openidconnect = { workspace = true, optional = true }
 anyhow.workspace = true
 async-trait.workspace = true
 axum.workspace = true
+encre-css.workspace = true
+glob.workspace = true
 axum-test.workspace = true
 form_urlencoded.workspace = true
 futures-util.workspace = true

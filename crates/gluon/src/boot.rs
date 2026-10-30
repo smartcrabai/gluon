@@ -514,6 +514,7 @@ mod tests {
                 ViewConfig {
                     pretty: true,
                     tailwind: true,
+                    tailwind_content: Vec::new(),
                 },
                 view_config_middleware,
             ));

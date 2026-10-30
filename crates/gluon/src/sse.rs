@@ -2,9 +2,9 @@
 //!
 //! [`Sse`] configures Axum's event stream with keep-alive comments and marks
 //! responses to bypass buffering by reverse proxies that honor
-//! `X-Accel-Buffering: no`. For request-scoped TSX templates, each event is
-//! polled inside the `CURRENT_TEMPLATE` and `CURRENT_RENDER_CONFIG` scopes
-//! captured when the response is created.
+//! `X-Accel-Buffering: no`. The response captures `CURRENT_TEMPLATE`,
+//! `CURRENT_SOURCE_MAP`, `CURRENT_RENDER_CONFIG`, and
+//! `CURRENT_TAILWIND_STYLESHEET` for event rendering.
 
 use std::error::Error;
 
@@ -13,16 +13,18 @@ use axum::response::{IntoResponse, Response, sse::Sse as AxumSse};
 use futures_util::{Stream, StreamExt, stream};
 use serde::Serialize;
 
-use crate::view::{CURRENT_RENDER_CONFIG, CURRENT_SOURCE_MAP, CURRENT_TEMPLATE};
+use crate::view::{
+    CURRENT_RENDER_CONFIG, CURRENT_SOURCE_MAP, CURRENT_TAILWIND_STYLESHEET, CURRENT_TEMPLATE,
+};
 use crate::{Result, View};
 
 pub use axum::response::sse::{Event, KeepAlive};
 
 /// An SSE response that enables Axum's default keep-alive comment interval.
 ///
-/// Streams are polled within the template context established for the request,
-/// so [`view_event`] can render TSX fragments as events are produced after the
-/// handler has returned.
+/// Streams are polled within the template, source-map, rendering-config, and
+/// stylesheet contexts captured for the request, so [`view_event`] can render
+/// TSX fragments as events are produced after the handler has returned.
 pub struct Sse<S> {
     stream: S,
     keep_alive: KeepAlive,
@@ -55,24 +57,32 @@ where
         let template = CURRENT_TEMPLATE.try_with(Clone::clone).ok().flatten();
         let render_config = CURRENT_RENDER_CONFIG.try_with(Clone::clone).ok();
         let source_map = CURRENT_SOURCE_MAP.try_with(Clone::clone).ok().flatten();
+        let stylesheet_url = CURRENT_TAILWIND_STYLESHEET
+            .try_with(|url| *url)
+            .ok()
+            .flatten();
         let stream = stream::unfold(Box::pin(self.stream), move |mut stream| {
             let template = template.clone();
             let render_config = render_config.clone();
             let source_map = source_map.clone();
+            let stylesheet_url = stylesheet_url;
             async move {
-                let item = CURRENT_TEMPLATE
-                    .scope(template, async {
-                        CURRENT_SOURCE_MAP
-                            .scope(source_map, async {
-                                match render_config {
-                                    Some(config) => {
-                                        CURRENT_RENDER_CONFIG.scope(config, stream.next()).await
+                let item = CURRENT_TAILWIND_STYLESHEET
+                    .scope(
+                        stylesheet_url,
+                        CURRENT_TEMPLATE.scope(template, async {
+                            CURRENT_SOURCE_MAP
+                                .scope(source_map, async {
+                                    match render_config {
+                                        Some(config) => {
+                                            CURRENT_RENDER_CONFIG.scope(config, stream.next()).await
+                                        }
+                                        None => stream.next().await,
                                     }
-                                    None => stream.next().await,
-                                }
-                            })
-                            .await
-                    })
+                                })
+                                .await
+                        }),
+                    )
                     .await?;
                 Some((item, stream))
             }

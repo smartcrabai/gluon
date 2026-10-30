@@ -146,6 +146,7 @@ impl Default for DatabaseConfig {
 pub struct ViewConfig {
     pub pretty: bool,
     pub tailwind: bool,
+    pub tailwind_content: Vec<String>,
 }
 
 /// OpenTelemetry settings.
@@ -180,6 +181,7 @@ mod tests {
         assert_eq!(config.database.pool_size, 10);
         assert!(!config.view.pretty);
         assert!(!config.view.tailwind);
+        assert_eq!(config.view.tailwind_content, Vec::<String>::new());
         assert_eq!(config.telemetry.enabled_env, "OTEL_ENABLED");
     }
 
@@ -220,7 +222,7 @@ mod tests {
         let path = dir.path().join("gluon.toml");
         std::fs::write(
             &path,
-            "[app]\nname = \"example\"\n[server]\nhost = \"127.0.0.1\"\nport = 8080\n[database]\ndriver = \"postgres\"\nurl_env = \"APP_DATABASE_URL\"\npool_size = 17\n[view]\npretty = true\ntailwind = true\n[telemetry]\nenabled_env = \"APP_OTEL_ENABLED\"\nservice_name = \"example-service\"\n",
+            "[app]\nname = \"example\"\n[server]\nhost = \"127.0.0.1\"\nport = 8080\n[database]\ndriver = \"postgres\"\nurl_env = \"APP_DATABASE_URL\"\npool_size = 17\n[view]\npretty = true\ntailwind = true\ntailwind_content = [\"web/src/**/*.ts\"]\n[telemetry]\nenabled_env = \"APP_OTEL_ENABLED\"\nservice_name = \"example-service\"\n",
         )
         .unwrap();
 
@@ -233,6 +235,10 @@ mod tests {
         assert_eq!(config.database.pool_size, 17);
         assert!(config.view.pretty);
         assert!(config.view.tailwind);
+        assert_eq!(
+            config.view.tailwind_content,
+            vec!["web/src/**/*.ts".to_owned()]
+        );
         assert_eq!(config.telemetry.enabled_env, "APP_OTEL_ENABLED");
         assert_eq!(config.telemetry.service_name, "example-service");
 
