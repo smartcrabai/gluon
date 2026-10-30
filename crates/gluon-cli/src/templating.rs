@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use minijinja::Environment;
+use minijinja::{Environment, value::Serde};
 use serde::Serialize;
 
 use crate::embed::Templates;
@@ -35,7 +35,7 @@ pub fn render<S: Serialize>(template_path: &str, ctx: S) -> Result<String> {
     let tmpl = env
         .get_template(template_path)
         .with_context(|| format!("failed to get template: {template_path}"))?;
-    tmpl.render(ctx)
+    tmpl.render(Serde(ctx))
         .with_context(|| format!("failed to render template: {template_path}"))
 }
 

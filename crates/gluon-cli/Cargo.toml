@@ -1,6 +1,7 @@
 [package]
 description = "CLI for the gluon framework"
 edition.workspace = true
+homepage.workspace = true
 license.workspace = true
 name = "gluon-cli"
 repository.workspace = true
@@ -14,7 +15,7 @@ path = "src/main.rs"
 anyhow.workspace = true
 chrono.workspace = true
 clap.workspace = true
-gluon-build = { path = "../gluon-build", version = "0.1.1" }
+gluon-build = { path = "../gluon-build", version = "0.1.2" }
 heck.workspace = true
 minijinja.workspace = true
 notify.workspace = true

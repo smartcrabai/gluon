@@ -544,15 +544,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7354288c522e7e980fafd2075d63d1285794c3a6a16cdd492f189ea406e5f18b"
 
 [[package]]
-name = "castaway"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dec551ab6e7578819132c713a93c022a05d60159dc86e7a7050223577484c55a"
-dependencies = [
- "rustversion",
-]
-
-[[package]]
 name = "cc"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -671,19 +662,6 @@ checksum = "4356eba6976435498d05a311ee9fc486da3bc81c200d3f0d7dd9703b41913f92"
 dependencies = [
  "bytes",
  "memchr",
-]
-
-[[package]]
-name = "compact_str"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f86b9c4c00838774a6d902ef931eff7470720c51d90c2e32cfe15dc304737b3f"
-dependencies = [
- "castaway",
- "cfg-if",
- "itoa",
- "ryu",
- "static_assertions",
 ]
 
 [[package]]
@@ -1756,7 +1734,7 @@ dependencies = [
 
 [[package]]
 name = "gluon"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1806,7 +1784,7 @@ dependencies = [
 
 [[package]]
 name = "gluon-build"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "insta",
  "proc-macro2",
@@ -1819,7 +1797,7 @@ dependencies = [
 
 [[package]]
 name = "gluon-cli"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1842,7 +1820,7 @@ dependencies = [
 
 [[package]]
 name = "gluon-macros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2637,9 +2615,9 @@ dependencies = [
 
 [[package]]
 name = "jsxrs"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7ebfbb13349ec77dd4c3066be80370e1466786103a6d96f404da561add4abfd"
+checksum = "a2e0b07d6c0517ac057b5fac6c4cdd028132abe522fbab9af9f842a87326c711"
 dependencies = [
  "bytes-str",
  "encre-css",
@@ -2655,9 +2633,9 @@ dependencies = [
 
 [[package]]
 name = "jsxrs-core"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dfcbeb62b354876edad99210d5e6bc238f6db8cc612fd03621bb29d2c496abf"
+checksum = "09c02f4d6a8101c011aacae37135356fd68a7fca4c4bfc71cb9417a132e60275"
 dependencies = [
  "bytes-str",
  "serde_json",
@@ -2670,16 +2648,16 @@ dependencies = [
 
 [[package]]
 name = "jsxrs-macros"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f8ade0e32b892948349087832e598f4a40f6b0ca507c4fd2f75463492e6c964"
+checksum = "b66014150c99bbbe45670514098d7d02a2c3b7b7ae739213fd0d0229a4124882"
 dependencies = [
  "jsxrs-core",
  "proc-macro-crate",
  "proc-macro2",
  "quote",
  "swc_ecma_ast",
- "syn 2.0.119",
+ "syn 3.0.9",
 ]
 
 [[package]]
@@ -2848,12 +2826,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
-name = "memo-map"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5449c8c750f1a07ea702bbd212bd999fceece9b3d1508b17023b3e174583124b"
-
-[[package]]
 name = "mime"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2871,11 +2843,10 @@ dependencies = [
 
 [[package]]
 name = "minijinja"
-version = "2.24.0"
+version = "3.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86886cf6dbf4e614b19c9a1eec9775f021869d7eadde0fc73921a81b90c9b4c9"
+checksum = "90086695417a271bc96e6cb50618555614ca48fa3bb0d9aa96e3468b0f84431e"
 dependencies = [
- "memo-map",
  "serde",
 ]
 
@@ -4924,12 +4895,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "static_assertions"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
-
-[[package]]
 name = "string_enum"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5043,12 +5008,11 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "45.1.6"
+version = "46.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4af66bb9a4cbd2a600b41c2592e27b7947b7e30aa6918d321f987f9e0ff63f5"
+checksum = "a032f869f6690d4eddd6e67757c8d849f2c8219d8c5f3bb05a7ec8b456867642"
 dependencies = [
  "bitflags 2.13.2",
- "compact_str",
  "either",
  "num-bigint",
  "phf 0.11.3",
