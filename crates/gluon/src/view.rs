@@ -82,6 +82,7 @@ impl<P: Serialize> View<P> {
         } else {
             CURRENT_LAYOUTS.try_with(Clone::clone).unwrap_or_default()
         };
+        configure_tailwind_stylesheet(&mut config, fragment);
 
         let context = CURRENT_SOURCE_MAP
             .try_with(Clone::clone)
@@ -113,6 +114,28 @@ tokio::task_local! {
     pub static CURRENT_SOURCE_MAP: Option<Arc<jsxrs::SourceMap>>;
     /// Rendering options scoped by Boot's outer request middleware.
     pub static CURRENT_RENDER_CONFIG: jsxrs::RenderConfig;
+    /// Cache-busted stylesheet URL supplied by generated application routes.
+    pub static CURRENT_TAILWIND_STYLESHEET: Option<&'static str>;
+}
+
+fn configure_tailwind_stylesheet(config: &mut jsxrs::RenderConfig, fragment: bool) {
+    if !config.tailwind {
+        return;
+    }
+    let Some(href) = CURRENT_TAILWIND_STYLESHEET
+        .try_with(|stylesheet| *stylesheet)
+        .ok()
+        .flatten()
+    else {
+        return;
+    };
+    config.tailwind = false;
+    if !fragment {
+        config.head_elements.push(jsxrs::HeadElement::Link {
+            rel: "stylesheet".to_owned(),
+            href: href.to_owned(),
+        });
+    }
 }
 
 /// Route-specific rendering inputs supplied by the generated application router.
@@ -130,6 +153,8 @@ pub struct PageRenderContext {
     pub source_map: Arc<jsxrs::SourceMap>,
     /// Application manifest directory used by development disk mode.
     pub source_root: PathBuf,
+    /// Cache-busted stylesheet URL generated from application source files.
+    pub stylesheet_url: Option<&'static str>,
 }
 
 /// Runs a generated page handler with its template and inherited layout context.
@@ -145,6 +170,7 @@ pub async fn render_page_request(
         root_layout,
         source_map,
         source_root,
+        stylesheet_url,
     } = context;
     let is_htmx = crate::middleware::htmx::is_htmx_fragment(request.headers());
     let html_accepted = accepts_html(request.headers());
@@ -158,26 +184,30 @@ pub async fn render_page_request(
     let root_layout = root_layout.map(|path| resolve_template_path(path, &source_root, dev_mode));
     let source_map = (!dev_mode).then_some(source_map);
     let scoped_layouts = if is_htmx { Vec::new() } else { layouts };
-    let response = crate::middleware::htmx::CURRENT_HTMX_REQUEST
-        .scope(
-            is_htmx,
-            CURRENT_SOURCE_MAP.scope(
-                source_map.clone(),
-                CURRENT_TEMPLATE.scope(
-                    template,
-                    CURRENT_LAYOUTS.scope(scoped_layouts, next.run(request)),
-                ),
-            ),
-        )
-        .await;
-    render_error_response(
-        response,
-        &error_dir,
-        root_layout.as_deref().filter(|_| !is_htmx),
-        html_accepted,
-        is_htmx,
-        source_map.as_ref(),
-    )
+    CURRENT_TAILWIND_STYLESHEET
+        .scope(stylesheet_url, async {
+            let response = crate::middleware::htmx::CURRENT_HTMX_REQUEST
+                .scope(
+                    is_htmx,
+                    CURRENT_SOURCE_MAP.scope(
+                        source_map.clone(),
+                        CURRENT_TEMPLATE.scope(
+                            template,
+                            CURRENT_LAYOUTS.scope(scoped_layouts, next.run(request)),
+                        ),
+                    ),
+                )
+                .await;
+            render_error_response(
+                response,
+                &error_dir,
+                root_layout.as_deref().filter(|_| !is_htmx),
+                html_accepted,
+                is_htmx,
+                source_map.as_ref(),
+            )
+        })
+        .await
 }
 
 /// Runs a generated route handler with its sibling TSX template, when present.
@@ -190,16 +220,20 @@ pub async fn render_route_request(
     template: PathBuf,
     source_map: Arc<jsxrs::SourceMap>,
     source_root: PathBuf,
+    stylesheet_url: Option<&'static str>,
 ) -> Response {
     let dev_mode = dev_templates_enabled();
     let template = resolve_template_path(template, &source_root, dev_mode);
     let source_map = (!dev_mode).then_some(source_map);
-    CURRENT_SOURCE_MAP
+    CURRENT_TAILWIND_STYLESHEET
         .scope(
-            source_map,
-            CURRENT_TEMPLATE.scope(
-                Some(template),
-                CURRENT_LAYOUTS.scope(Vec::new(), next.run(request)),
+            stylesheet_url,
+            CURRENT_SOURCE_MAP.scope(
+                source_map,
+                CURRENT_TEMPLATE.scope(
+                    Some(template),
+                    CURRENT_LAYOUTS.scope(Vec::new(), next.run(request)),
+                ),
             ),
         )
         .await
@@ -296,6 +330,7 @@ fn render_error_response(
         .try_with(Clone::clone)
         .unwrap_or_default();
     config.fragment = fragment;
+    configure_tailwind_stylesheet(&mut config, fragment);
     let context = source_map.map_or_else(jsxrs::CheckedRenderContext::new, |source_map| {
         jsxrs::CheckedRenderContext::new().with_source_map(Arc::clone(source_map))
     });
@@ -442,9 +477,12 @@ mod tests {
         CURRENT_TEMPLATE
             .scope(
                 Some(template),
-                CURRENT_RENDER_CONFIG.scope(config, async {
-                    body_string(View::new(Greeting { greeting: "hello" }).into_response()).await
-                }),
+                CURRENT_TAILWIND_STYLESHEET.scope(
+                    Some("/_gluon/app.test.css"),
+                    CURRENT_RENDER_CONFIG.scope(config, async {
+                        body_string(View::new(Greeting { greeting: "hello" }).into_response()).await
+                    }),
+                ),
             )
             .await
     }
@@ -465,10 +503,13 @@ mod tests {
 
         assert!(!compact.contains('\n'), "compact output: {compact}");
         assert!(pretty.contains('\n'), "pretty output: {pretty}");
+        assert!(!compact.contains("/_gluon/app.test.css"));
+        assert!(!compact.contains("<style>"));
+        assert!(!pretty.contains("/_gluon/app.test.css"));
     }
 
     #[tokio::test]
-    async fn tailwind_render_config_injects_generated_css() {
+    async fn tailwind_render_config_links_static_stylesheet() {
         let dir = tempdir().unwrap();
         let template = write_min_page(
             dir.path(),
@@ -484,9 +525,44 @@ mod tests {
         .await;
 
         assert!(
-            html.contains("<style>"),
-            "generated stylesheet missing: {html}"
+            html.contains("href=\"/_gluon/app.test.css\""),
+            "stylesheet link missing: {html}"
         );
+        assert!(!html.contains("<style>"), "inline CSS found: {html}");
+    }
+
+    #[tokio::test]
+    async fn tailwind_fragments_omit_stylesheet_link_and_inline_css() {
+        let dir = tempdir().unwrap();
+        let template = write_min_page(
+            dir.path(),
+            r#"export default function Page() { return <span className="sr-only">Hidden</span>; }"#,
+        );
+        let html = CURRENT_TAILWIND_STYLESHEET
+            .scope(
+                Some("/_gluon/app.test.css"),
+                CURRENT_TEMPLATE.scope(
+                    Some(template),
+                    CURRENT_RENDER_CONFIG.scope(
+                        jsxrs::RenderConfig {
+                            tailwind: true,
+                            ..jsxrs::RenderConfig::default()
+                        },
+                        crate::middleware::htmx::CURRENT_HTMX_REQUEST.scope(true, async {
+                            body_string(View::new(Greeting { greeting: "hello" }).into_response())
+                                .await
+                        }),
+                    ),
+                ),
+            )
+            .await;
+
+        assert!(html.contains("Hidden"), "fragment body missing: {html}");
+        assert!(
+            !html.contains("<link"),
+            "stylesheet linked in fragment: {html}"
+        );
+        assert!(!html.contains("<style>"), "inline CSS found: {html}");
     }
     struct RestoreDevTemplates(Option<std::ffi::OsString>);
 
@@ -603,6 +679,7 @@ mod tests {
                             root_layout: None,
                             source_map: middleware_source_map,
                             source_root,
+                            stylesheet_url: None,
                         },
                     )
                     .await

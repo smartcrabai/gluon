@@ -17,10 +17,13 @@
 //! support View responses and SSE event fragments. The router embeds `gluon.toml`
 //! when present.
 
+use std::collections::BTreeSet;
 use std::fmt;
 use std::fmt::Write as _;
 use std::fs;
 use std::path::{Path, PathBuf};
+
+use sha2::{Digest, Sha256};
 
 use syn::{Item, ItemFn};
 use walkdir::WalkDir;
@@ -166,6 +169,155 @@ fn write_generated_if_changed(path: &Path, contents: &str) -> Result<bool, Build
     fs::write(path, contents)?;
     Ok(true)
 }
+fn sha256_hex(bytes: &[u8]) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut hash = String::with_capacity(64);
+    for byte in Sha256::digest(bytes) {
+        hash.push(char::from(HEX[usize::from(byte >> 4)]));
+        hash.push(char::from(HEX[usize::from(byte & 0x0f)]));
+    }
+    hash
+}
+
+#[derive(Debug)]
+struct TailwindStylesheet {
+    file_name: String,
+    url: String,
+    content_globs: Vec<String>,
+}
+
+fn build_tailwind_stylesheet(
+    app_sources: &[PathBuf],
+    manifest_dir: &Path,
+    out_dir: &Path,
+    embedded_config: Option<&str>,
+) -> Result<(Option<TailwindStylesheet>, Vec<PathBuf>), BuildError> {
+    let Some(config) = embedded_config else {
+        return Ok((None, Vec::new()));
+    };
+    let config: toml::Value = toml::from_str(config)
+        .map_err(|error| BuildError::Other(format!("failed to parse gluon.toml: {error}")))?;
+    let Some(view) = config.get("view").and_then(toml::Value::as_table) else {
+        return Ok((None, Vec::new()));
+    };
+    let tailwind_enabled = view
+        .get("tailwind")
+        .and_then(toml::Value::as_bool)
+        .unwrap_or(false);
+    if !tailwind_enabled {
+        return Ok((None, Vec::new()));
+    }
+    let patterns = match view.get("tailwind_content") {
+        Some(value) => value
+            .as_array()
+            .ok_or_else(|| {
+                BuildError::Other(
+                    "[view].tailwind_content must be an array of glob patterns".into(),
+                )
+            })?
+            .iter()
+            .map(|value| {
+                value.as_str().map(str::to_owned).ok_or_else(|| {
+                    BuildError::Other(
+                        "[view].tailwind_content entries must be glob pattern strings".into(),
+                    )
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?,
+        None => Vec::new(),
+    };
+
+    let mut source_paths = BTreeSet::new();
+    let mut rerun_paths = BTreeSet::new();
+    for path in app_sources {
+        source_paths.insert(path.clone());
+        rerun_paths.insert(path.clone());
+    }
+    for pattern in &patterns {
+        let glob_path = manifest_dir.join(pattern);
+        rerun_paths.insert(glob_watch_root(manifest_dir, pattern)?);
+        let glob_pattern = glob_path.to_string_lossy();
+        let paths = glob::glob(&glob_pattern).map_err(|error| {
+            BuildError::Other(format!(
+                "invalid [view].tailwind_content glob '{pattern}': {error}"
+            ))
+        })?;
+        for path in paths {
+            let path = path.map_err(|error| {
+                BuildError::Other(format!(
+                    "failed to scan [view].tailwind_content glob '{pattern}': {error}"
+                ))
+            })?;
+            if let Some(parent) = path.parent() {
+                rerun_paths.insert(parent.to_path_buf());
+            }
+            if path.is_file() {
+                source_paths.insert(path.clone());
+                rerun_paths.insert(path);
+            } else if path.is_dir() {
+                rerun_paths.insert(path);
+            }
+        }
+    }
+
+    let sources = source_paths
+        .iter()
+        .map(fs::read_to_string)
+        .collect::<Result<Vec<_>, _>>()?;
+    let css = encre_css::generate(
+        sources.iter().map(String::as_str),
+        &encre_css::Config::default(),
+    );
+    let hash = sha256_hex(css.as_bytes());
+    let file_name = format!("app.{hash}.css");
+    let url = format!("/_gluon/{file_name}");
+    write_generated_if_changed(&out_dir.join(&file_name), &css)?;
+
+    Ok((
+        Some(TailwindStylesheet {
+            file_name,
+            url,
+            content_globs: patterns,
+        }),
+        rerun_paths.into_iter().collect(),
+    ))
+}
+
+fn glob_watch_root(manifest_dir: &Path, pattern: &str) -> Result<PathBuf, BuildError> {
+    let glob_path = manifest_dir.join(pattern);
+    let mut root = PathBuf::new();
+    let mut contains_glob = false;
+    for component in glob_path.components() {
+        let part = component.as_os_str().to_string_lossy();
+        if part
+            .chars()
+            .any(|character| matches!(character, '*' | '?' | '[' | '{'))
+        {
+            contains_glob = true;
+            break;
+        }
+        root.push(component.as_os_str());
+    }
+    if !contains_glob {
+        root = glob_path
+            .parent()
+            .unwrap_or_else(|| Path::new("."))
+            .to_path_buf();
+    }
+    while !root.is_dir() && root != manifest_dir {
+        let Some(parent) = root.parent() else {
+            break;
+        };
+        root = parent.to_path_buf();
+    }
+    if root == manifest_dir || !root.starts_with(manifest_dir) {
+        return Err(BuildError::Other(format!(
+            "[view].tailwind_content glob '{pattern}' must have an existing directory below {}",
+            manifest_dir.display()
+        )));
+    }
+    Ok(root)
+}
 
 /// Entry point. Call this from `build.rs`.
 ///
@@ -184,7 +336,8 @@ pub fn run() -> Result<(), BuildError> {
     let app_dir = manifest_dir.join("app");
     let public_dir = manifest_dir.join("public");
     let config_path = manifest_dir.join("gluon.toml");
-    let out_path = PathBuf::from(out_dir).join("__gluon_app.rs");
+    let out_dir = PathBuf::from(out_dir);
+    let out_path = out_dir.join("__gluon_app.rs");
 
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=app");
@@ -200,12 +353,22 @@ pub fn run() -> Result<(), BuildError> {
     check_url_collisions(&entries)?;
     let templates = scan_files(&app_dir, TEMPLATE_EXTENSIONS)?;
     let assets = scan_files(&public_dir, &[])?;
+    let (tailwind_stylesheet, tailwind_inputs) = build_tailwind_stylesheet(
+        &templates,
+        &manifest_dir,
+        &out_dir,
+        embedded_config.as_deref(),
+    )?;
+    for path in tailwind_inputs {
+        println!("cargo:rerun-if-changed={}", path.display());
+    }
     let generated = generate_with_embedded(
         &entries,
         &manifest_dir,
         &templates,
         &assets,
         embedded_config.as_deref(),
+        tailwind_stylesheet.as_ref(),
     );
     write_generated_if_changed(&out_path, &generated)?;
 
@@ -320,7 +483,7 @@ fn is_pub_async(func: &ItemFn) -> bool {
 /// `manifest_dir` supplies include paths and the runtime source root.
 #[cfg(test)]
 fn generate(entries: &[Entry], manifest_dir: &Path) -> String {
-    generate_with_embedded(entries, manifest_dir, &[], &[], None)
+    generate_with_embedded(entries, manifest_dir, &[], &[], None, None)
 }
 
 fn generate_with_embedded(
@@ -329,6 +492,7 @@ fn generate_with_embedded(
     templates: &[PathBuf],
     assets: &[PathBuf],
     embedded_config: Option<&str>,
+    tailwind_stylesheet: Option<&TailwindStylesheet>,
 ) -> String {
     let mut out = String::new();
     out.push_str("// @generated by gluon-build. Do not edit.\n");
@@ -342,12 +506,21 @@ fn generate_with_embedded(
 
     out.push_str("}\n\n");
     emit_embedded_sources(&mut out, templates, assets, manifest_dir);
+    let stylesheet_url = tailwind_stylesheet.map_or_else(
+        || "None".to_owned(),
+        |stylesheet| format!("Some({})", rust_string_literal_str(&stylesheet.url)),
+    );
+    let _ = writeln!(
+        out,
+        "#[allow(dead_code)]\npub const __GLUON_TAILWIND_STYLESHEET: Option<&'static str> = {stylesheet_url};\n"
+    );
     emit_router_fn(
         &mut out,
         entries,
         manifest_dir,
         embedded_config,
         manifest_dir.join("public").is_dir(),
+        tailwind_stylesheet,
     );
     out
 }
@@ -416,6 +589,7 @@ fn emit_router_fn(
     manifest_dir: &Path,
     embedded_config: Option<&str>,
     has_public_directory: bool,
+    tailwind_stylesheet: Option<&TailwindStylesheet>,
 ) {
     out.push_str("#[allow(clippy::let_and_return)]\n");
     out.push_str("pub fn __gluon_router() -> axum::Router<std::sync::Arc<gluon::Container>> {\n");
@@ -442,7 +616,7 @@ fn emit_router_fn(
     if has_template_context {
         out.push_str("    let source_map = __gluon_source_map();\n");
     }
-    if has_template_context || has_public_directory {
+    if has_template_context || has_public_directory || tailwind_stylesheet.is_some() {
         out.push_str(
             "    let source_root = std::path::PathBuf::from(env!(\"CARGO_MANIFEST_DIR\"));\n",
         );
@@ -475,6 +649,21 @@ fn emit_router_fn(
                 url = rust_string_literal_str(&url_path),
             );
         }
+    }
+
+    if let Some(stylesheet) = tailwind_stylesheet {
+        let url = rust_string_literal_str(&stylesheet.url);
+        let asset = rust_string_literal_str(&format!("/{}", stylesheet.file_name));
+        let content_globs = stylesheet
+            .content_globs
+            .iter()
+            .map(|pattern| rust_string_literal_str(pattern))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let _ = writeln!(
+            out,
+            "    router = router.route({url}, axum::routing::get({{\n        let source_root = source_root.clone();\n        move || gluon::middleware::static_files::serve_tailwind_css(include_bytes!(concat!(env!(\"OUT_DIR\"), {asset})), source_root.clone(), &[{content_globs}])\n    }}));"
+        );
     }
 
     if has_public_directory {
@@ -530,7 +719,7 @@ fn emit_page_route(
     };
     let _ = writeln!(
         out,
-        "    router = router.route({url}, {{\n        let template = {template};\n        let layouts = {layouts};\n        let error_dir = {error_dir};\n        let root_layout = {root_layout};\n        let source_map = source_map.clone();\n        let source_root = source_root.clone();\n        let mw = axum::middleware::from_fn(move |req: axum::extract::Request, next: axum::middleware::Next| {{\n            let template = template.clone();\n            let layouts = layouts.clone();\n            let error_dir = error_dir.clone();\n            let root_layout = root_layout.clone();\n            let source_map = source_map.clone();\n            let source_root = source_root.clone();\n            async move {{ gluon::view::render_page_request(req, next, gluon::view::PageRenderContext {{ template, layouts, error_dir, root_layout, source_map, source_root }}).await }}\n        }});\n        ({chain}).layer(mw)\n    }});",
+        "    router = router.route({url}, {{\n        let template = {template};\n        let layouts = {layouts};\n        let error_dir = {error_dir};\n        let root_layout = {root_layout};\n        let source_map = source_map.clone();\n        let source_root = source_root.clone();\n        let mw = axum::middleware::from_fn(move |req: axum::extract::Request, next: axum::middleware::Next| {{\n            let template = template.clone();\n            let layouts = layouts.clone();\n            let error_dir = error_dir.clone();\n            let root_layout = root_layout.clone();\n            let source_map = source_map.clone();\n            let source_root = source_root.clone();\n            async move {{ gluon::view::render_page_request(req, next, gluon::view::PageRenderContext {{ template, layouts, error_dir, root_layout, source_map, source_root, stylesheet_url: __GLUON_TAILWIND_STYLESHEET }}).await }}\n        }});\n        ({chain}).layer(mw)\n    }});",
         url = rust_string_literal_str(url_path),
         template = template_expr,
         layouts = layouts_expr,
@@ -549,7 +738,7 @@ fn emit_route_template(
     let template_expr = embedded_template_path_expr(template, manifest_dir);
     let _ = writeln!(
         out,
-        "    router = router.route({url}, {{\n        let template = {template};\n        let source_map = source_map.clone();\n        let source_root = source_root.clone();\n        let mw = axum::middleware::from_fn(move |req: axum::extract::Request, next: axum::middleware::Next| {{\n            let template = template.clone();\n            let source_map = source_map.clone();\n            let source_root = source_root.clone();\n            async move {{ gluon::view::render_route_request(req, next, template, source_map, source_root).await }}\n        }});\n        ({chain}).layer(mw)\n    }});",
+        "    router = router.route({url}, {{\n        let template = {template};\n        let source_map = source_map.clone();\n        let source_root = source_root.clone();\n        let mw = axum::middleware::from_fn(move |req: axum::extract::Request, next: axum::middleware::Next| {{\n            let template = template.clone();\n            let source_map = source_map.clone();\n            let source_root = source_root.clone();\n            async move {{ gluon::view::render_route_request(req, next, template, source_map, source_root, __GLUON_TAILWIND_STYLESHEET).await }}\n        }});\n        ({chain}).layer(mw)\n    }});",
         url = rust_string_literal_str(url_path),
         template = template_expr,
     );
@@ -1082,7 +1271,7 @@ mod tests {
         write_file(&public, "marker.txt", "available without app routes\n");
         let entries = scan(&app).unwrap();
         let assets = scan_files(&public, &[]).unwrap();
-        let generated = generate_with_embedded(&entries, tmp.path(), &[], &assets, None);
+        let generated = generate_with_embedded(&entries, tmp.path(), &[], &assets, None, None);
         assert!(
             generated.contains(r#"("marker.txt", include_bytes!"#),
             "{generated}"
@@ -1093,6 +1282,177 @@ mod tests {
             ),
             "{generated}"
         );
+    }
+
+    #[test]
+    fn tailwind_includes_fragment_only_route_template() {
+        let tmp = tempfile::tempdir().unwrap();
+        let app = tmp.path().join("app");
+        let out = tmp.path().join("out");
+        std::fs::create_dir(&out).unwrap();
+        write_file(&app, "api/route.rs", "pub async fn get() {}\n");
+        write_file(
+            &app,
+            "api/route.tsx",
+            r#"<div class="sr-only">fragment</div>"#,
+        );
+        let templates = scan_files(&app, TEMPLATE_EXTENSIONS).unwrap();
+        let (stylesheet, _) = build_tailwind_stylesheet(
+            &templates,
+            tmp.path(),
+            &out,
+            Some("[view]\ntailwind = true\n"),
+        )
+        .unwrap();
+        let stylesheet = stylesheet.unwrap();
+        let css = std::fs::read_to_string(out.join(&stylesheet.file_name)).unwrap();
+        assert!(css.contains(".sr-only"), "{css}");
+        let entries = scan(&app).unwrap();
+        let generated = generate_with_embedded(
+            &entries,
+            tmp.path(),
+            &templates,
+            &[],
+            Some("[view]\ntailwind = true\n"),
+            Some(&stylesheet),
+        );
+        assert!(
+            generated.contains(
+                "render_route_request(req, next, template, source_map, source_root, __GLUON_TAILWIND_STYLESHEET)"
+            ),
+            "{generated}"
+        );
+    }
+
+    #[test]
+    fn tailwind_includes_configured_glob_content_and_tracks_it() {
+        let tmp = tempfile::tempdir().unwrap();
+        let out = tmp.path().join("out");
+        std::fs::create_dir(&out).unwrap();
+        write_file(
+            tmp.path(),
+            "content/shared/page.html",
+            r#"<div class="text-purple-700">shared</div>"#,
+        );
+        let config = "[view]\ntailwind = true\ntailwind_content = [\"content/**/*.html\"]\n";
+        let (stylesheet, rerun_paths) =
+            build_tailwind_stylesheet(&[], tmp.path(), &out, Some(config)).unwrap();
+        let stylesheet = stylesheet.unwrap();
+        let css = std::fs::read_to_string(out.join(&stylesheet.file_name)).unwrap();
+        assert!(css.contains(".text-purple-700"), "{css}");
+        assert!(!rerun_paths.contains(&tmp.path().join("content/**/*.html")));
+        assert!(rerun_paths.contains(&tmp.path().join("content")));
+        assert!(rerun_paths.contains(&tmp.path().join("content/shared/page.html")));
+        let generated =
+            generate_with_embedded(&[], tmp.path(), &[], &[], Some(config), Some(&stylesheet));
+        assert!(
+            generated.contains("source_root.clone(), &[\"content/**/*.html\"]"),
+            "{generated}"
+        );
+    }
+    #[test]
+    fn tailwind_content_globs_do_not_watch_the_project_root() {
+        let tmp = tempfile::tempdir().unwrap();
+        let out = tmp.path().join("out");
+        std::fs::create_dir(&out).unwrap();
+
+        for pattern in ["**/*.html", "web/src/**/*.ts"] {
+            let config = format!("[view]\ntailwind = true\ntailwind_content = [\"{pattern}\"]\n");
+            let error =
+                build_tailwind_stylesheet(&[], tmp.path(), &out, Some(&config)).unwrap_err();
+            assert!(
+                error
+                    .to_string()
+                    .contains("must have an existing directory below"),
+                "{error}"
+            );
+        }
+    }
+
+    #[test]
+    fn tailwind_route_uses_cache_busted_css_asset() {
+        let tmp = tempfile::tempdir().unwrap();
+        let app = tmp.path().join("app");
+        let out = tmp.path().join("out");
+        std::fs::create_dir(&out).unwrap();
+        write_file(&app, "page.tsx", r#"<div class="text-blue-700">page</div>"#);
+        write_file(&app, "page.rs", "pub async fn get() {}\n");
+        let templates = scan_files(&app, TEMPLATE_EXTENSIONS).unwrap();
+        let entries = scan(&app).unwrap();
+        let config = "[view]\ntailwind = true\n";
+        let (stylesheet, _) =
+            build_tailwind_stylesheet(&templates, tmp.path(), &out, Some(config)).unwrap();
+        let stylesheet = stylesheet.unwrap();
+        let css = std::fs::read(out.join(&stylesheet.file_name)).unwrap();
+        let hash = sha256_hex(&css);
+        assert_eq!(stylesheet.file_name, format!("app.{hash}.css"));
+        assert_eq!(stylesheet.url, format!("/_gluon/app.{hash}.css"));
+
+        let generated = generate_with_embedded(
+            &entries,
+            tmp.path(),
+            &templates,
+            &[],
+            Some(config),
+            Some(&stylesheet),
+        );
+        assert!(
+            generated.contains(&format!(
+                "pub const __GLUON_TAILWIND_STYLESHEET: Option<&'static str> = Some(\"{}\");",
+                stylesheet.url
+            )),
+            "{generated}"
+        );
+        assert!(
+            generated.contains(&format!(
+                "router = router.route(\"{}\", axum::routing::get(",
+                stylesheet.url
+            )),
+            "{generated}"
+        );
+        assert!(
+            generated.contains(&format!(
+                "include_bytes!(concat!(env!(\"OUT_DIR\"), \"/{}\"))",
+                stylesheet.file_name
+            )),
+            "{generated}"
+        );
+        assert!(
+            generated.contains("gluon::middleware::static_files::serve_tailwind_css"),
+            "{generated}"
+        );
+        assert!(
+            generated.contains("source_root.clone(), &[]"),
+            "{generated}"
+        );
+        assert!(
+            generated.contains("stylesheet_url: __GLUON_TAILWIND_STYLESHEET"),
+            "{generated}"
+        );
+    }
+
+    #[test]
+    fn tailwind_off_emits_no_asset_or_route() {
+        let tmp = tempfile::tempdir().unwrap();
+        let app = tmp.path().join("app");
+        let out = tmp.path().join("out");
+        std::fs::create_dir(&out).unwrap();
+        write_file(&app, "page.tsx", r#"<div class="text-blue-700">page</div>"#);
+        let templates = scan_files(&app, TEMPLATE_EXTENSIONS).unwrap();
+        let config = "[view]\ntailwind = false\ntailwind_content = [\"content/**/*.html\"]\n";
+        let (stylesheet, rerun_paths) =
+            build_tailwind_stylesheet(&templates, tmp.path(), &out, Some(config)).unwrap();
+        assert!(stylesheet.is_none());
+        assert_eq!(rerun_paths, Vec::<PathBuf>::new());
+        assert_eq!(std::fs::read_dir(&out).unwrap().count(), 0);
+
+        let generated =
+            generate_with_embedded(&[], tmp.path(), &templates, &[], Some(config), None);
+        assert!(
+            generated
+                .contains("pub const __GLUON_TAILWIND_STYLESHEET: Option<&'static str> = None;")
+        );
+        assert!(!generated.contains("serve_tailwind_css"), "{generated}");
     }
 
     #[test]
@@ -1137,7 +1497,7 @@ mod tests {
         );
         let entries = scan(&app).unwrap();
         let templates = scan_files(&app, TEMPLATE_EXTENSIONS).unwrap();
-        let generated = generate_with_embedded(&entries, tmp.path(), &templates, &[], None);
+        let generated = generate_with_embedded(&entries, tmp.path(), &templates, &[], None, None);
 
         assert!(
             generated.contains("gluon::view::render_route_request"),
@@ -1191,7 +1551,8 @@ mod tests {
         let templates = scan_files(&app, TEMPLATE_EXTENSIONS).unwrap();
         let assets = scan_files(&public, &[]).unwrap();
         let entries = scan(&app).unwrap();
-        let generated = generate_with_embedded(&entries, tmp.path(), &templates, &assets, None);
+        let generated =
+            generate_with_embedded(&entries, tmp.path(), &templates, &assets, None, None);
         assert_eq!(generated.matches("include_str!(").count(), 8, "{generated}");
         assert_eq!(
             generated.matches("include_bytes!(").count(),
@@ -1437,7 +1798,14 @@ mod tests {
             ),
         ];
         let mut out = String::new();
-        emit_router_fn(&mut out, &entries, Path::new("/tmp/proj"), None, false);
+        emit_router_fn(
+            &mut out,
+            &entries,
+            Path::new("/tmp/proj"),
+            None,
+            false,
+            None,
+        );
         assert!(out.contains(r#"route("/users/{id}","#), "out: {out}");
         assert!(
             out.contains(r#"route("/files/{*path}","#),

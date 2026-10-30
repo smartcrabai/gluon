@@ -127,6 +127,7 @@ fn view_server(source_root: PathBuf) -> TestServer {
                         root_layout: Some(layout),
                         source_map,
                         source_root,
+                        stylesheet_url: None,
                     },
                 )
                 .await
