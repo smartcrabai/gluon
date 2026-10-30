@@ -1,4 +1,5 @@
 use anyhow::Context;
+use notify::event::{EventKind, ModifyKind};
 use notify::{Event, RecursiveMode, Watcher};
 use std::path::Path;
 use std::process::{Child, Command};
@@ -62,11 +63,23 @@ fn spawn_app() -> anyhow::Result<Child> {
             "GLUON_INSECURE_COOKIE",
             std::env::var_os("GLUON_INSECURE_COOKIE").unwrap_or_else(|| "1".into()),
         )
+        .env(
+            "GLUON_DEV_TEMPLATES",
+            dev_templates_value(std::env::var_os("GLUON_DEV_TEMPLATES")),
+        )
         .spawn()
         .context("spawn cargo run")
 }
 
+fn dev_templates_value(override_value: Option<std::ffi::OsString>) -> std::ffi::OsString {
+    override_value.unwrap_or_else(|| "1".into())
+}
+
 pub(crate) fn should_restart(event: &Event) -> bool {
+    let generated_template_event = matches!(
+        &event.kind,
+        EventKind::Create(_) | EventKind::Remove(_) | EventKind::Modify(ModifyKind::Name(_))
+    );
     event.paths.iter().any(|path| {
         let normalized = path.to_string_lossy().replace('\\', "/");
         let file_name = normalized.rsplit('/').next().unwrap_or_default();
@@ -75,23 +88,45 @@ pub(crate) fn should_restart(event: &Event) -> bool {
             .any(|extension| file_name.ends_with(extension));
         let editor_backup = file_name.ends_with('~') || file_name.starts_with(".#");
         let target_artifact = normalized.split('/').any(|segment| segment == "target");
-        !ignored_extension && !editor_backup && !target_artifact
+        let new_or_removed_template = Path::new(file_name)
+            .extension()
+            .is_some_and(|extension| extension.eq_ignore_ascii_case("tsx"))
+            && generated_template_event;
+        !editor_backup && !target_artifact && (!ignored_extension || new_or_removed_template)
     })
 }
 
 #[cfg(test)]
 mod tests {
-    use super::should_restart;
+    use super::{dev_templates_value, should_restart};
     use notify::Event;
     use notify::event::{EventKind, ModifyKind};
+    use std::ffi::OsString;
     use std::path::PathBuf;
 
     fn make_event(paths: &[&str]) -> Event {
+        make_event_with_kind(paths, EventKind::Modify(ModifyKind::Any))
+    }
+
+    fn make_event_with_kind(paths: &[&str], kind: EventKind) -> Event {
         Event {
-            kind: EventKind::Modify(ModifyKind::Any),
+            kind,
             paths: paths.iter().map(PathBuf::from).collect(),
             attrs: notify::event::EventAttributes::default(),
         }
+    }
+
+    #[test]
+    fn dev_templates_are_enabled_by_default() {
+        assert_eq!(dev_templates_value(None), OsString::from("1"));
+    }
+
+    #[test]
+    fn dev_templates_preserve_an_explicit_override() {
+        assert_eq!(
+            dev_templates_value(Some(OsString::from("0"))),
+            OsString::from("0")
+        );
     }
 
     #[test]
@@ -112,6 +147,19 @@ mod tests {
     #[test]
     fn no_restart_for_tsx() {
         assert!(!should_restart(&make_event(&["app/page.tsx"])));
+    }
+
+    #[test]
+    fn restart_when_tsx_template_is_created_or_removed() {
+        for kind in [
+            EventKind::Create(notify::event::CreateKind::File),
+            EventKind::Remove(notify::event::RemoveKind::File),
+        ] {
+            assert!(
+                should_restart(&make_event_with_kind(&["app/page.tsx"], kind)),
+                "structural TSX changes must rebuild generated routes"
+            );
+        }
     }
 
     #[test]

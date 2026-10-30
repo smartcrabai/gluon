@@ -23,6 +23,12 @@ mod session;
 pub mod sse;
 pub mod testing;
 pub mod view;
+
+/// Re-exports used by build-generated application code.
+#[doc(hidden)]
+pub mod __private {
+    pub use jsxrs;
+}
 pub use boot::Boot;
 #[doc(hidden)]
 pub use config::__register_embedded_config;

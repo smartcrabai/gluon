@@ -9,13 +9,13 @@
 )]
 //! build.rs helpers for the gluon framework.
 //!
-//! Scans the `app/` directory of the consuming crate, discovers `page.rs` and
-//! `route.rs` files, infers their URL paths from the directory layout, and
-//! generates a Rust source file (`$OUT_DIR/__gluon_app.rs`) exposing a
-//! `__gluon_router()` function returning an Axum router. Page routes inherit
-//! ancestor `layout.tsx` files and handle HTML `AppError` templates; `route.rs`
-//! is not wrapped as a page, and sibling `route.tsx` templates are scoped for
-//! SSE events. The generated router also embeds `gluon.toml` when present.
+//! Scans the consuming application's `app/` tree for route handlers, embeds
+//! every TSX template and `public/` asset at compile time, and generates the
+//! Rust router in `$OUT_DIR/__gluon_app.rs`. Relative TSX imports resolve from
+//! the generated source map. Page routes inherit layouts and error templates;
+//! route handlers retain their response bodies, and sibling `route.tsx` files
+//! support View responses and SSE event fragments. The router embeds `gluon.toml`
+//! when present.
 
 use std::fmt;
 use std::fmt::Write as _;
@@ -82,6 +82,7 @@ impl From<syn::Error> for BuildError {
 /// HTTP methods that gluon recognises as page/route handlers, in declaration
 /// order. Exposed so the CLI's `gluon routes` command can share the list.
 pub const HTTP_METHODS: &[&str] = &["get", "post", "put", "patch", "delete"];
+const TEMPLATE_EXTENSIONS: &[&str] = &["tsx", "jsx", "ts", "js"];
 
 /// One discovered entry-point file (`page.rs` or `route.rs`).
 #[derive(Debug, Clone)]
@@ -121,12 +122,58 @@ pub fn scan(app_dir: &Path) -> Result<Vec<Entry>, BuildError> {
     scan_app_dir(app_dir)
 }
 
+/// Recursively collects regular files under a source tree.
+///
+/// An empty extension list matches every file; otherwise only files with a listed
+/// extension are returned. Symlinks inside the tree are followed, but targets
+/// outside the tree are rejected.
+fn scan_files(root: &Path, extensions: &[&str]) -> Result<Vec<PathBuf>, BuildError> {
+    if !root.is_dir() {
+        return Ok(Vec::new());
+    }
+    let canonical_root = fs::canonicalize(root)?;
+    let mut files = Vec::new();
+    for entry in WalkDir::new(root).follow_links(true) {
+        let entry = entry.map_err(|error| {
+            BuildError::Other(format!("walkdir failed under {}: {error}", root.display()))
+        })?;
+        let supported_extension = entry
+            .path()
+            .extension()
+            .is_some_and(|extension| extensions.iter().any(|candidate| extension == *candidate));
+        if entry.file_type().is_file() && (extensions.is_empty() || supported_extension) {
+            let canonical_path = fs::canonicalize(entry.path())?;
+            if !canonical_path.starts_with(&canonical_root) {
+                return Err(BuildError::Other(format!(
+                    "source file {} resolves outside {}",
+                    entry.path().display(),
+                    root.display()
+                )));
+            }
+            files.push(entry.into_path());
+        }
+    }
+    files.sort();
+    Ok(files)
+}
+
+fn write_generated_if_changed(path: &Path, contents: &str) -> Result<bool, BuildError> {
+    if let Ok(previous) = fs::read_to_string(path)
+        && previous == contents
+    {
+        return Ok(false);
+    }
+    fs::write(path, contents)?;
+    Ok(true)
+}
+
 /// Entry point. Call this from `build.rs`.
 ///
 /// # Errors
 ///
-/// Returns [`BuildError`] when the `app/` tree or `gluon.toml` cannot be read,
-/// a discovered `.rs` file fails to parse, or the generated file cannot be written.
+/// Returns [`BuildError`] when the `app/`, `public/`, or `gluon.toml` source
+/// cannot be read, a discovered `.rs` file fails to parse, or the generated
+/// file cannot be written.
 pub fn run() -> Result<(), BuildError> {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")
         .map_err(|e| BuildError::Other(format!("CARGO_MANIFEST_DIR not set: {e}")))?;
@@ -135,11 +182,14 @@ pub fn run() -> Result<(), BuildError> {
 
     let manifest_dir = PathBuf::from(manifest_dir);
     let app_dir = manifest_dir.join("app");
+    let public_dir = manifest_dir.join("public");
     let config_path = manifest_dir.join("gluon.toml");
     let out_path = PathBuf::from(out_dir).join("__gluon_app.rs");
 
+    println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=app");
     println!("cargo:rerun-if-changed=gluon.toml");
+    println!("cargo:rerun-if-changed=public");
 
     let embedded_config = match fs::read_to_string(&config_path) {
         Ok(config) => Some(config),
@@ -148,8 +198,16 @@ pub fn run() -> Result<(), BuildError> {
     };
     let entries = scan(&app_dir)?;
     check_url_collisions(&entries)?;
-    let generated = generate(&entries, &manifest_dir, embedded_config.as_deref());
-    fs::write(&out_path, generated)?;
+    let templates = scan_files(&app_dir, TEMPLATE_EXTENSIONS)?;
+    let assets = scan_files(&public_dir, &[])?;
+    let generated = generate_with_embedded(
+        &entries,
+        &manifest_dir,
+        &templates,
+        &assets,
+        embedded_config.as_deref(),
+    );
+    write_generated_if_changed(&out_path, &generated)?;
 
     Ok(())
 }
@@ -257,11 +315,21 @@ fn is_pub_async(func: &ItemFn) -> bool {
     matches!(func.vis, syn::Visibility::Public(_)) && func.sig.asyncness.is_some()
 }
 
-/// Generate the full content of `$OUT_DIR/__gluon_app.rs`.
+/// Generate `$OUT_DIR/__gluon_app.rs`, including compile-time templates and assets.
 ///
-/// `manifest_dir` is used to compute relative template paths in the generated
-/// router so that the binary is not tied to the build machine's absolute path.
-fn generate(entries: &[Entry], manifest_dir: &Path, embedded_config: Option<&str>) -> String {
+/// `manifest_dir` supplies include paths and the runtime source root.
+#[cfg(test)]
+fn generate(entries: &[Entry], manifest_dir: &Path) -> String {
+    generate_with_embedded(entries, manifest_dir, &[], &[], None)
+}
+
+fn generate_with_embedded(
+    entries: &[Entry],
+    manifest_dir: &Path,
+    templates: &[PathBuf],
+    assets: &[PathBuf],
+    embedded_config: Option<&str>,
+) -> String {
     let mut out = String::new();
     out.push_str("// @generated by gluon-build. Do not edit.\n");
     out.push_str(
@@ -273,8 +341,14 @@ fn generate(entries: &[Entry], manifest_dir: &Path, embedded_config: Option<&str
     emit_mod_tree(&mut out, &tree, 1);
 
     out.push_str("}\n\n");
-
-    emit_router_fn(&mut out, entries, manifest_dir, embedded_config);
+    emit_embedded_sources(&mut out, templates, assets, manifest_dir);
+    emit_router_fn(
+        &mut out,
+        entries,
+        manifest_dir,
+        embedded_config,
+        manifest_dir.join("public").is_dir(),
+    );
     out
 }
 
@@ -335,16 +409,13 @@ fn push_indent(out: &mut String, depth: usize) {
     }
 }
 
-/// Emit the `__gluon_router` function.
-///
-/// Template paths are embedded as `concat!(env!("CARGO_MANIFEST_DIR"), "/rel/path.tsx")`
-/// rather than absolute paths so that the generated binary is not tied to the
-/// build machine's filesystem layout.
+/// Emit the `__gluon_router` function, config registration, app routes, and public service.
 fn emit_router_fn(
     out: &mut String,
     entries: &[Entry],
     manifest_dir: &Path,
     embedded_config: Option<&str>,
+    has_public_directory: bool,
 ) {
     out.push_str("#[allow(clippy::let_and_return)]\n");
     out.push_str("pub fn __gluon_router() -> axum::Router<std::sync::Arc<gluon::Container>> {\n");
@@ -355,7 +426,27 @@ fn emit_router_fn(
             rust_string_literal_str(config),
         );
     }
-    out.push_str("    let router = axum::Router::new();\n");
+    out.push_str("    let mut router = axum::Router::new();\n");
+    let has_page_rendering = entries
+        .iter()
+        .any(|entry| entry.file_stem == "page" && !entry.methods.is_empty());
+    let has_route_templates = entries.iter().any(|entry| {
+        entry.file_stem == "route"
+            && !entry.methods.is_empty()
+            && entry
+                .abs_path
+                .parent()
+                .is_some_and(|parent| parent.join("route.tsx").is_file())
+    });
+    let has_template_context = has_page_rendering || has_route_templates;
+    if has_template_context {
+        out.push_str("    let source_map = __gluon_source_map();\n");
+    }
+    if has_template_context || has_public_directory {
+        out.push_str(
+            "    let source_root = std::path::PathBuf::from(env!(\"CARGO_MANIFEST_DIR\"));\n",
+        );
+    }
     for entry in entries {
         let Some((first, rest)) = entry.methods.split_first() else {
             continue;
@@ -369,70 +460,152 @@ fn emit_router_fn(
         }
 
         if entry.file_stem == "page" {
-            let template = entry
-                .abs_path
-                .parent()
-                .map(|parent| parent.join("page.tsx"))
-                .filter(|path| path.is_file());
-            let template_expr = template.as_deref().map_or_else(
-                || "None".to_owned(),
-                |path| format!("Some({})", template_path_expr(path, manifest_dir)),
-            );
-            let app_dir = manifest_dir.join("app");
-            let layouts = page_layout_paths(&entry.abs_path, &app_dir);
-            let layouts_expr = format!(
-                "vec![{}]",
-                layouts
-                    .iter()
-                    .map(|path| template_path_expr(path, manifest_dir))
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            );
-            let error_dir_expr = template_path_expr(&app_dir.join("_error"), manifest_dir);
-            let root_layout_expr = app_dir.join("layout.tsx");
-            let root_layout_expr = if root_layout_expr.is_file() {
-                format!(
-                    "Some({})",
-                    template_path_expr(&root_layout_expr, manifest_dir)
-                )
-            } else {
-                "None".to_owned()
-            };
+            emit_page_route(out, entry, &url_path, &chain, manifest_dir);
+        } else if let Some(template) = entry
+            .abs_path
+            .parent()
+            .map(|parent| parent.join("route.tsx"))
+            .filter(|path| path.is_file())
+        {
+            emit_route_template(out, &url_path, &chain, &template, manifest_dir);
+        } else {
             let _ = writeln!(
                 out,
-                "    let router = router.route({url}, {{\n        let template = {template};\n        let layouts = {layouts};\n        let error_dir = {error_dir};\n        let root_layout = {root_layout};\n        let mw = axum::middleware::from_fn(move |req: axum::extract::Request, next: axum::middleware::Next| {{\n            let template = template.clone();\n            let layouts = layouts.clone();\n            let error_dir = error_dir.clone();\n            let root_layout = root_layout.clone();\n            async move {{ gluon::view::render_page_request(req, next, template, layouts, error_dir, root_layout).await }}\n        }});\n        ({chain}).layer(mw)\n    }});",
+                "    router = router.route({url}, {chain});",
                 url = rust_string_literal_str(&url_path),
-                template = template_expr,
-                layouts = layouts_expr,
-                error_dir = error_dir_expr,
-                root_layout = root_layout_expr,
             );
-        } else {
-            let template = entry
-                .abs_path
-                .parent()
-                .map(|parent| parent.join(format!("{}.tsx", entry.file_stem)))
-                .filter(|path| path.is_file());
-            if let Some(template) = template {
-                let template_expr = template_path_expr(&template, manifest_dir);
-                let _ = writeln!(
-                    out,
-                    "    let router = router.route({url}, {{\n        let template = {template};\n        let mw = axum::middleware::from_fn(move |req: axum::extract::Request, next: axum::middleware::Next| {{\n            let template = template.clone();\n            async move {{ gluon::view::CURRENT_TEMPLATE.scope(Some(template), next.run(req)).await }}\n        }});\n        ({chain}).layer(mw)\n    }});",
-                    url = rust_string_literal_str(&url_path),
-                    template = template_expr,
-                );
-            } else {
-                let _ = writeln!(
-                    out,
-                    "    let router = router.route({url}, {chain});",
-                    url = rust_string_literal_str(&url_path),
-                );
-            }
         }
     }
 
+    if has_public_directory {
+        out.push_str("    let public_service = if std::env::var_os(\"GLUON_DEV_TEMPLATES\").as_deref() == Some(std::ffi::OsStr::new(\"1\")) {\n");
+        out.push_str(
+            "        gluon::middleware::static_files::service(source_root.join(\"public\"))\n",
+        );
+        out.push_str("    } else {\n");
+        out.push_str(
+            "        gluon::middleware::static_files::embedded_service(__gluon_public_assets())\n",
+        );
+        out.push_str("    };\n");
+        out.push_str("    router = router.nest_service(\"/public\", public_service);\n");
+    }
     out.push_str("    router\n");
     out.push_str("}\n");
+}
+
+fn emit_page_route(
+    out: &mut String,
+    entry: &Entry,
+    url_path: &str,
+    chain: &str,
+    manifest_dir: &Path,
+) {
+    let app_dir = manifest_dir.join("app");
+    let template = entry
+        .abs_path
+        .parent()
+        .map(|parent| parent.join("page.tsx"))
+        .filter(|path| path.is_file());
+    let template_expr = template.as_deref().map_or_else(
+        || "None".to_owned(),
+        |path| format!("Some({})", embedded_template_path_expr(path, manifest_dir)),
+    );
+    let layouts_expr = format!(
+        "vec![{}]",
+        page_layout_paths(&entry.abs_path, &app_dir)
+            .iter()
+            .map(|path| embedded_template_path_expr(path, manifest_dir))
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
+    let error_dir_expr = embedded_template_path_expr(&app_dir.join("_error"), manifest_dir);
+    let root_layout_path = app_dir.join("layout.tsx");
+    let root_layout_expr = if root_layout_path.is_file() {
+        format!(
+            "Some({})",
+            embedded_template_path_expr(&root_layout_path, manifest_dir)
+        )
+    } else {
+        "None".to_owned()
+    };
+    let _ = writeln!(
+        out,
+        "    router = router.route({url}, {{\n        let template = {template};\n        let layouts = {layouts};\n        let error_dir = {error_dir};\n        let root_layout = {root_layout};\n        let source_map = source_map.clone();\n        let source_root = source_root.clone();\n        let mw = axum::middleware::from_fn(move |req: axum::extract::Request, next: axum::middleware::Next| {{\n            let template = template.clone();\n            let layouts = layouts.clone();\n            let error_dir = error_dir.clone();\n            let root_layout = root_layout.clone();\n            let source_map = source_map.clone();\n            let source_root = source_root.clone();\n            async move {{ gluon::view::render_page_request(req, next, gluon::view::PageRenderContext {{ template, layouts, error_dir, root_layout, source_map, source_root }}).await }}\n        }});\n        ({chain}).layer(mw)\n    }});",
+        url = rust_string_literal_str(url_path),
+        template = template_expr,
+        layouts = layouts_expr,
+        error_dir = error_dir_expr,
+        root_layout = root_layout_expr,
+    );
+}
+
+fn emit_route_template(
+    out: &mut String,
+    url_path: &str,
+    chain: &str,
+    template: &Path,
+    manifest_dir: &Path,
+) {
+    let template_expr = embedded_template_path_expr(template, manifest_dir);
+    let _ = writeln!(
+        out,
+        "    router = router.route({url}, {{\n        let template = {template};\n        let source_map = source_map.clone();\n        let source_root = source_root.clone();\n        let mw = axum::middleware::from_fn(move |req: axum::extract::Request, next: axum::middleware::Next| {{\n            let template = template.clone();\n            let source_map = source_map.clone();\n            let source_root = source_root.clone();\n            async move {{ gluon::view::render_route_request(req, next, template, source_map, source_root).await }}\n        }});\n        ({chain}).layer(mw)\n    }});",
+        url = rust_string_literal_str(url_path),
+        template = template_expr,
+    );
+}
+
+fn embedded_template_path_expr(path: &Path, manifest_dir: &Path) -> String {
+    let rel = path
+        .strip_prefix(manifest_dir)
+        .unwrap_or(path)
+        .to_string_lossy()
+        .replace(std::path::MAIN_SEPARATOR, "/");
+    format!(
+        "std::path::PathBuf::from({})",
+        rust_string_literal_str(&rel)
+    )
+}
+
+fn emit_embedded_sources(
+    out: &mut String,
+    templates: &[PathBuf],
+    assets: &[PathBuf],
+    manifest_dir: &Path,
+) {
+    out.push_str("#[allow(dead_code)]\nfn __gluon_source_map() -> std::sync::Arc<gluon::__private::jsxrs::SourceMap> {\n");
+    out.push_str("    static SOURCE_MAP: std::sync::LazyLock<std::sync::Arc<gluon::__private::jsxrs::SourceMap>> = std::sync::LazyLock::new(|| std::sync::Arc::new(gluon::__private::jsxrs::SourceMap::new(vec![\n");
+    for path in templates {
+        let rel = path
+            .strip_prefix(manifest_dir)
+            .unwrap_or(path)
+            .to_string_lossy()
+            .replace(std::path::MAIN_SEPARATOR, "/");
+        let key = rust_string_literal_str(&rel);
+        let include_path = rust_string_literal_str(&format!("/{rel}"));
+        let _ = writeln!(
+            out,
+            "        ({key}, include_str!(concat!(env!(\"CARGO_MANIFEST_DIR\"), {include_path}))),"
+        );
+    }
+    out.push_str("    ])));\n    std::sync::Arc::clone(&SOURCE_MAP)\n}\n");
+
+    out.push_str("#[allow(dead_code)]\nstatic __GLUON_PUBLIC_ASSETS: &[(&'static str, &'static [u8])] = &[\n");
+    for path in assets {
+        let rel = path
+            .strip_prefix(manifest_dir.join("public"))
+            .unwrap_or(path)
+            .to_string_lossy()
+            .replace(std::path::MAIN_SEPARATOR, "/");
+        let key = rust_string_literal_str(&rel);
+        let include_path = rust_string_literal_str(&format!("/public/{rel}"));
+        let _ = writeln!(
+            out,
+            "    ({key}, include_bytes!(concat!(env!(\"CARGO_MANIFEST_DIR\"), {include_path}))),"
+        );
+    }
+    out.push_str("];\n");
+    out.push_str("#[allow(dead_code)]\nfn __gluon_public_assets() -> &'static [(&'static str, &'static [u8])] { __GLUON_PUBLIC_ASSETS }\n\n");
 }
 
 /// Find existing `layout.tsx` files from the app root through the page directory.
@@ -454,21 +627,6 @@ fn page_layout_paths(page_path: &Path, app_dir: &Path) -> Vec<PathBuf> {
     }
     layouts.reverse();
     layouts
-}
-
-/// Build a Rust expression that evaluates to a `PathBuf` for the given
-/// template path. Uses `concat!(env!("CARGO_MANIFEST_DIR"), "/rel/path")` when
-/// the path is inside the project so the binary works on any machine where the
-/// source tree is present at the same relative layout. Falls back to an
-/// absolute string literal only when the path is outside the manifest dir.
-fn template_path_expr(abs: &Path, manifest_dir: &Path) -> String {
-    if let Ok(rel) = abs.strip_prefix(manifest_dir) {
-        // Forward-slash normalisation for Windows hosts.
-        let rel_str = rel.to_string_lossy().replace('\\', "/");
-        format!(r#"std::path::PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/{rel_str}"))"#)
-    } else {
-        format!("std::path::PathBuf::from({})", rust_string_literal(abs))
-    }
 }
 
 /// Compute the URL path for a directory segment list.
@@ -891,19 +1049,66 @@ mod tests {
         assert!(matches!(syn_err, BuildError::Syn { path: None, .. }));
     }
 
-    // ---------- generate ----------
+    // ---------- generation ----------
 
     #[test]
-    fn generate_without_entries_contains_router_fn() {
-        let s = generate(&[], Path::new("/tmp"), None);
+    fn generate_without_app_or_public_tree_omits_public_route() {
+        let tmp = tempfile::tempdir().unwrap();
+        let s = generate(&[], tmp.path());
         assert!(s.contains("pub fn __gluon_router"), "s: {s}");
         assert!(s.contains("axum::Router::new()"), "s: {s}");
+        assert!(s.contains("static __GLUON_PUBLIC_ASSETS"), "s: {s}");
+        assert!(!s.contains("include_bytes!("), "unexpected assets: {s}");
+        assert!(!s.contains("router.nest_service(\"/public\""), "{s}");
+    }
+
+    #[test]
+    fn generate_mounts_empty_public_directory_for_dev_assets() {
+        let tmp = tempfile::tempdir().unwrap();
+        std::fs::create_dir(tmp.path().join("public")).unwrap();
+        let generated = generate(&[], tmp.path());
+        assert!(
+            generated
+                .contains("gluon::middleware::static_files::service(source_root.join(\"public\"))"),
+            "{generated}"
+        );
+    }
+
+    #[test]
+    fn generate_embeds_public_assets_without_an_app_tree() {
+        let tmp = tempfile::tempdir().unwrap();
+        let app = tmp.path().join("app");
+        let public = tmp.path().join("public");
+        write_file(&public, "marker.txt", "available without app routes\n");
+        let entries = scan(&app).unwrap();
+        let assets = scan_files(&public, &[]).unwrap();
+        let generated = generate_with_embedded(&entries, tmp.path(), &[], &assets, None);
+        assert!(
+            generated.contains(r#"("marker.txt", include_bytes!"#),
+            "{generated}"
+        );
+        assert!(
+            generated.contains(
+                "gluon::middleware::static_files::embedded_service(__gluon_public_assets())"
+            ),
+            "{generated}"
+        );
+    }
+
+    #[test]
+    fn generated_output_is_only_written_when_changed() {
+        let tmp = tempfile::tempdir().unwrap();
+        let output = tmp.path().join("__gluon_app.rs");
+        assert!(write_generated_if_changed(&output, "generated source").unwrap());
+        assert!(!write_generated_if_changed(&output, "generated source").unwrap());
+        assert!(write_generated_if_changed(&output, "updated source").unwrap());
+        assert_eq!(std::fs::read_to_string(output).unwrap(), "updated source");
     }
 
     #[test]
     fn generate_includes_router_call_for_entry() {
         let entry = make_entry(&[], "page", "/tmp/page.rs");
-        let s = generate(std::slice::from_ref(&entry), Path::new("/tmp"), None);
+        let s = generate(std::slice::from_ref(&entry), Path::new("/tmp"));
         assert!(s.contains("axum::routing::get"), "s: {s}");
         assert!(s.contains("\"/\""), "s: {s}");
     }
@@ -915,9 +1120,121 @@ mod tests {
         write_file(&app, "page.rs", "pub async fn get() {}\n");
         write_file(&app, "page.tsx", "export default function Page() {}\n");
         let entries = scan(&app).unwrap();
-        let s = generate(&entries, tmp.path(), None);
+        let s = generate(&entries, tmp.path());
         assert!(s.contains("gluon::view::render_page_request"), "s: {s}");
         assert!(s.contains("let template = Some("), "s: {s}");
+    }
+
+    #[test]
+    fn generate_scopes_route_handlers_with_sibling_templates() {
+        let tmp = tempfile::tempdir().unwrap();
+        let app = tmp.path().join("app");
+        write_file(&app, "api/route.rs", "pub async fn get() {}\n");
+        write_file(
+            &app,
+            "api/route.tsx",
+            "export default function Route() {}\n",
+        );
+        let entries = scan(&app).unwrap();
+        let templates = scan_files(&app, TEMPLATE_EXTENSIONS).unwrap();
+        let generated = generate_with_embedded(&entries, tmp.path(), &templates, &[], None);
+
+        assert!(
+            generated.contains("gluon::view::render_route_request"),
+            "{generated}"
+        );
+        assert!(
+            generated.contains(r#"("app/api/route.tsx", include_str!"#),
+            "{generated}"
+        );
+        assert!(
+            !generated.contains("render_page_request"),
+            "route templates must not use page error/layout middleware: {generated}"
+        );
+    }
+
+    #[test]
+    fn generate_emits_compile_time_sources_and_assets() {
+        let tmp = tempfile::tempdir().unwrap();
+        let app = tmp.path().join("app");
+        let public = tmp.path().join("public");
+        write_file(&app, "page.tsx", "export default function Page() {}\n");
+        write_file(
+            &app,
+            "components/card.tsx",
+            "export default function Card() {}\n",
+        );
+        write_file(
+            &app,
+            "_error/404.tsx",
+            "export default function NotFound() {}\n",
+        );
+        write_file(
+            &app,
+            "api/route.tsx",
+            "export default function Route() {}\n",
+        );
+        write_file(&public, "styles/site.css", "body { color: red; }\n");
+        write_file(&public, "marker.txt", "embedded marker\n");
+        write_file(
+            &app,
+            "components/card.jsx",
+            "export default function Card() {}\n",
+        );
+        write_file(
+            &app,
+            "components/index.jsx",
+            "export default function Index() {}\n",
+        );
+        write_file(&app, "components/legacy.ts", "export const value = 1;\n");
+        write_file(&app, "components/legacy.js", "export const value = 1;\n");
+        let templates = scan_files(&app, TEMPLATE_EXTENSIONS).unwrap();
+        let assets = scan_files(&public, &[]).unwrap();
+        let entries = scan(&app).unwrap();
+        let generated = generate_with_embedded(&entries, tmp.path(), &templates, &assets, None);
+        assert_eq!(generated.matches("include_str!(").count(), 8, "{generated}");
+        assert_eq!(
+            generated.matches("include_bytes!(").count(),
+            2,
+            "{generated}"
+        );
+        assert!(generated.contains(r#"("app/components/card.tsx", include_str!"#));
+        assert!(generated.contains(r#"("app/api/route.tsx", include_str!"#));
+        assert!(generated.contains(r#"("app/components/card.jsx", include_str!"#));
+        assert!(generated.contains(r#"("app/components/index.jsx", include_str!"#));
+        assert!(generated.contains(r#"("app/components/legacy.ts", include_str!"#));
+        assert!(generated.contains(r#"("app/components/legacy.js", include_str!"#));
+        assert!(generated.contains(r#"("styles/site.css", include_bytes!"#));
+        assert!(generated.contains("LazyLock<std::sync::Arc<gluon::__private::jsxrs::SourceMap>>"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn scan_files_embeds_internal_symlinks() {
+        use std::os::unix::fs::symlink;
+
+        let tmp = tempfile::tempdir().unwrap();
+        let public = tmp.path().join("public");
+        write_file(&public, "original.txt", "embedded\n");
+        symlink(public.join("original.txt"), public.join("alias.txt")).unwrap();
+
+        let files = scan_files(&public, &[]).unwrap();
+        assert!(files.contains(&public.join("alias.txt")));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn scan_files_rejects_symlinks_outside_source_tree() {
+        use std::os::unix::fs::symlink;
+
+        let tmp = tempfile::tempdir().unwrap();
+        let public = tmp.path().join("public");
+        write_file(tmp.path(), "private.txt", "not public\n");
+        std::fs::create_dir(&public).unwrap();
+        symlink(tmp.path().join("private.txt"), public.join("private.txt")).unwrap();
+
+        let error = scan_files(&public, &[]).unwrap_err();
+        assert!(error.to_string().contains("resolves outside"));
     }
 
     #[test]
@@ -927,8 +1244,8 @@ mod tests {
         write_file(&app, "page.rs", "pub async fn get() {}\n");
         write_file(&app, "page.tsx", "export default function Page() {}\n");
         let entries = scan(&app).unwrap();
-        let s = generate(&entries, tmp.path(), None);
-        // The router function must use env!("CARGO_MANIFEST_DIR") for the tsx
+        let s = generate(&entries, tmp.path());
+        // The router function must use env!("CARGO_MANIFEST_DIR") for the TSX
         // template path so the binary is not tied to the build machine's absolute
         // path. The mod tree #[path] attributes still use absolute paths (those
         // are compile-time only and are always evaluated on the build machine).
@@ -936,11 +1253,11 @@ mod tests {
         let router_section = &s[router_start..];
         assert!(
             router_section.contains(r#"env!("CARGO_MANIFEST_DIR")"#),
-            "router should use env! macro for tsx path; s: {s}"
+            "router should pass its source root to the renderer; s: {s}"
         );
         assert!(
             !router_section.contains(tmp.path().to_string_lossy().as_ref()),
-            "router must not embed absolute build-machine path for tsx; s: {s}"
+            "router must not embed absolute build-machine paths; s: {s}"
         );
     }
 
@@ -961,46 +1278,53 @@ mod tests {
         );
         write_file(&app, "(marketing)/about/page.rs", "pub async fn get() {}\n");
         let entries = scan(&app).unwrap();
-        let s = generate(&entries, tmp.path(), None);
-        let root = s.find("/app/layout.tsx").unwrap();
-        let group = s.find("/app/(marketing)/layout.tsx").unwrap();
-        let nested = s.find("/app/(marketing)/about/layout.tsx").unwrap();
+        let s = generate(&entries, tmp.path());
+        let root = s.find("app/layout.tsx").unwrap();
+        let group = s.find("app/(marketing)/layout.tsx").unwrap();
+        let nested = s.find("app/(marketing)/about/layout.tsx").unwrap();
         assert!(root < group && group < nested, "{s}");
         assert!(s.contains(r#"route("/about""#), "{s}");
-        assert!(s.contains("/app/_error"), "{s}");
+        assert!(s.contains("app/_error"), "{s}");
         assert!(s.contains("root_layout = Some("), "{s}");
         assert!(s.contains("let template = None;"), "{s}");
     }
 
     #[test]
-    fn generate_omits_page_middleware_for_route_rs() {
+    fn generate_uses_route_template_middleware_without_page_middleware() {
         let tmp = tempfile::tempdir().unwrap();
         let app = tmp.path().join("app");
         write_file(&app, "api/route.rs", "pub async fn get() {}\n");
-        // Even with a sibling .tsx, route.rs must not receive page rendering middleware.
         write_file(&app, "api/route.tsx", "export default function R() {}\n");
         let entries = scan(&app).unwrap();
-        let generated = generate(&entries, tmp.path(), None);
+        let generated = generate(&entries, tmp.path());
         assert!(
-            generated.contains("gluon::view::CURRENT_TEMPLATE.scope"),
-            "route with a sibling TSX template must get the template layer: {generated}",
+            generated.contains("gluon::view::render_route_request"),
+            "route with a sibling TSX template must get the renderer: {generated}",
         );
         assert!(
             !generated.contains("render_page_request"),
             "route TSX must not get page layouts or error rendering: {generated}",
         );
+        assert!(
+            generated.contains("let source_map = __gluon_source_map();"),
+            "route template middleware needs the embedded source map: {generated}",
+        );
     }
 
     #[test]
-    fn generate_omits_layer_for_route_without_tsx() {
+    fn generate_omits_template_layer_for_route_without_tsx() {
         let tmp = tempfile::tempdir().unwrap();
         let app = tmp.path().join("app");
         write_file(&app, "api/route.rs", "pub async fn get() {}\n");
         let entries = scan(&app).unwrap();
-        let generated = generate(&entries, tmp.path(), None);
+        let generated = generate(&entries, tmp.path());
+        assert!(
+            !generated.contains("render_route_request"),
+            "route without a sibling TSX template must not get the renderer: {generated}"
+        );
         assert!(
             !generated.contains("CURRENT_TEMPLATE.scope"),
-            "route without a sibling TSX template must not get the layer: {generated}"
+            "route without a sibling TSX template must not get a template layer: {generated}"
         );
     }
 
@@ -1113,7 +1437,7 @@ mod tests {
             ),
         ];
         let mut out = String::new();
-        emit_router_fn(&mut out, &entries, Path::new("/tmp/proj"), None);
+        emit_router_fn(&mut out, &entries, Path::new("/tmp/proj"), None, false);
         assert!(out.contains(r#"route("/users/{id}","#), "out: {out}");
         assert!(
             out.contains(r#"route("/files/{*path}","#),

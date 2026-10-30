@@ -23,7 +23,6 @@ use crate::container::{Container, ContainerBuilder};
 use crate::error::{AppError, Result};
 use crate::middleware::csrf::csrf_middleware;
 use crate::middleware::htmx::htmx_middleware;
-use crate::middleware::static_files;
 
 type ContainerFactory = Box<dyn FnOnce(ContainerBuilder) -> ContainerBuilder + Send + 'static>;
 type RouterFactory =
@@ -98,12 +97,14 @@ impl Boot {
     }
 
     /// Initializes tracing (+ optional OpenTelemetry), builds the container,
-    /// mounts the session/CSRF/HTMX middleware stack and the `public/` static
-    /// asset service, then serves the axum router.
+    /// mounts the session/CSRF/HTMX middleware stack, then serves the axum
+    /// router. The generated application router embeds its `public/` assets.
     ///
     /// Environment variables:
     /// - `GLUON_TELEMETRY_DISABLED=1` -- skip OpenTelemetry, fmt subscriber only.
     /// - `GLUON_BIND` -- overrides `server.host` and `server.port` in `gluon.toml`.
+    /// - `GLUON_DEV_TEMPLATES=1` -- read TSX templates and public assets from
+    ///   disk for live development edits; default runtime uses embedded files.
     /// - `GLUON_INSECURE_COOKIE=1` -- drop `Secure` on the session cookie (dev only).
     /// - `SECRET_KEY_BASE` -- at least 64 bytes; required unless insecure-cookie
     ///   development mode is enabled.
@@ -145,24 +146,21 @@ impl Boot {
         }
         let container = Arc::new(builder.build());
 
-        let mut router = self.router.unwrap_or_default();
-        let public_router = axum::Router::new();
+        let router = self.router.unwrap_or_default();
         #[cfg(feature = "auth")]
-        let mut public_router = public_router;
-        #[cfg(feature = "auth")]
-        if let Some(auth) = container.try_resolve::<crate::auth::Auth>()
-            && auth.config.http_enabled
-        {
-            router = router.nest(&auth.config.mount_path, auth.router());
-            public_router = public_router.nest(&auth.config.mount_path, auth.public_router());
-        }
-
-        if let Ok(cwd) = std::env::current_dir() {
-            let public_dir = cwd.join("public");
-            if public_dir.is_dir() {
-                router = router.nest_service("/public", static_files::service(public_dir));
+        let (router, public_router) = {
+            let mut router = router;
+            let mut public_router = axum::Router::new();
+            if let Some(auth) = container.try_resolve::<crate::auth::Auth>()
+                && auth.config.http_enabled
+            {
+                router = router.nest(&auth.config.mount_path, auth.router());
+                public_router = public_router.nest(&auth.config.mount_path, auth.public_router());
             }
-        }
+            (router, public_router)
+        };
+        #[cfg(not(feature = "auth"))]
+        let public_router = axum::Router::new();
 
         let secure_cookie = read_secure_cookie_env();
         let session_key = read_session_key(secure_cookie)?;

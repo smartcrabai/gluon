@@ -1,3 +1,5 @@
+import HomeMarker from "./components/home-marker";
+
 export default function Page(props) {
-  return <main>{props.marker}</main>;
+  return <main><HomeMarker marker={props.marker} /></main>;
 }

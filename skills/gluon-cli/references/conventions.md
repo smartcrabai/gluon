@@ -64,7 +64,7 @@ The `app/` directory is scanned by `gluon-build`'s build.rs, which generates a R
 File name conventions:
 
 - `page.rs` = controller with a View (renders the sibling-directory `page.tsx`)
-- `route.rs` = controller endpoint; an optional sibling `route.tsx` supplies TSX fragments for SSE events
+- `route.rs` = API/controller handler; a sibling `route.tsx` can render `View` responses without page layouts or `_error` handling and supplies TSX fragments for SSE events.
 - `layout.tsx` = jsxrs layout (wraps child pages)
 - `app/_error/<status>.tsx` = HTML error template (422 validation remains JSON)
 
@@ -120,6 +120,11 @@ For named HTMX SSE events, call `sse::view_event("query-progress", View::new(pro
 
 The response includes `X-Accel-Buffering: no`; configure any reverse proxy to honor it. The standard gluon CSRF, session, and HTMX middleware do not buffer SSE responses. GET streams are safe methods and do not require a CSRF token.
 
+## Embedded templates and assets
+
+- `gluon-build` embeds every `app/**/*.tsx` template and every file under `public/` in the compiled application. Relative component imports resolve from the embedded source map, so deployed binaries do not require the application's `app/` or `public/` directories.
+- The `gluon dev` command sets `GLUON_DEV_TEMPLATES=1` by default so template and public-asset requests read from disk for live edits. Direct runs use embedded files by default; set `GLUON_DEV_TEMPLATES=1` to read from disk.
+- Embedded public files are served with their inferred content type and a one-hour public cache lifetime. Development files use revalidation caching; paths must name a file and directory indexes are not served.
 ## Domain vs Table is not 1:1
 
 `gluon g domain` does **not** generate migrations.

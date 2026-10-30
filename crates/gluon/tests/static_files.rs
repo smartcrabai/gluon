@@ -1,7 +1,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
 
-//! Integration tests confirming that `gluon::middleware::static_files::service`
-//! serves files from disk while keeping directory indexing disabled.
+//! Integration tests for embedded assets and the canonicalized development disk
+//! service in `gluon::middleware::static_files`.
 
 use std::fs;
 
@@ -16,6 +16,42 @@ fn server_for(public_dir: &std::path::Path) -> TestServer {
     TestServer::new(app)
 }
 
+fn embedded_server(assets: &'static [(&'static str, &'static [u8])]) -> TestServer {
+    let service = static_files::embedded_service(assets);
+    TestServer::new(Router::new().nest_service("/public", service))
+}
+
+#[tokio::test]
+async fn serves_embedded_assets_with_mime_and_cache_headers() {
+    let server = embedded_server(&[("images/marker.txt", b"embedded marker")]);
+    let response = server.get("/public/images/marker.txt").await;
+    response.assert_status_ok();
+    response.assert_text("embedded marker");
+    assert_eq!(response.headers()["content-type"], "text/plain");
+    assert_eq!(response.headers()["cache-control"], "public, max-age=3600");
+}
+
+#[tokio::test]
+async fn embedded_paths_are_exact_and_have_no_directory_index() {
+    let server = embedded_server(&[
+        ("index.html", b"root index"),
+        ("subdir/index.html", b"nested index"),
+    ]);
+    for path in [
+        "/public/",
+        "/public/subdir/",
+        "/public/../index.html",
+        "/public/%2e%2e/index.html",
+    ] {
+        let response = server.get(path).await;
+        assert_eq!(
+            response.status_code(),
+            http::StatusCode::NOT_FOUND,
+            "path {path}"
+        );
+    }
+}
+
 #[tokio::test]
 async fn serves_existing_file() {
     let dir = TempDir::new().expect("tempdir");
@@ -24,6 +60,11 @@ async fn serves_existing_file() {
     let response = server_for(dir.path()).get("/public/hello.txt").await;
     response.assert_status_ok();
     response.assert_text("hello world");
+    assert_eq!(response.headers()["content-type"], "text/plain");
+    assert_eq!(
+        response.headers()["cache-control"],
+        "public, max-age=0, must-revalidate"
+    );
 }
 
 #[tokio::test]
@@ -33,8 +74,7 @@ async fn directory_index_disabled() {
     fs::create_dir_all(&sub).expect("mkdir subdir");
     fs::write(sub.join("index.html"), "<h1>nope</h1>").expect("write index.html");
 
-    // `ServeDir::append_index_html_on_directories(false)` should prevent the
-    // service from auto-serving `subdir/index.html` for the directory URL.
+    // A directory URL is never resolved to a file below that directory.
     let response = server_for(dir.path()).get("/public/subdir/").await;
     assert_eq!(response.status_code(), http::StatusCode::NOT_FOUND);
 }

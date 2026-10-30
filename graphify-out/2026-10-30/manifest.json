@@ -12,9 +12,9 @@
     "semantic_hash": "f6237ddee5bfcc4e56cdd38ffd541817"
   },
   "crates/gluon-build/src/lib.rs": {
-    "mtime": 1793389980.5364344,
-    "seen": 1793390004.7427042,
-    "ast_hash": "849c5e17273417e2e1faeb4bf9f3a405",
+    "mtime": 1793390902.1233804,
+    "seen": 1793390909.3983989,
+    "ast_hash": "191edf67a14a747c08a9577b439a0734",
     "semantic_hash": ""
   },
   "crates/gluon-cli/Cargo.toml": {
@@ -270,9 +270,9 @@
     "semantic_hash": "d14951f73b257bfabd331f915ede43f1"
   },
   "crates/gluon/src/lib.rs": {
-    "mtime": 1793389479.968959,
-    "seen": 1793389917.6305048,
-    "ast_hash": "c8ea769d266303c2753215f6a6a820fb",
+    "mtime": 1793390835.0188444,
+    "seen": 1793390909.399504,
+    "ast_hash": "a3130b1ee6018f85db9c34a53b444d5e",
     "semantic_hash": ""
   },
   "crates/gluon/src/middleware/csrf.rs": {
@@ -396,9 +396,9 @@
     "semantic_hash": "fdb8b0f3d7ad5543872f9c821b7d2e90"
   },
   ".github/workflows/ci.yml": {
-    "mtime": 1793389479.9645202,
-    "seen": 1793389917.6295402,
-    "ast_hash": "e051594c807946582a1931dd9a80224f",
+    "mtime": 1793390835.0163412,
+    "seen": 1793390909.3983219,
+    "ast_hash": "53faa0ca94724fd966c1dd8e8832084f",
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {
@@ -450,9 +450,9 @@
     "semantic_hash": ""
   },
   "skills/gluon-cli/references/environment.md": {
-    "mtime": 1793389479.9873216,
-    "seen": 1793389917.632179,
-    "ast_hash": "3ae1856ca271cfd34e7f75f677dbd808",
+    "mtime": 1793390835.0193217,
+    "seen": 1793390909.4018471,
+    "ast_hash": "ba8f71f8f6ab3950ad0c70ebf9ff0efb",
     "semantic_hash": ""
   },
   "skills/gluon-cli/references/limitations.md": {
@@ -1122,9 +1122,9 @@
     "semantic_hash": ""
   },
   "crates/gluon/src/config.rs": {
-    "mtime": 1793389479.9688513,
-    "seen": 1793389917.630455,
-    "ast_hash": "56072ee2ebdc2c0e24589b08286c7ed9",
+    "mtime": 1793390835.0180366,
+    "seen": 1793390909.399392,
+    "ast_hash": "ff464b190ac94727a5daa58e06f7fc60",
     "semantic_hash": ""
   },
   "crates/gluon/tests/specs/package-lock.json": {
