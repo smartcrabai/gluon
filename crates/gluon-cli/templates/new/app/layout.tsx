@@ -1,10 +1,10 @@
-export default function RootLayout({ children }: { children: any }) {
+export default function RootLayout(props) {
   return (
     <>
       <Head>
         <title>App</title>
       </Head>
-      {children}
+      {props.children}
     </>
   );
 }

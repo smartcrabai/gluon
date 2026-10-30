@@ -28,7 +28,7 @@ jsonwebtoken = { version = "=11.1.0", default-features = false, features = [
   "rust_crypto",
   "use_pem",
 ] }
-jsxrs = "0.1.7"
+jsxrs = { git = "https://github.com/smartcrabai/jsxrs", rev = "fc03b87" }
 lettre = { version = "0.11", default-features = false, features = [
   "builder",
   "smtp-transport",
