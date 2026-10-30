@@ -12,7 +12,8 @@
 //! Scans the `app/` directory of the consuming crate, discovers `page.rs` and
 //! `route.rs` files, infers their URL paths from the directory layout, and
 //! generates a Rust source file (`$OUT_DIR/__gluon_app.rs`) that exposes a
-//! `__gluon_router()` function returning an `axum::Router`.
+//! `__gluon_router()` function returning an `axum::Router`. A sibling `page.tsx`
+//! or `route.tsx` is injected into the corresponding handler's template scope.
 
 use std::fmt;
 use std::fmt::Write as _;
@@ -353,19 +354,14 @@ fn emit_router_fn(out: &mut String, entries: &[Entry], manifest_dir: &Path) {
             let _ = write!(chain, ".{m}({mod_path}::{m})");
         }
 
-        // For page.rs entries, attach a middleware that injects the sibling
-        // .tsx path into CURRENT_TEMPLATE so View<P>::into_response can find
-        // the template without requiring the handler to specify it explicitly.
-        let template_path = if entry.file_stem == "page" {
-            entry
-                .abs_path
-                .parent()
-                .map(|p| p.join("page.tsx"))
-                .filter(|p| p.is_file())
-        } else {
-            None
-        };
-
+        // When a route has a sibling .tsx template, inject its path so normal
+        // page responses and streamed route events can render TSX without
+        // handlers specifying template paths.
+        let template_path = entry
+            .abs_path
+            .parent()
+            .map(|parent| parent.join(format!("{}.tsx", entry.file_stem)))
+            .filter(|path| path.is_file());
         if let Some(template) = template_path {
             let template_expr = template_path_expr(&template, manifest_dir);
             let _ = writeln!(
@@ -716,6 +712,15 @@ mod tests {
     }
 
     #[test]
+    fn extracts_handler_with_sse_return_type() {
+        let parsed: syn::File = syn::parse_str(
+            "pub async fn get() -> gluon::Result<gluon::sse::Sse<impl futures_util::Stream<Item = gluon::Result<gluon::sse::Event>>>> { todo!() }",
+        )
+        .unwrap();
+        assert_eq!(extract_http_methods(&parsed), vec!["get".to_owned()]);
+    }
+
+    #[test]
     fn ignores_unsupported_method_names() {
         let parsed: syn::File =
             syn::parse_str("pub async fn handle() {} pub async fn foo() {}").unwrap();
@@ -852,17 +857,29 @@ mod tests {
     }
 
     #[test]
-    fn generate_omits_layer_for_route_rs() {
+    fn generate_emits_layer_for_route_with_tsx() {
         let tmp = tempfile::tempdir().unwrap();
         let app = tmp.path().join("app");
         write_file(&app, "api/route.rs", "pub async fn get() {}\n");
-        // Even with a sibling .tsx, route.rs must not get the layer.
         write_file(&app, "api/route.tsx", "export default function R() {}\n");
         let entries = scan(&app).unwrap();
-        let s = generate(&entries, tmp.path());
+        let generated = generate(&entries, tmp.path());
         assert!(
-            !s.contains("CURRENT_TEMPLATE.scope"),
-            "route.rs must not get template layer; s: {s}",
+            generated.contains("gluon::view::CURRENT_TEMPLATE.scope"),
+            "route with a sibling TSX template must get the template layer: {generated}",
+        );
+    }
+
+    #[test]
+    fn generate_omits_layer_for_route_without_tsx() {
+        let tmp = tempfile::tempdir().unwrap();
+        let app = tmp.path().join("app");
+        write_file(&app, "api/route.rs", "pub async fn get() {}\n");
+        let entries = scan(&app).unwrap();
+        let generated = generate(&entries, tmp.path());
+        assert!(
+            !generated.contains("CURRENT_TEMPLATE.scope"),
+            "route without a sibling TSX template must not get the layer: {generated}",
         );
     }
 

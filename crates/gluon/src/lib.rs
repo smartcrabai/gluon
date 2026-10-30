@@ -20,9 +20,9 @@ pub mod middleware;
 pub mod prelude;
 mod redirect;
 mod session;
+pub mod sse;
 pub mod testing;
 pub mod view;
-
 pub use boot::Boot;
 pub use config::{AppConfig, Config, DatabaseConfig, ServerConfig, TelemetryConfig, ViewConfig};
 pub use container::{Container, ContainerBuilder};

@@ -34,3 +34,7 @@ Works as an MVP, but these spots need attention. Until the framework provides of
 
 9. **Sessions fall back to `MemoryStore` when `DATABASE_URL` is unset**
    A development fallback; it is lost on process restart. In production and horizontal scaling, set `DATABASE_URL` and use the PostgreSQL session store.
+
+## Streaming
+
+`gluon::sse` supports Server-Sent Events but not WebSockets. The standard gluon middleware leaves SSE response bodies streaming and sets `X-Accel-Buffering: no`; external proxies must honor that header, and app-added middleware must avoid buffering response bodies.

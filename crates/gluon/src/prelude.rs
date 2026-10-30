@@ -2,6 +2,7 @@
 pub use crate::auth::{
     Auth, AuthBuilder, AuthConfig, AuthContext, AuthError, AuthUser, CurrentUser, UserId,
 };
+pub use crate::sse;
 pub use crate::{
     AppConfig, AppError, Boot, Config, Container, ContainerBuilder, DatabaseConfig, Flash, Inject,
     Redirect, Result, ServerConfig, Session, TelemetryConfig, View, ViewConfig,
