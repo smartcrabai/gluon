@@ -625,7 +625,8 @@ mod tests {
         let route = app.join("users/route.rs");
         write_file(&app, "users/route.rs", "pub async fn get( {\n");
         let error = scan_app_dir(&app).unwrap_err().to_string();
-        assert!(error.contains(&route.display().to_string()), "{error}");
+        let normalized_error = error.replace('\\', "/");
+        assert!(normalized_error.contains("/users/route.rs"), "{error}");
     }
     #[test]
     fn scan_finds_simple_page() {
