@@ -11,6 +11,7 @@
 #[cfg(feature = "auth")]
 pub mod auth;
 mod boot;
+mod config;
 mod container;
 mod error;
 mod flash;
@@ -23,6 +24,7 @@ pub mod testing;
 pub mod view;
 
 pub use boot::Boot;
+pub use config::{AppConfig, Config, DatabaseConfig, ServerConfig, TelemetryConfig, ViewConfig};
 pub use container::{Container, ContainerBuilder};
 pub use error::{AppError, FieldError, Result};
 pub use flash::Flash;
