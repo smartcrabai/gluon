@@ -49,6 +49,15 @@ impl Config {
                 format!("invalid {}: {error}", path.display()),
             )
         })?;
+        if config.database.driver != "postgres" {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!(
+                    "invalid {}: database.driver must be \"postgres\"",
+                    path.display()
+                ),
+            ));
+        }
         if config.database.pool_size == 0 {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
@@ -98,6 +107,8 @@ impl Default for ServerConfig {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct DatabaseConfig {
+    /// The supported database backend, retained for compatibility with old scaffolds.
+    pub driver: String,
     pub url_env: String,
     pub pool_size: u32,
 }
@@ -105,6 +116,7 @@ pub struct DatabaseConfig {
 impl Default for DatabaseConfig {
     fn default() -> Self {
         Self {
+            driver: "postgres".to_owned(),
             url_env: "DATABASE_URL".to_owned(),
             pool_size: 10,
         }
@@ -146,6 +158,7 @@ mod tests {
         let config = Config::load_from(dir.path().join("gluon.toml")).unwrap();
         assert_eq!(config.server.host, "0.0.0.0");
         assert_eq!(config.server.port, 3000);
+        assert_eq!(config.database.driver, "postgres");
         assert_eq!(config.database.url_env, "DATABASE_URL");
         assert_eq!(config.database.pool_size, 10);
         assert!(!config.view.pretty);
@@ -154,12 +167,12 @@ mod tests {
     }
 
     #[test]
-    fn reads_scaffolded_settings_and_rejects_unsupported_keys() {
+    fn reads_scaffolded_settings_and_rejects_unsupported_database_settings() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("gluon.toml");
         std::fs::write(
             &path,
-            "[app]\nname = \"example\"\n[server]\nhost = \"127.0.0.1\"\nport = 8080\n[database]\nurl_env = \"APP_DATABASE_URL\"\npool_size = 17\n[view]\npretty = true\ntailwind = true\n[telemetry]\nenabled_env = \"APP_OTEL_ENABLED\"\nservice_name = \"example-service\"\n",
+            "[app]\nname = \"example\"\n[server]\nhost = \"127.0.0.1\"\nport = 8080\n[database]\ndriver = \"postgres\"\nurl_env = \"APP_DATABASE_URL\"\npool_size = 17\n[view]\npretty = true\ntailwind = true\n[telemetry]\nenabled_env = \"APP_OTEL_ENABLED\"\nservice_name = \"example-service\"\n",
         )
         .unwrap();
 
@@ -167,6 +180,7 @@ mod tests {
         assert_eq!(config.app.name, "example");
         assert_eq!(config.server.host, "127.0.0.1");
         assert_eq!(config.server.port, 8080);
+        assert_eq!(config.database.driver, "postgres");
         assert_eq!(config.database.url_env, "APP_DATABASE_URL");
         assert_eq!(config.database.pool_size, 17);
         assert!(config.view.pretty);
@@ -174,9 +188,13 @@ mod tests {
         assert_eq!(config.telemetry.enabled_env, "APP_OTEL_ENABLED");
         assert_eq!(config.telemetry.service_name, "example-service");
 
-        std::fs::write(&path, "[database]\ndriver = \"postgres\"\n").unwrap();
+        std::fs::write(&path, "[database]\ndriver = \"mysql\"\n").unwrap();
         let error = Config::load_from(&path).unwrap_err();
-        assert!(error.to_string().contains("driver"));
+        assert!(error.to_string().contains("database.driver"));
+
+        std::fs::write(&path, "[database]\nunsupported = true\n").unwrap();
+        let error = Config::load_from(&path).unwrap_err();
+        assert!(error.to_string().contains("unsupported"));
     }
 
     #[test]

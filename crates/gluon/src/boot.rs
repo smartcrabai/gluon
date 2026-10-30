@@ -629,6 +629,7 @@ mod tests {
     #[serial]
     fn database_url_env_selects_database_variable() {
         let config = DatabaseConfig {
+            driver: "postgres".to_owned(),
             url_env: "APP_DATABASE_URL".to_owned(),
             pool_size: 4,
         };

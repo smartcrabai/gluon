@@ -2,11 +2,13 @@
 
 `Boot::run()` loads `gluon.toml` from the application root. If the file is missing, defaults are used. Unknown or unsupported keys cause a boot error.
 
+`gluon dev` watches an existing `gluon.toml` and restarts the app when it changes.
+
 ## Configuration precedence
 
 - `[app].name` is available as `Config.app.name` through `Inject<Config>`.
 - `[server].host` / `[server].port` default to `0.0.0.0:3000`; `GLUON_BIND` overrides both.
-- `[database].url_env` selects the environment variable containing the database URL (default `DATABASE_URL`); `[database].pool_size` sets the maximum number of pool connections.
+- `[database].driver` is fixed to `postgres` (also accepted from older scaffolds); `[database].url_env` selects the environment variable containing the database URL (default `DATABASE_URL`); `[database].pool_size` sets the maximum number of pool connections.
 - `[view].pretty` and `[view].tailwind` default to `false`; the scaffold enables Tailwind CSS generation.
 - `[telemetry].enabled_env` defaults to `OTEL_ENABLED`. When set, `1` / `true` (case-insensitive) enables telemetry and any other value disables it; when unset, telemetry remains enabled by default. `GLUON_TELEMETRY_DISABLED=1` / `true` is a higher-precedence opt-out.
 - `OTEL_SERVICE_NAME` overrides `[telemetry].service_name`. `OTEL_EXPORTER_OTLP_ENDPOINT` remains controlled by its environment variable (default `http://localhost:4317`).
