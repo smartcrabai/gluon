@@ -28,6 +28,7 @@ gluon dev | gluon build | gluon run [--release] | gluon routes
 - `gluon g domain` does not create a migration; create one separately with `gluon g migration`.
 - Generated `Cargo.toml` dependencies use the GitHub repository and are pinned to the exact framework revision used to build the CLI, or to the matching `v<version>` tag when Git metadata is unavailable. For local framework development, rewrite them to local paths.
 - In zsh, quote routes containing bracket segments, for example `gluon g controller 'users/[id]'`.
+- For named Server-Sent Events from `route.rs`, use `gluon::prelude::sse`; see `docs/sse.md` for streaming, fragment rendering, and HTMX integration.
 
 ## Authentication (opt-in)
 
