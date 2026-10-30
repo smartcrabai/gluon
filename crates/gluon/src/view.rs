@@ -1,8 +1,8 @@
 //! View response type for rendering templated pages.
 //!
 //! `View<P>` resolves its template and inherited layouts from task-local values
-//! scoped by generated page wrappers. Optional application rendering options
-//! are read from `CURRENT_RENDER_CONFIG` when that task-local is scoped.
+//! scoped by generated page wrappers. Boot's outer request middleware scopes
+//! application rendering options in `CURRENT_RENDER_CONFIG`.
 //!
 
 use std::fmt;
@@ -46,6 +46,48 @@ impl<P: Serialize> View<P> {
             template: None,
         }
     }
+
+    /// Render the view as an HTML fragment without a document wrapper.
+    ///
+    /// This is used by Server-Sent Events, whose payloads are inserted into an
+    /// existing document rather than returned as standalone pages.
+    pub(crate) fn render_fragment(self) -> crate::Result<String> {
+        self.render(true)
+    }
+
+    fn render(self, fragment: bool) -> crate::Result<String> {
+        let template = self
+            .template
+            .or_else(|| CURRENT_TEMPLATE.try_with(Clone::clone).ok().flatten())
+            .ok_or_else(|| {
+                AppError::Internal(Box::new(ViewError(
+                    "View has no template path; cannot render".to_string(),
+                )))
+            })?;
+
+        let props = serde_json::to_value(&self.props).map_err(|err| {
+            AppError::Internal(Box::new(ViewError(format!(
+                "failed to serialize props: {err}"
+            ))))
+        })?;
+
+        let mut config = CURRENT_RENDER_CONFIG
+            .try_with(Clone::clone)
+            .unwrap_or_default();
+        config.base_dir = template.parent().map(std::path::Path::to_path_buf);
+        config.fragment = fragment;
+        let layouts = if fragment {
+            Vec::new()
+        } else {
+            CURRENT_LAYOUTS.try_with(Clone::clone).unwrap_or_default()
+        };
+
+        jsxrs::render_with_layouts(&template, &layouts, &props, &config).map_err(|err| {
+            AppError::Internal(Box::new(ViewError(format!(
+                "failed to render template: {err}"
+            ))))
+        })
+    }
 }
 
 tokio::task_local! {
@@ -57,8 +99,7 @@ tokio::task_local! {
     /// Layout paths for the current page, ordered from the app root inward;
     /// scoped alongside `CURRENT_TEMPLATE` by the generated page wrapper.
     pub static CURRENT_LAYOUTS: Vec<PathBuf>;
-    /// Optional jsxrs rendering options; the default configuration is used
-    /// when this task-local is not scoped.
+    /// Rendering options scoped by Boot's outer request middleware.
     pub static CURRENT_RENDER_CONFIG: jsxrs::RenderConfig;
 }
 
@@ -207,35 +248,11 @@ fn add_vary_headers(response: &mut Response, names: &[&'static str]) {
 
 impl<P: Serialize> IntoResponse for View<P> {
     fn into_response(self) -> Response {
-        let template = self
-            .template
-            .or_else(|| CURRENT_TEMPLATE.try_with(Clone::clone).ok().flatten());
-        let Some(template) = template else {
-            return AppError::Internal(Box::new(ViewError(
-                "View has no template path; cannot render".to_string(),
-            )))
-            .into_response();
-        };
-
-        let props = match serde_json::to_value(&self.props) {
-            Ok(value) => value,
-            Err(err) => {
-                return AppError::Internal(Box::new(ViewError(format!(
-                    "failed to serialize props: {err}"
-                ))))
-                .into_response();
-            }
-        };
-        let mut config = CURRENT_RENDER_CONFIG
-            .try_with(Clone::clone)
-            .unwrap_or_default();
-        config.base_dir = template.parent().map(Path::to_path_buf);
-        config.fragment = crate::middleware::htmx::CURRENT_HTMX_REQUEST
+        let fragment = crate::middleware::htmx::CURRENT_HTMX_REQUEST
             .try_with(|is_htmx| *is_htmx)
             .unwrap_or(false);
-        let layouts = CURRENT_LAYOUTS.try_with(Clone::clone).unwrap_or_default();
 
-        match jsxrs::render_with_layouts(&template, &layouts, &props, &config) {
+        match self.render(fragment) {
             Ok(html) => {
                 let mut response = Html(html).into_response();
                 add_vary_headers(
@@ -244,10 +261,7 @@ impl<P: Serialize> IntoResponse for View<P> {
                 );
                 response
             }
-            Err(err) => AppError::Internal(Box::new(ViewError(format!(
-                "failed to render template: {err}"
-            ))))
-            .into_response(),
+            Err(error) => error.into_response(),
         }
     }
 }
@@ -312,6 +326,56 @@ mod tests {
         );
     }
 
+    async fn render_with_config(template: PathBuf, config: jsxrs::RenderConfig) -> String {
+        CURRENT_TEMPLATE
+            .scope(
+                Some(template),
+                CURRENT_RENDER_CONFIG.scope(config, async {
+                    body_string(View::new(Greeting { greeting: "hello" }).into_response()).await
+                }),
+            )
+            .await
+    }
+
+    #[tokio::test]
+    async fn pretty_render_config_changes_document_formatting() {
+        let dir = tempdir().unwrap();
+        let template = write_min_page(dir.path(), MIN_PAGE);
+        let compact = render_with_config(template.clone(), jsxrs::RenderConfig::default()).await;
+        let pretty = render_with_config(
+            template,
+            jsxrs::RenderConfig {
+                pretty: true,
+                ..jsxrs::RenderConfig::default()
+            },
+        )
+        .await;
+
+        assert!(!compact.contains('\n'), "compact output: {compact}");
+        assert!(pretty.contains('\n'), "pretty output: {pretty}");
+    }
+
+    #[tokio::test]
+    async fn tailwind_render_config_injects_generated_css() {
+        let dir = tempdir().unwrap();
+        let template = write_min_page(
+            dir.path(),
+            r#"export default function Page(props) { return <main className="bg-blue-500 text-white p-4">{props.greeting}</main>; }"#,
+        );
+        let html = render_with_config(
+            template,
+            jsxrs::RenderConfig {
+                tailwind: true,
+                ..jsxrs::RenderConfig::default()
+            },
+        )
+        .await;
+
+        assert!(
+            html.contains("<style>"),
+            "generated stylesheet missing: {html}"
+        );
+    }
     #[tokio::test]
     async fn template_missing_returns_500() {
         // No CURRENT_TEMPLATE scope and no explicit template -> 500.

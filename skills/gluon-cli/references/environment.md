@@ -1,14 +1,25 @@
 # Environment Variables
 
-Environment variables read by `Boot::run()` at startup. `gluon.toml` values are planned to be read in the future, but currently env is the source of truth.
+`Boot::run()` loads `gluon.toml` from the application root. If the file is missing, defaults are used. Unknown or unsupported keys cause a boot error.
+
+`gluon dev` watches an existing `gluon.toml` and restarts the app when it changes.
+
+## Configuration precedence
+
+- `[app].name` is available as `Config.app.name` through `Inject<Config>`.
+- `[server].host` / `[server].port` default to `0.0.0.0:3000`; `GLUON_BIND` overrides both.
+- `[database].driver` is fixed to `postgres` (also accepted from older scaffolds); `[database].url_env` selects the environment variable containing the database URL (default `DATABASE_URL`); `[database].pool_size` sets the maximum number of pool connections.
+- `[view].pretty` and `[view].tailwind` default to `false`; the scaffold enables Tailwind CSS generation.
+- `[telemetry].enabled_env` defaults to `OTEL_ENABLED`. When set, `1` / `true` (case-insensitive) enables telemetry and any other value disables it; when unset, telemetry remains enabled by default. `GLUON_TELEMETRY_DISABLED=1` / `true` is a higher-precedence opt-out.
+- `OTEL_SERVICE_NAME` overrides `[telemetry].service_name`. `OTEL_EXPORTER_OTLP_ENDPOINT` remains controlled by its environment variable (default `http://localhost:4317`).
 
 ## Application-wide
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `DATABASE_URL` | (unset) | Connection target for the sqlx `PgPool`. When set, the PostgreSQL persistent session store is also enabled. If unset, the PgPool is not registered with the Container and sessions use `MemoryStore` |
-| `GLUON_BIND` | `0.0.0.0:3000` | Bind address. `127.0.0.1:3000` is recommended for dev |
-| `GLUON_TELEMETRY_DISABLED` | (unset) | When set to `1` / `true`, skips OpenTelemetry and initializes only the fmt subscriber. Required in dev / test environments where no OTLP collector is running |
+| `DATABASE_URL` | (unset) | Connection target for the sqlx `PgPool`, read from the variable named by `[database].url_env` (default `DATABASE_URL`). When set, the PostgreSQL persistent session store is also enabled. If unset, the PgPool is not registered with the Container and sessions use `MemoryStore` |
+| `GLUON_BIND` | `0.0.0.0:3000` | Bind address; overrides `[server].host` and `[server].port`. `127.0.0.1:3000` is recommended for dev |
+| `GLUON_TELEMETRY_DISABLED` | (unset) | Highest-precedence telemetry opt-out when set to `1` / `true`. Otherwise, a false value for the variable selected by `[telemetry].enabled_env` disables telemetry; if that variable is unset, telemetry is enabled by default |
 | `GLUON_INSECURE_COOKIE` | (unset) | When set to `1` / `true`, removes the `Secure` attribute from session cookies. Use when maintaining sessions on an HTTP dev server (never disable it in production) |
 
 ## OpenTelemetry
@@ -16,7 +27,8 @@ Environment variables read by `Boot::run()` at startup. `gluon.toml` values are 
 | Variable | Default | Purpose |
 |---|---|---|
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4317` | URL of the OTLP gRPC collector |
-| `OTEL_SERVICE_NAME` | `gluon` | The `service.name` resource attribute |
+| `OTEL_ENABLED` (scaffold default; configurable via `[telemetry].enabled_env`) | (unset) | `1` / `true` enables telemetry; any other set value disables it. If unset, telemetry is enabled by default |
+| `OTEL_SERVICE_NAME` | configured value (default `gluon`) | Overrides `[telemetry].service_name`; otherwise identifies the `service.name` resource attribute |
 | `RUST_LOG` | `info` | Passed to tracing-subscriber via `EnvFilter` |
 
 ## Session

@@ -64,7 +64,7 @@ The `app/` directory is scanned by `gluon-build`'s build.rs, which generates a R
 File name conventions:
 
 - `page.rs` = controller with a View (renders the sibling-directory `page.tsx`)
-- `route.rs` = View-less controller (API endpoint)
+- `route.rs` = controller endpoint; an optional sibling `route.tsx` supplies TSX fragments for SSE events
 - `layout.tsx` = jsxrs layout (wraps child pages)
 - `app/_error/<status>.tsx` = HTML error template (422 validation remains JSON)
 
@@ -105,11 +105,20 @@ pub async fn get(Inject(list): Inject<dyn ListUsers>) -> gluon::Result<View<User
 }
 ```
 
-- `View::new(props)` is the handler API. `props` must be `Serialize`.
-- The generated page wrapper resolves the sibling `page.tsx` and scopes `CURRENT_TEMPLATE` and `CURRENT_LAYOUTS`. Custom jsxrs rendering options are available through `CURRENT_RENDER_CONFIG`; users do not provide template paths.
+- `View::new(props)` is the public constructor. `props` must be `Serialize`.
+- The generated page wrapper resolves the sibling `page.tsx` and scopes `CURRENT_TEMPLATE` and `CURRENT_LAYOUTS`; route wrappers with `route.tsx` scope `CURRENT_TEMPLATE` for SSE events. Users do not provide template paths.
+- Boot applies the `[view]` settings from `gluon.toml` through `CURRENT_RENDER_CONFIG`.
 - Ancestor `layout.tsx` files wrap a page from `app/layout.tsx` inward, including layouts inside route-group directories such as `(marketing)`. Layouts receive the same serialized page props; non-object props are kept under `pageProps`. `children` contains the rendered inner HTML as raw HTML.
 - The page and inherited layouts contribute to one merged `<Head>`. `HX-Request: true` skips all layouts and the document wrapper, returning only the page fragment, except when `HX-Boosted: true` or `HX-History-Restore-Request: true`; these requests retain all layouts and the document wrapper.
 - `app/_error/<status>.tsx` handles `AppError` on HTML-accepting page requests, with `500.tsx` as fallback. Full-document errors use only `app/layout.tsx`; ordinary HTMX fragment errors are layout-free, while boosted and history-restore errors retain the root layout and full document. `route.rs` responses are not wrapped.
+
+## Server-Sent Events
+
+Return `gluon::prelude::sse::Sse` from a route `get` handler. `Sse::new(stream)` enables keep-alive comments by default; call `.keep_alive(KeepAlive::new().interval(...).text(...))` to customize them. Each stream item is `Result<Event, E>`, where events can be built with Axum's `Event` API.
+
+For named HTMX SSE events, call `sse::view_event("query-progress", View::new(props))` from the event-producing stream. It renders the sibling `route.tsx` in fragment mode and places that HTML in the event's `data` field. Use `hx-ext="sse"`, `sse-connect="/route"`, and matching `sse-swap` event names in the page.
+
+The response includes `X-Accel-Buffering: no`; configure any reverse proxy to honor it. The standard gluon CSRF, session, and HTMX middleware do not buffer SSE responses. GET streams are safe methods and do not require a CSRF token.
 
 ## Domain vs Table is not 1:1
 

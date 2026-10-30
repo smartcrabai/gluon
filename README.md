@@ -23,6 +23,10 @@ x86_64 and aarch64. Intel macOS is not currently supported. Installing a
 prebuilt binary does not require Rust; developing or building generated
 applications does require Rust and Cargo.
 
+## Framework guides
+
+- [Server-Sent Events](docs/sse.md)
+
 ## Contributing
 
 Install the CLI from this checkout with:
