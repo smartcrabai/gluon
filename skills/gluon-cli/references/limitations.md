@@ -34,3 +34,8 @@ Works as an MVP, but these spots need attention. Until the framework provides of
 
 9. **Sessions fall back to `MemoryStore` when `DATABASE_URL` is unset**
    A development fallback; it is lost on process restart. In production and horizontal scaling, set `DATABASE_URL` and use the PostgreSQL session store.
+
+## Page Rendering
+
+10. **Error templates are page-route only and content-negotiated**
+    `_error/<status>.tsx` is used for `AppError` responses from `page.rs` only when the request accepts HTML. `route.rs` keeps its response body, 422 validation stays JSON, and unmatched URLs do not use these templates. Full error documents use only the root layout; HTMX error fragments have no layouts. If neither the status-specific template nor `500.tsx` exists, the original response is returned.

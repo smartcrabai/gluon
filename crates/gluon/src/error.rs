@@ -2,8 +2,8 @@
 
 use std::fmt;
 
+use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use http::StatusCode;
 
 /// A single field validation error.
 #[derive(Debug, Clone, serde::Serialize)]
@@ -29,6 +29,11 @@ pub enum AppError {
     BadRequest(String),
     /// Unhandled internal failure.
     Internal(Box<dyn std::error::Error + Send + Sync>),
+}
+
+#[derive(Clone)]
+pub(crate) struct AppErrorResponse {
+    pub message: String,
 }
 
 /// Convenience [`Result`] alias whose error variant is [`AppError`].
@@ -76,21 +81,28 @@ impl IntoResponse for AppError {
             Self::BadRequest(_) => StatusCode::BAD_REQUEST,
             Self::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
-        // For `Internal`, log the source and return only a generic message to
-        // avoid leaking implementation details (DB error text, file paths,
-        // OTLP endpoints, etc.) in the response body.
-        let body = match &self {
+        let message = match &self {
             Self::Internal(source) => {
                 tracing::error!(error = %source, "internal server error");
-                "internal server error".to_string()
+                "internal server error".to_owned()
             }
-            Self::Validation(fields) => match serde_json::to_string(fields) {
-                Ok(json) => json,
-                Err(_) => "validation failed".to_string(),
-            },
             other => other.to_string(),
         };
-        (status, body).into_response()
+        let mut response = match self {
+            Self::Validation(fields) => (status, axum::Json(fields)).into_response(),
+            error => {
+                let body = if status == StatusCode::INTERNAL_SERVER_ERROR {
+                    "internal server error".to_owned()
+                } else {
+                    error.to_string()
+                };
+                (status, body).into_response()
+            }
+        };
+        response
+            .extensions_mut()
+            .insert(AppErrorResponse { message });
+        response
     }
 }
 
@@ -141,12 +153,19 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn validation_body_serializes_field_errors() {
+    async fn validation_body_is_json() {
         let err = AppError::Validation(vec![FieldError {
             field: "email".into(),
             message: "must be present".into(),
         }]);
-        let body = body_string(err.into_response()).await;
+        let response = err.into_response();
+        assert!(
+            response
+                .headers()
+                .get(axum::http::header::CONTENT_TYPE)
+                .is_some_and(|value| value == "application/json")
+        );
+        let body = body_string(response).await;
         assert!(body.contains("\"field\":\"email\""), "body: {body}");
         assert!(
             body.contains("\"message\":\"must be present\""),

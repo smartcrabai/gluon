@@ -1,7 +1,7 @@
 use axum::{
     body::Body,
     extract::{FromRequestParts, Request},
-    http::request::Parts,
+    http::{HeaderMap, request::Parts},
     middleware::Next,
     response::Response,
 };
@@ -16,14 +16,26 @@ pub struct HtmxRequest {
     pub is_htmx: bool,
 }
 
-pub async fn htmx_middleware(mut request: Request<Body>, next: Next) -> Response {
-    let is_htmx = request
-        .headers()
-        .get("hx-request")
+pub(crate) fn is_htmx_fragment(headers: &HeaderMap) -> bool {
+    header_is_true(headers, "hx-request")
+        && !header_is_true(headers, "hx-boosted")
+        && !header_is_true(headers, "hx-history-restore-request")
+}
+
+fn header_is_true(headers: &HeaderMap, name: &str) -> bool {
+    headers
+        .get(name)
         .and_then(|value| value.to_str().ok())
-        .is_some_and(|value| value.eq_ignore_ascii_case("true"));
+        .is_some_and(|value| value.eq_ignore_ascii_case("true"))
+}
+
+pub async fn htmx_middleware(mut request: Request<Body>, next: Next) -> Response {
+    let is_htmx = header_is_true(request.headers(), "hx-request");
+    let is_htmx_fragment = is_htmx_fragment(request.headers());
     request.extensions_mut().insert(HtmxRequest { is_htmx });
-    CURRENT_HTMX_REQUEST.scope(is_htmx, next.run(request)).await
+    CURRENT_HTMX_REQUEST
+        .scope(is_htmx_fragment, next.run(request))
+        .await
 }
 
 impl<S: Send + Sync> FromRequestParts<S> for HtmxRequest {
@@ -46,28 +58,15 @@ mod tests {
     use super::*;
     use axum::http::Request as HttpRequest;
 
-    /// Mimics the body of `htmx_middleware` without constructing a real
+    /// Mirrors middleware fragment-mode detection without constructing a real
     /// `Next` (which is awkward in axum 0.8 without a layered Tower service).
     fn observed_flag(headers: &[(&str, &str)]) -> bool {
         let mut builder = HttpRequest::builder().uri("/");
         for (k, v) in headers {
             builder = builder.header(*k, *v);
         }
-        let mut request = builder.body(Body::empty()).expect("build request");
-
-        let is_htmx = request
-            .headers()
-            .get("hx-request")
-            .and_then(|value| value.to_str().ok())
-            .is_some_and(|value| value.eq_ignore_ascii_case("true"));
-        request.extensions_mut().insert(HtmxRequest { is_htmx });
-
-        request
-            .extensions()
-            .get::<HtmxRequest>()
-            .copied()
-            .unwrap_or_default()
-            .is_htmx
+        let request = builder.body(Body::empty()).expect("build request");
+        is_htmx_fragment(request.headers())
     }
 
     #[test]
@@ -83,6 +82,22 @@ mod tests {
     #[test]
     fn flag_is_false_when_header_value_is_false() {
         assert!(!observed_flag(&[("HX-Request", "false")]));
+    }
+
+    #[test]
+    fn boosted_request_is_not_a_fragment() {
+        assert!(!observed_flag(&[
+            ("HX-Request", "true"),
+            ("HX-Boosted", "true"),
+        ]));
+    }
+
+    #[test]
+    fn history_restore_request_is_not_a_fragment() {
+        assert!(!observed_flag(&[
+            ("HX-Request", "true"),
+            ("HX-History-Restore-Request", "true"),
+        ]));
     }
 
     #[tokio::test]

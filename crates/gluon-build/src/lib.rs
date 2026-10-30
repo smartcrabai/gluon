@@ -12,7 +12,8 @@
 //! Scans the `app/` directory of the consuming crate, discovers `page.rs` and
 //! `route.rs` files, infers their URL paths from the directory layout, and
 //! generates a Rust source file (`$OUT_DIR/__gluon_app.rs`) that exposes a
-//! `__gluon_router()` function returning an `axum::Router`.
+//! router. Page routes inherit ancestor `layout.tsx` files and handle HTML
+//! `AppError` templates; `route.rs` is not converted to page templates.
 
 use std::fmt;
 use std::fmt::Write as _;
@@ -353,25 +354,44 @@ fn emit_router_fn(out: &mut String, entries: &[Entry], manifest_dir: &Path) {
             let _ = write!(chain, ".{m}({mod_path}::{m})");
         }
 
-        // For page.rs entries, attach a middleware that injects the sibling
-        // .tsx path into CURRENT_TEMPLATE so View<P>::into_response can find
-        // the template without requiring the handler to specify it explicitly.
-        let template_path = if entry.file_stem == "page" {
-            entry
+        if entry.file_stem == "page" {
+            let template = entry
                 .abs_path
                 .parent()
-                .map(|p| p.join("page.tsx"))
-                .filter(|p| p.is_file())
-        } else {
-            None
-        };
-
-        if let Some(template) = template_path {
-            let template_expr = template_path_expr(&template, manifest_dir);
+                .map(|parent| parent.join("page.tsx"))
+                .filter(|path| path.is_file());
+            let template_expr = template.as_deref().map_or_else(
+                || "None".to_owned(),
+                |path| format!("Some({})", template_path_expr(path, manifest_dir)),
+            );
+            let app_dir = manifest_dir.join("app");
+            let layouts = page_layout_paths(&entry.abs_path, &app_dir);
+            let layouts_expr = format!(
+                "vec![{}]",
+                layouts
+                    .iter()
+                    .map(|path| template_path_expr(path, manifest_dir))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            );
+            let error_dir_expr = template_path_expr(&app_dir.join("_error"), manifest_dir);
+            let root_layout_expr = app_dir.join("layout.tsx");
+            let root_layout_expr = if root_layout_expr.is_file() {
+                format!(
+                    "Some({})",
+                    template_path_expr(&root_layout_expr, manifest_dir)
+                )
+            } else {
+                "None".to_owned()
+            };
             let _ = writeln!(
                 out,
-                "    let router = router.route({url}, {{\n        let template = {template_expr};\n        let mw = axum::middleware::from_fn(move |req: axum::extract::Request, next: axum::middleware::Next| {{\n            let template = template.clone();\n            async move {{ gluon::view::CURRENT_TEMPLATE.scope(Some(template), next.run(req)).await }}\n        }});\n        ({chain}).layer(mw)\n    }});",
+                "    let router = router.route({url}, {{\n        let template = {template};\n        let layouts = {layouts};\n        let error_dir = {error_dir};\n        let root_layout = {root_layout};\n        let mw = axum::middleware::from_fn(move |req: axum::extract::Request, next: axum::middleware::Next| {{\n            let template = template.clone();\n            let layouts = layouts.clone();\n            let error_dir = error_dir.clone();\n            let root_layout = root_layout.clone();\n            async move {{ gluon::view::render_page_request(req, next, template, layouts, error_dir, root_layout).await }}\n        }});\n        ({chain}).layer(mw)\n    }});",
                 url = rust_string_literal_str(&url_path),
+                template = template_expr,
+                layouts = layouts_expr,
+                error_dir = error_dir_expr,
+                root_layout = root_layout_expr,
             );
         } else {
             let _ = writeln!(
@@ -384,6 +404,27 @@ fn emit_router_fn(out: &mut String, entries: &[Entry], manifest_dir: &Path) {
 
     out.push_str("    router\n");
     out.push_str("}\n");
+}
+
+/// Find existing `layout.tsx` files from the app root through the page directory.
+fn page_layout_paths(page_path: &Path, app_dir: &Path) -> Vec<PathBuf> {
+    let mut layouts = Vec::new();
+    let mut current = page_path.parent();
+    while let Some(directory) = current {
+        if !directory.starts_with(app_dir) {
+            break;
+        }
+        let layout = directory.join("layout.tsx");
+        if layout.is_file() {
+            layouts.push(layout);
+        }
+        if directory == app_dir {
+            break;
+        }
+        current = directory.parent();
+    }
+    layouts.reverse();
+    layouts
 }
 
 /// Build a Rust expression that evaluates to a `PathBuf` for the given
@@ -817,14 +858,15 @@ mod tests {
     }
 
     #[test]
-    fn generate_emits_layer_for_page_with_tsx() {
+    fn generate_emits_page_render_middleware() {
         let tmp = tempfile::tempdir().unwrap();
         let app = tmp.path().join("app");
         write_file(&app, "page.rs", "pub async fn get() {}\n");
         write_file(&app, "page.tsx", "export default function Page() {}\n");
         let entries = scan(&app).unwrap();
         let s = generate(&entries, tmp.path());
-        assert!(s.contains("gluon::view::CURRENT_TEMPLATE.scope"), "s: {s}");
+        assert!(s.contains("gluon::view::render_page_request"), "s: {s}");
+        assert!(s.contains("let template = Some("), "s: {s}");
     }
 
     #[test]
@@ -852,17 +894,45 @@ mod tests {
     }
 
     #[test]
-    fn generate_omits_layer_for_route_rs() {
+    fn generate_collects_nested_and_route_group_layouts() {
+        let tmp = tempfile::tempdir().unwrap();
+        let app = tmp.path().join("app");
+        write_file(&app, "layout.tsx", "export default function Root() {}\n");
+        write_file(
+            &app,
+            "(marketing)/layout.tsx",
+            "export default function Marketing() {}\n",
+        );
+        write_file(
+            &app,
+            "(marketing)/about/layout.tsx",
+            "export default function About() {}\n",
+        );
+        write_file(&app, "(marketing)/about/page.rs", "pub async fn get() {}\n");
+        let entries = scan(&app).unwrap();
+        let s = generate(&entries, tmp.path());
+        let root = s.find("/app/layout.tsx").unwrap();
+        let group = s.find("/app/(marketing)/layout.tsx").unwrap();
+        let nested = s.find("/app/(marketing)/about/layout.tsx").unwrap();
+        assert!(root < group && group < nested, "{s}");
+        assert!(s.contains(r#"route("/about""#), "{s}");
+        assert!(s.contains("/app/_error"), "{s}");
+        assert!(s.contains("root_layout = Some("), "{s}");
+        assert!(s.contains("let template = None;"), "{s}");
+    }
+
+    #[test]
+    fn generate_omits_page_middleware_for_route_rs() {
         let tmp = tempfile::tempdir().unwrap();
         let app = tmp.path().join("app");
         write_file(&app, "api/route.rs", "pub async fn get() {}\n");
-        // Even with a sibling .tsx, route.rs must not get the layer.
+        // Even with a sibling .tsx, route.rs must not receive page rendering middleware.
         write_file(&app, "api/route.tsx", "export default function R() {}\n");
         let entries = scan(&app).unwrap();
         let s = generate(&entries, tmp.path());
         assert!(
-            !s.contains("CURRENT_TEMPLATE.scope"),
-            "route.rs must not get template layer; s: {s}",
+            !s.contains("render_page_request"),
+            "route.rs must not get page middleware; s: {s}",
         );
     }
 
