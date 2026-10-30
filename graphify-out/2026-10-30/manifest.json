@@ -12,9 +12,9 @@
     "semantic_hash": "f6237ddee5bfcc4e56cdd38ffd541817"
   },
   "crates/gluon-build/src/lib.rs": {
-    "mtime": 1793389750.9278984,
-    "seen": 1793389917.629599,
-    "ast_hash": "b794c8bc8028b0e418c06b2ef33fe481",
+    "mtime": 1793389980.5364344,
+    "seen": 1793390004.7427042,
+    "ast_hash": "849c5e17273417e2e1faeb4bf9f3a405",
     "semantic_hash": ""
   },
   "crates/gluon-cli/Cargo.toml": {
@@ -324,9 +324,9 @@
     "semantic_hash": "92ac26ed021ff3e0addff3f29f6d6087"
   },
   "crates/gluon/src/view.rs": {
-    "mtime": 1793389848.7226503,
-    "seen": 1793389917.6306071,
-    "ast_hash": "4887d695da9a27bc43c3fb3bf50370ea",
+    "mtime": 1793389975.5274448,
+    "seen": 1793390004.743872,
+    "ast_hash": "155d485f3b22c0433fc97e7725333459",
     "semantic_hash": ""
   },
   "crates/gluon/tests/app_macro.rs": {

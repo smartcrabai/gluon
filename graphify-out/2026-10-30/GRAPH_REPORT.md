@@ -514,7 +514,7 @@ Nodes (12): AuthBuilder, AuthConfig, Clock, EmailOtpConfig, oauth_callback(), OA
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `AuthError` connect `AuthError` to `extractors.rs`, `http.rs`, `service.rs`, `common/auth/mod.rs`, `service.rs`, `process.rs`, `store.rs`, `JwtKey`, `prelude.rs`, `oauth.rs`, `.context`, `AuthConfig`, `mail.rs`, `auth_jwt.rs`, `auth_boot.rs`, `auth_oauth_providers.rs`, `auth_oauth.rs`?**
-  _High betweenness centrality (0.079) - this node is a cross-community bridge._
+  _High betweenness centrality (0.078) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `AuthError` (e.g. with `.exchange()` and `.send()`) actually correct?**
   _`AuthError` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `gluon-build`, `Syn`, `gluon-cli` to the rest of the system?**
@@ -522,7 +522,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Value Object Extraction` be split into smaller, more focused modules?**
   _Cohesion score 0.03221029248426509 - nodes in this community are weakly interconnected._
 - **Why does `context()` connect `new.rs` to `auth_jwt.rs`, `Value Object Extraction`, `http.rs`, `Destroy Command Logic`, `Wiring File Parsing`, `common/auth/mod.rs`, `auth_passkey.rs`, `auth_session.rs`, `auth_oauth.rs`, `dev.rs`, `.context`?**
-  _High betweenness centrality (0.061) - this node is a cross-community bridge._
+  _High betweenness centrality (0.059) - this node is a cross-community bridge._
 - **Should `Boot` be split into smaller, more focused modules?**
   _Cohesion score 0.09333333333333334 - nodes in this community are weakly interconnected._
 - **Why does `Result` connect `Result` to `boot.rs`, `Value Object Extraction`, `Inject`, `result`, `Destroy Command Logic`, `Wiring File Parsing`, `tests/sse.rs`, `prelude.rs`, `CsrfToken`, `view.rs`, `src/sse.rs`, `new.rs`, `auth_boot.rs`?**
