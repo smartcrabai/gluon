@@ -30,15 +30,50 @@ impl ReqwestOAuthClient {
     #[must_use]
     pub fn new(timeout: Duration, max_response_bytes: usize) -> Self {
         Self {
-            client: reqwest::Client::builder()
-                .redirect(reqwest::redirect::Policy::none())
-                .timeout(timeout)
-                .connect_timeout(timeout)
-                .build(),
+            client: client_builder(timeout).build(),
             timeout,
             max_response_bytes,
         }
     }
+
+    /// Adds certificates from a PEM bundle to the platform trust roots.
+    ///
+    /// # Errors
+    /// Returns an error if the bundle contains no certificates, is invalid, or the HTTP client cannot be built.
+    pub fn new_with_root_certificates(
+        timeout: Duration,
+        max_response_bytes: usize,
+        pem_bundle: &[u8],
+    ) -> Result<Self, OAuthHttpClientBuildError> {
+        let certificates = reqwest::Certificate::from_pem_bundle(pem_bundle)?;
+        if certificates.is_empty() {
+            return Err(OAuthHttpClientBuildError::EmptyCertificateBundle);
+        }
+        let client = client_builder(timeout)
+            .tls_certs_merge(certificates)
+            .build()?;
+        Ok(Self {
+            client: Ok(client),
+            timeout,
+            max_response_bytes,
+        })
+    }
+}
+/// Errors returned when creating an OAuth HTTP client with custom roots.
+#[derive(Debug, thiserror::Error)]
+pub enum OAuthHttpClientBuildError {
+    /// The PEM bundle contains no certificates.
+    #[error("PEM bundle contains no certificates")]
+    EmptyCertificateBundle,
+    /// Reqwest could not parse the bundle or build the HTTP client.
+    #[error(transparent)]
+    Reqwest(#[from] reqwest::Error),
+}
+fn client_builder(timeout: Duration) -> reqwest::ClientBuilder {
+    reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .timeout(timeout)
+        .connect_timeout(timeout)
 }
 #[async_trait]
 impl OAuthHttpClient for ReqwestOAuthClient {

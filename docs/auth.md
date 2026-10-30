@@ -101,6 +101,37 @@ let client = OAuthClientConfig {
 config.oauth.push(Arc::new(GitHubProvider::new(client, transport)?));
 ```
 
+For a private-CA OIDC issuer, opt in to extra roots with a PEM bundle; these are added to platform roots:
+
+```rust,ignore
+use std::sync::Arc;
+use gluon::auth::oauth::{OAuthClientConfig, OidcProvider, ReqwestOAuthClient};
+
+let ca_pem = std::fs::read("/run/secrets/idp-ca.pem")?;
+let transport = Arc::new(ReqwestOAuthClient::new_with_root_certificates(
+    std::time::Duration::from_secs(10),
+    1024 * 1024,
+    &ca_pem,
+)?);
+let client = OAuthClientConfig {
+    client_id,
+    client_secret,
+    callback_url: "https://app.example.test/auth/oauth/enterprise/callback".into(),
+    clock: config.clock.clone(),
+};
+let provider = OidcProvider::discover(
+    "enterprise",
+    "https://idp.example.test",
+    client,
+    transport,
+)
+.await?;
+config.oauth.push(Arc::new(provider));
+
+```
+
+The PEM bundle is used for OIDC discovery and all later token, userinfo, and JWKS requests through that transport. HTTPS-only endpoint checks remain enabled.
+
 `GoogleProvider::new(client, transport).await` performs Google OIDC discovery. `OidcProvider::discover("enterprise", trusted_issuer, client, transport).await` adds another trusted issuer. Give each provider its own registered callback URL and credentials; register the exact origin/path with the provider. These discovery constructors require network access at configuration time. The transport bounds response size/deadlines and refuses redirects. No real provider is contacted by the example smoke test.
 
 Custom `OAuthProvider` implementations should implement `callback_url()` to expose their exact trusted HTTPS callback to the shared flow service, in addition to constructing authorization URLs and exchanging codes. Do not derive callbacks from untrusted request hosts or forwarded headers. Keep the token exchange callback identical to the registered authorization callback.
