@@ -97,7 +97,7 @@ impl<P: Serialize> View<P> {
                     "failed to render template: {err}"
                 ))))
             })
-}
+    }
 }
 
 tokio::task_local! {
@@ -363,7 +363,6 @@ impl<P: Serialize> IntoResponse for View<P> {
         let fragment = crate::middleware::htmx::CURRENT_HTMX_REQUEST
             .try_with(|is_htmx| *is_htmx)
             .unwrap_or(false);
-
 
         match self.render(fragment) {
             Ok(html) => {

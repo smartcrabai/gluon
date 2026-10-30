@@ -43,11 +43,12 @@ fn client(template: PathBuf, source_map: Arc<jsxrs::SourceMap>) -> TestClient {
             let template = template.clone();
             let source_map = Arc::clone(&source_map);
             async move {
-                CURRENT_SOURCE_MAP.scope(
-                    Some(source_map),
-                    CURRENT_TEMPLATE.scope(Some(template), next.run(request)),
-                )
-                .await
+                CURRENT_SOURCE_MAP
+                    .scope(
+                        Some(source_map),
+                        CURRENT_TEMPLATE.scope(Some(template), next.run(request)),
+                    )
+                    .await
             }
         },
     );
@@ -85,17 +86,13 @@ async fn stream_delivers_named_fragment_events_keepalive_and_no_buffer_header() 
         std::env::set_var("GLUON_DEV_TEMPLATES", "0");
     }
     let _restore = RestoreDevTemplates(previous);
-    let dir = tempfile::tempdir().expect("tempdir");
-    let template = dir.path().join("route.tsx");
+    let template = PathBuf::from("__gluon_embedded_sse_test__/route.tsx");
     let template_source =
         "export default function Event(props) { return <p>{props.message}</p>; }\n";
-    std::fs::write(&template, template_source).expect("write TSX template");
-    let source_map_key = template.to_string_lossy().into_owned();
     let source_map = Arc::new(jsxrs::SourceMap::new(vec![(
-        source_map_key.as_str(),
+        "__gluon_embedded_sse_test__/route.tsx",
         template_source,
     )]));
-    std::fs::remove_file(&template).expect("remove source template");
     let client = client(template, source_map);
 
     let response = client.server().get("/events").await;
