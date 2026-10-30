@@ -30,15 +30,39 @@ impl ReqwestOAuthClient {
     #[must_use]
     pub fn new(timeout: Duration, max_response_bytes: usize) -> Self {
         Self {
-            client: reqwest::Client::builder()
-                .redirect(reqwest::redirect::Policy::none())
-                .timeout(timeout)
-                .connect_timeout(timeout)
-                .build(),
+            client: client_builder(timeout).build(),
             timeout,
             max_response_bytes,
         }
     }
+
+    /// Adds certificates from a PEM bundle to the platform trust roots.
+    ///
+    /// # Errors
+    /// Returns an error if the PEM bundle is invalid or the HTTP client cannot be built.
+    pub fn new_with_root_certificates(
+        timeout: Duration,
+        max_response_bytes: usize,
+        pem_bundle: &[u8],
+    ) -> Result<Self, reqwest::Error> {
+        let builder = reqwest::Certificate::from_pem_bundle(pem_bundle)?
+            .into_iter()
+            .fold(
+                client_builder(timeout),
+                reqwest::ClientBuilder::add_root_certificate,
+            );
+        Ok(Self {
+            client: Ok(builder.build()?),
+            timeout,
+            max_response_bytes,
+        })
+    }
+}
+fn client_builder(timeout: Duration) -> reqwest::ClientBuilder {
+    reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .timeout(timeout)
+        .connect_timeout(timeout)
 }
 #[async_trait]
 impl OAuthHttpClient for ReqwestOAuthClient {
