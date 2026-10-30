@@ -1309,6 +1309,7 @@ dependencies = [
  "base64 0.23.1",
  "ed25519-dalek 3.0.0",
  "form_urlencoded",
+ "futures-util",
  "gluon-macros",
  "hmac 0.13.0",
  "http",
@@ -3425,6 +3426,7 @@ name = "sample-htmx"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "futures-util",
  "gluon",
  "gluon-build",
  "serde",

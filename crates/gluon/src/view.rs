@@ -41,6 +41,43 @@ impl<P: Serialize> View<P> {
             template: None,
         }
     }
+
+    /// Render the view as an HTML fragment without a document wrapper.
+    ///
+    /// This is used by Server-Sent Events, whose payloads are inserted into an
+    /// existing document rather than returned as standalone pages.
+    pub(crate) fn render_fragment(self) -> crate::Result<String> {
+        self.render(true)
+    }
+
+    fn render(self, fragment: bool) -> crate::Result<String> {
+        let template = self
+            .template
+            .or_else(|| CURRENT_TEMPLATE.try_with(Clone::clone).ok().flatten())
+            .ok_or_else(|| {
+                AppError::Internal(Box::new(ViewError(
+                    "View has no template path; cannot render".to_string(),
+                )))
+            })?;
+
+        let props = serde_json::to_value(&self.props).map_err(|err| {
+            AppError::Internal(Box::new(ViewError(format!(
+                "failed to serialize props: {err}"
+            ))))
+        })?;
+
+        let config = jsxrs::RenderConfig {
+            base_dir: template.parent().map(std::path::Path::to_path_buf),
+            fragment,
+            ..jsxrs::RenderConfig::default()
+        };
+
+        jsxrs::render_file(&template, &props, &config).map_err(|err| {
+            AppError::Internal(Box::new(ViewError(format!(
+                "failed to render template: {err}"
+            ))))
+        })
+    }
 }
 
 tokio::task_local! {
@@ -55,35 +92,11 @@ tokio::task_local! {
 
 impl<P: Serialize> IntoResponse for View<P> {
     fn into_response(self) -> Response {
-        let template = self
-            .template
-            .or_else(|| CURRENT_TEMPLATE.try_with(Clone::clone).ok().flatten());
-        let Some(template) = template else {
-            return AppError::Internal(Box::new(ViewError(
-                "View has no template path; cannot render".to_string(),
-            )))
-            .into_response();
-        };
+        let fragment = crate::middleware::htmx::CURRENT_HTMX_REQUEST
+            .try_with(|is_htmx| *is_htmx)
+            .unwrap_or(false);
 
-        let props = match serde_json::to_value(&self.props) {
-            Ok(value) => value,
-            Err(err) => {
-                return AppError::Internal(Box::new(ViewError(format!(
-                    "failed to serialize props: {err}"
-                ))))
-                .into_response();
-            }
-        };
-
-        let config = jsxrs::RenderConfig {
-            base_dir: template.parent().map(std::path::Path::to_path_buf),
-            fragment: crate::middleware::htmx::CURRENT_HTMX_REQUEST
-                .try_with(|is_htmx| *is_htmx)
-                .unwrap_or(false),
-            ..jsxrs::RenderConfig::default()
-        };
-
-        match jsxrs::render_file(&template, &props, &config) {
+        match self.render(fragment) {
             Ok(html) => {
                 let mut response = Html(html).into_response();
                 response
@@ -91,10 +104,7 @@ impl<P: Serialize> IntoResponse for View<P> {
                     .append(header::VARY, HeaderValue::from_static("HX-Request"));
                 response
             }
-            Err(err) => AppError::Internal(Box::new(ViewError(format!(
-                "failed to render template: {err}"
-            ))))
-            .into_response(),
+            Err(error) => error.into_response(),
         }
     }
 }

@@ -1,0 +1,88 @@
+//! Server-Sent Events responses and TSX fragment events.
+//!
+//! [`Sse`] configures Axum's event stream with keep-alive comments and marks
+//! responses to bypass buffering by reverse proxies that honor
+//! `X-Accel-Buffering: no`. For request-scoped TSX templates, each event is
+//! polled inside the `CURRENT_TEMPLATE` scope captured when the response is
+//! created.
+
+use std::error::Error;
+
+use axum::http::{HeaderValue, header::HeaderName};
+use axum::response::{IntoResponse, Response, sse::Sse as AxumSse};
+use futures_util::{Stream, StreamExt, stream};
+use serde::Serialize;
+
+use crate::view::CURRENT_TEMPLATE;
+use crate::{Result, View};
+
+pub use axum::response::sse::{Event, KeepAlive};
+
+/// An SSE response that enables Axum's default keep-alive comment interval.
+///
+/// Streams are polled within the template context established for the request,
+/// so [`view_event`] can render TSX fragments as events are produced after the
+/// handler has returned.
+pub struct Sse<S> {
+    stream: S,
+    keep_alive: KeepAlive,
+}
+
+impl<S> Sse<S> {
+    /// Create a streaming response with Axum's default keep-alive comments.
+    #[must_use]
+    pub fn new(stream: S) -> Self {
+        Self {
+            stream,
+            keep_alive: KeepAlive::default(),
+        }
+    }
+
+    /// Replace the default keep-alive configuration.
+    #[must_use]
+    pub fn keep_alive(mut self, keep_alive: KeepAlive) -> Self {
+        self.keep_alive = keep_alive;
+        self
+    }
+}
+
+impl<S, E> IntoResponse for Sse<S>
+where
+    S: Stream<Item = std::result::Result<Event, E>> + Send + 'static,
+    E: Error + Send + Sync + 'static,
+{
+    fn into_response(self) -> Response {
+        let template = CURRENT_TEMPLATE.try_with(Clone::clone).ok().flatten();
+        let stream = stream::unfold(Box::pin(self.stream), move |mut stream| {
+            let template = template.clone();
+            async move {
+                let item = CURRENT_TEMPLATE.scope(template, stream.next()).await?;
+                Some((item, stream))
+            }
+        });
+
+        let mut response = AxumSse::new(stream)
+            .keep_alive(self.keep_alive)
+            .into_response();
+        response.headers_mut().insert(
+            HeaderName::from_static("x-accel-buffering"),
+            HeaderValue::from_static("no"),
+        );
+        response
+    }
+}
+
+/// Render a [`View`] as a fragment and set its named SSE event type.
+///
+/// The view uses the current request's build-discovered TSX template. The
+/// fragment is rendered when this helper is called, so invoke it from the
+/// stream that produces the event if rendering should happen incrementally.
+///
+/// # Errors
+///
+/// Returns an application error if the view cannot be rendered.
+pub fn view_event<P: Serialize>(event: impl Into<String>, view: View<P>) -> Result<Event> {
+    Ok(Event::default()
+        .event(event.into())
+        .data(view.render_fragment()?))
+}

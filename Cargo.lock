@@ -1744,6 +1744,7 @@ dependencies = [
  "cucumber",
  "ed25519-dalek 3.0.0",
  "form_urlencoded",
+ "futures-util",
  "gluon-macros",
  "hmac 0.13.0",
  "http",

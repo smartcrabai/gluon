@@ -12,6 +12,7 @@ gluon-build = { path = "../../crates/gluon-build" }
 
 [dependencies]
 axum = "0.8"
+futures-util = "0.3"
 gluon = { path = "../../crates/gluon" }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal"] }
