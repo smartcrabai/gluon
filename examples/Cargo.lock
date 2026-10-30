@@ -1321,6 +1321,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "glob"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e4eba85ea1d0a966a983acd07deee566e67395d2d96b6fb39e62b5a833f1eb0b"
+
+[[package]]
 name = "gluon"
 version = "0.1.2"
 dependencies = [
@@ -1330,8 +1336,10 @@ dependencies = [
  "axum-test",
  "base64 0.23.1",
  "ed25519-dalek 3.0.0",
+ "encre-css",
  "form_urlencoded",
  "futures-util",
+ "glob",
  "gluon-macros",
  "hmac 0.13.0",
  "http",
@@ -1370,9 +1378,13 @@ dependencies = [
 name = "gluon-build"
 version = "0.1.2"
 dependencies = [
+ "encre-css",
+ "glob",
  "proc-macro2",
  "quote",
+ "sha2 0.11.0",
  "syn 3.0.4",
+ "toml",
  "walkdir",
 ]
 
