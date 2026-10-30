@@ -75,7 +75,7 @@ impl Config {
         if config.database.driver != "postgres" {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("invalid {source_name}: database.driver must be \"postgres\"",),
+                format!("invalid {source_name}: database.driver must be \"postgres\""),
             ));
         }
         if config.database.pool_size == 0 {
