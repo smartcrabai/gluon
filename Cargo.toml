@@ -104,9 +104,6 @@ targets = [
   "aarch64-pc-windows-msvc",
 ]
 
-[workspace.metadata.dist.github-custom-runners]
-aarch64-apple-darwin = "macos-15"
-
 [workspace.lints.clippy]
 allow_attributes = "deny"
 dbg_macro = "deny"
