@@ -18,6 +18,7 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 
 use crate::PostgresSessionStore;
+use crate::config::{Config, DatabaseConfig, TelemetryConfig, ViewConfig};
 use crate::container::{Container, ContainerBuilder};
 use crate::error::{AppError, Result};
 use crate::middleware::csrf::csrf_middleware;
@@ -27,6 +28,13 @@ use crate::middleware::static_files;
 type ContainerFactory = Box<dyn FnOnce(ContainerBuilder) -> ContainerBuilder + Send + 'static>;
 type RouterFactory =
     Box<dyn FnOnce(axum::Router<Arc<Container>>) -> axum::Router<Arc<Container>> + Send + 'static>;
+
+struct ServeLayers<Store> {
+    session_store: Store,
+    secure_cookie: bool,
+    session_key: Key,
+    view_config: ViewConfig,
+}
 
 /// Bootstraps a gluon application: initializes telemetry, builds the
 /// dependency-injection container, wires the standard middleware stack, and
@@ -95,41 +103,38 @@ impl Boot {
     ///
     /// Environment variables:
     /// - `GLUON_TELEMETRY_DISABLED=1` -- skip OpenTelemetry, fmt subscriber only.
-    /// - `GLUON_BIND` -- bind address (default `0.0.0.0:3000`).
+    /// - `GLUON_BIND` -- overrides `server.host` and `server.port` in `gluon.toml`.
     /// - `GLUON_INSECURE_COOKIE=1` -- drop `Secure` on the session cookie (dev only).
     /// - `SECRET_KEY_BASE` -- at least 64 bytes; required unless insecure-cookie
     ///   development mode is enabled.
-    /// - `DATABASE_URL` -- when present, a `PgPool` and persistent `PostgreSQL`
-    ///   session store are configured; otherwise sessions use memory storage.
+    /// - `database.url_env` (default `DATABASE_URL`) -- when present, a `PgPool`
+    ///   and persistent PostgreSQL session store are configured; otherwise sessions
+    ///   use memory storage.
     ///
     /// # Errors
     ///
-    /// Returns [`AppError::Internal`] when binding the TCP listener, serving
-    /// the axum router, or constructing the `PgPool` from `DATABASE_URL`
-    /// fails.
+    /// Returns [`AppError::Internal`] when loading configuration, binding the
+    /// TCP listener, serving the router, or constructing the `PgPool` fails.
     pub async fn run(self) -> Result<()> {
-        init_tracing()?;
+        let config = Config::load().map_err(|error| AppError::Internal(Box::new(error)))?;
+        init_tracing(&config.telemetry)?;
 
-        let mut builder = ContainerBuilder::new();
-
-        let database_pool = match std::env::var("DATABASE_URL") {
-            Ok(database_url) => {
-                let pool = sqlx::postgres::PgPoolOptions::new()
-                    .connect_lazy(&database_url)
-                    .map_err(|e| AppError::Internal(Box::new(e)))?;
-                builder = builder.bind_instance::<sqlx::PgPool>(Arc::new(pool.clone()));
-                Some(pool)
-            }
-            Err(std::env::VarError::NotPresent) => {
-                tracing::warn!("DATABASE_URL not set; no PgPool registered in container");
-                None
-            }
-            Err(error) => return Err(AppError::Internal(Box::new(error))),
+        let mut builder = bind_config(ContainerBuilder::new(), &config);
+        let database_pool = if let Some(database_url) = read_database_url(&config.database)? {
+            let pool = create_pool(&database_url, config.database.pool_size)?;
+            builder = builder.bind_instance::<sqlx::PgPool>(Arc::new(pool.clone()));
+            Some(pool)
+        } else {
+            tracing::warn!(
+                "{} not set; no PgPool registered in container",
+                config.database.url_env
+            );
+            None
         };
 
         #[cfg(feature = "auth")]
-        if let Some(config) = self.auth_config {
-            let auth = crate::auth::Auth::new(config, database_pool.clone())
+        if let Some(auth_config) = self.auth_config {
+            let auth = crate::auth::Auth::new(auth_config, database_pool.clone())
                 .await
                 .map_err(|error| AppError::Internal(Box::new(error)))?;
             builder = builder.bind_instance(Arc::new(auth));
@@ -162,11 +167,10 @@ impl Boot {
         let secure_cookie = read_secure_cookie_env();
         let session_key = read_session_key(secure_cookie)?;
 
-        let bind_addr = std::env::var("GLUON_BIND").unwrap_or_else(|_| "0.0.0.0:3000".to_string());
+        let bind_addr = bind_address(&config);
         let listener = tokio::net::TcpListener::bind(&bind_addr)
             .await
-            .map_err(|e| AppError::Internal(Box::new(e)))?;
-
+            .map_err(|error| AppError::Internal(Box::new(error)))?;
         tracing::info!("gluon listening on {}", bind_addr);
 
         if let Some(pool) = database_pool {
@@ -180,7 +184,12 @@ impl Boot {
                 public_router,
                 container,
                 listener,
-                (store, secure_cookie, session_key),
+                ServeLayers {
+                    session_store: store,
+                    secure_cookie,
+                    session_key,
+                    view_config: config.view.clone(),
+                },
                 self.router_factory,
                 shutdown_signal(),
             )
@@ -191,7 +200,12 @@ impl Boot {
                 public_router,
                 container,
                 listener,
-                (MemoryStore::default(), secure_cookie, session_key),
+                ServeLayers {
+                    session_store: MemoryStore::default(),
+                    secure_cookie,
+                    session_key,
+                    view_config: config.view.clone(),
+                },
                 self.router_factory,
                 shutdown_signal(),
             )
@@ -205,15 +219,57 @@ impl Default for Boot {
         Self::new()
     }
 }
+fn bind_config(builder: ContainerBuilder, config: &Config) -> ContainerBuilder {
+    builder.bind_instance(Arc::new(config.clone()))
+}
+
+fn read_database_url(config: &DatabaseConfig) -> Result<Option<String>> {
+    match std::env::var(&config.url_env) {
+        Ok(database_url) => Ok(Some(database_url)),
+        Err(std::env::VarError::NotPresent) => Ok(None),
+        Err(error) => Err(AppError::Internal(Box::new(io::Error::other(format!(
+            "failed to read {}: {error}",
+            config.url_env
+        ))))),
+    }
+}
+
+fn create_pool(database_url: &str, pool_size: u32) -> Result<sqlx::PgPool> {
+    sqlx::postgres::PgPoolOptions::new()
+        .max_connections(pool_size)
+        .connect_lazy(database_url)
+        .map_err(|error| AppError::Internal(Box::new(error)))
+}
+
+fn bind_address(config: &Config) -> String {
+    if let Ok(bind_address) = std::env::var("GLUON_BIND") {
+        return bind_address;
+    }
+    let host = &config.server.host;
+    let host = if host.contains(':') && !host.starts_with('[') {
+        format!("[{host}]")
+    } else {
+        host.clone()
+    };
+    format!("{host}:{}", config.server.port)
+}
+
+fn telemetry_enabled(value: &str) -> bool {
+    value == "1" || value.eq_ignore_ascii_case("true")
+}
+
+fn telemetry_service_name(config: &TelemetryConfig) -> String {
+    std::env::var("OTEL_SERVICE_NAME").unwrap_or_else(|_| config.service_name.clone())
+}
 
 /// Initializes the global tracing subscriber. Adds an OpenTelemetry layer when
 /// telemetry is enabled, otherwise installs an fmt-only subscriber so log
 /// macros still reach stderr.
-fn init_tracing() -> Result<()> {
+fn init_tracing(config: &TelemetryConfig) -> Result<()> {
     let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
     let fmt_layer = tracing_subscriber::fmt::layer();
 
-    if telemetry_disabled() {
+    if telemetry_disabled(config) {
         return tracing_subscriber::registry()
             .with(env_filter)
             .with(fmt_layer)
@@ -230,7 +286,7 @@ fn init_tracing() -> Result<()> {
         .build()
         .map_err(|e| AppError::Internal(Box::new(e)))?;
 
-    let service_name = std::env::var("OTEL_SERVICE_NAME").unwrap_or_else(|_| "gluon".to_string());
+    let service_name = telemetry_service_name(config);
     let resource = Resource::builder()
         .with_attribute(KeyValue::new("service.name", service_name))
         .build();
@@ -261,12 +317,11 @@ pub(crate) fn read_secure_cookie_env() -> bool {
         .is_ok_and(|v| v == "1" || v.eq_ignore_ascii_case("true"))
 }
 
-/// Reads `GLUON_TELEMETRY_DISABLED` and decides whether OpenTelemetry should
-/// be skipped. Returns `true` when the env var is set to `1` or `true`
-/// (case-insensitive).
-pub(crate) fn telemetry_disabled() -> bool {
-    std::env::var("GLUON_TELEMETRY_DISABLED")
-        .is_ok_and(|v| v == "1" || v.eq_ignore_ascii_case("true"))
+/// Reads the legacy opt-out first, then the configured enable variable. An
+/// unset enable variable leaves the existing on-by-default behavior intact.
+pub(crate) fn telemetry_disabled(config: &TelemetryConfig) -> bool {
+    std::env::var("GLUON_TELEMETRY_DISABLED").is_ok_and(|value| telemetry_enabled(&value))
+        || std::env::var(&config.enabled_env).is_ok_and(|value| !telemetry_enabled(&value))
 }
 
 fn read_session_key(secure_cookie: bool) -> Result<Key> {
@@ -299,12 +354,27 @@ fn build_session_layer<Store: SessionStore + Clone>(
         .with_signed(key)
 }
 
+async fn view_config_middleware(
+    axum::extract::State(view_config): axum::extract::State<ViewConfig>,
+    request: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    let render_config = jsxrs::RenderConfig {
+        pretty: view_config.pretty,
+        tailwind: view_config.tailwind,
+        ..jsxrs::RenderConfig::default()
+    };
+    crate::view::CURRENT_RENDER_CONFIG
+        .scope(render_config, next.run(request))
+        .await
+}
+
 async fn serve_with_shutdown<Store, Shutdown>(
     router: axum::Router<Arc<Container>>,
     public_router: axum::Router<Arc<Container>>,
     container: Arc<Container>,
     listener: tokio::net::TcpListener,
-    session: (Store, bool, Key),
+    layers: ServeLayers<Store>,
     router_factory: Option<RouterFactory>,
     shutdown: Shutdown,
 ) -> Result<()>
@@ -312,10 +382,24 @@ where
     Store: SessionStore + Clone,
     Shutdown: Future<Output = ()> + Send + 'static,
 {
+    let ServeLayers {
+        session_store,
+        secure_cookie,
+        session_key,
+        view_config,
+    } = layers;
     let mut router = router
+        .layer(axum::middleware::from_fn_with_state(
+            view_config,
+            view_config_middleware,
+        ))
         .layer(axum::middleware::from_fn(htmx_middleware))
         .layer(axum::middleware::from_fn(csrf_middleware))
-        .layer(build_session_layer(session.0, session.1, session.2));
+        .layer(build_session_layer(
+            session_store,
+            secure_cookie,
+            session_key,
+        ));
     #[cfg(feature = "auth")]
     if let Some(auth) = container.try_resolve::<crate::auth::Auth>()
         && auth.config.http_enabled
@@ -396,6 +480,8 @@ mod tests {
     const SECURE_KEY: &str = "GLUON_INSECURE_COOKIE";
     const SESSION_KEY: &str = "SECRET_KEY_BASE";
     const TELEMETRY_KEY: &str = "GLUON_TELEMETRY_DISABLED";
+    const TELEMETRY_ENABLED_KEY: &str = "OTEL_ENABLED";
+    const SERVICE_NAME_KEY: &str = "OTEL_SERVICE_NAME";
 
     fn clear(key: &str) {
         // SAFETY: tests touching env vars are gated by `#[serial]`, so no
@@ -406,6 +492,38 @@ mod tests {
     fn set(key: &str, value: &str) {
         // SAFETY: see `clear`.
         unsafe { std::env::set_var(key, value) };
+    }
+
+    #[test]
+    fn boot_config_is_available_to_application_container() {
+        let config = Config::default();
+        let container = bind_config(ContainerBuilder::new(), &config).build();
+        assert_eq!(container.resolve::<Config>().app.name, "gluon");
+    }
+
+    #[tokio::test]
+    async fn view_config_middleware_scopes_render_options() {
+        let router = axum::Router::new()
+            .route(
+                "/",
+                get(|| async {
+                    crate::view::CURRENT_RENDER_CONFIG
+                        .try_with(|config| format!("{}:{}", config.pretty, config.tailwind))
+                        .unwrap_or_else(|_| "unset".to_owned())
+                }),
+            )
+            .layer(axum::middleware::from_fn_with_state(
+                ViewConfig {
+                    pretty: true,
+                    tailwind: true,
+                },
+                view_config_middleware,
+            ));
+
+        TestServer::new(router)
+            .get("/")
+            .await
+            .assert_text("true:true");
     }
 
     #[test]
@@ -451,21 +569,85 @@ mod tests {
     #[serial]
     fn telemetry_disabled_default_false() {
         clear(TELEMETRY_KEY);
-        assert!(!telemetry_disabled());
+        clear(TELEMETRY_ENABLED_KEY);
+        assert!(!telemetry_disabled(&TelemetryConfig::default()));
     }
 
     #[test]
     #[serial]
-    fn telemetry_disabled_when_set() {
-        set(TELEMETRY_KEY, "1");
-        assert!(telemetry_disabled());
-        set(TELEMETRY_KEY, "true");
-        assert!(telemetry_disabled());
-        set(TELEMETRY_KEY, "True");
-        assert!(telemetry_disabled());
-        set(TELEMETRY_KEY, "no");
-        assert!(!telemetry_disabled());
+    fn telemetry_environment_precedence_is_preserved() {
+        let config = TelemetryConfig {
+            enabled_env: "APP_OTEL_ENABLED".to_owned(),
+            service_name: "from-config".to_owned(),
+        };
         clear(TELEMETRY_KEY);
+        clear(TELEMETRY_ENABLED_KEY);
+        clear(&config.enabled_env);
+        assert!(!telemetry_disabled(&config));
+
+        set(&config.enabled_env, "false");
+        assert!(telemetry_disabled(&config));
+        set(&config.enabled_env, "true");
+        assert!(!telemetry_disabled(&config));
+        set(TELEMETRY_KEY, "no");
+        assert!(!telemetry_disabled(&config));
+        set(TELEMETRY_KEY, "1");
+        assert!(telemetry_disabled(&config));
+
+        clear(TELEMETRY_KEY);
+        clear(&config.enabled_env);
+    }
+
+    #[test]
+    #[serial]
+    fn telemetry_service_name_environment_overrides_config() {
+        let config = TelemetryConfig {
+            service_name: "from-config".to_owned(),
+            ..TelemetryConfig::default()
+        };
+        clear(SERVICE_NAME_KEY);
+        assert_eq!(telemetry_service_name(&config), "from-config");
+        set(SERVICE_NAME_KEY, "from-env");
+        assert_eq!(telemetry_service_name(&config), "from-env");
+        clear(SERVICE_NAME_KEY);
+    }
+
+    #[test]
+    #[serial]
+    fn bind_address_environment_overrides_server_config() {
+        let mut config = Config::default();
+        config.server.host = "127.0.0.1".to_owned();
+        config.server.port = 4321;
+        clear("GLUON_BIND");
+        assert_eq!(bind_address(&config), "127.0.0.1:4321");
+        set("GLUON_BIND", "127.0.0.1:8765");
+        assert_eq!(bind_address(&config), "127.0.0.1:8765");
+        clear("GLUON_BIND");
+    }
+
+    #[test]
+    #[serial]
+    fn database_url_env_selects_database_variable() {
+        let config = DatabaseConfig {
+            driver: "postgres".to_owned(),
+            url_env: "APP_DATABASE_URL".to_owned(),
+            pool_size: 4,
+        };
+        clear("DATABASE_URL");
+        clear(&config.url_env);
+        assert!(read_database_url(&config).unwrap().is_none());
+        set(&config.url_env, "postgres://localhost/example");
+        assert_eq!(
+            read_database_url(&config).unwrap().as_deref(),
+            Some("postgres://localhost/example")
+        );
+        clear(&config.url_env);
+    }
+
+    #[tokio::test]
+    async fn database_pool_applies_configured_max_connections() {
+        let pool = create_pool("postgres://localhost/example", 17).unwrap();
+        assert_eq!(pool.options().get_max_connections(), 17);
     }
 
     #[test]
@@ -576,7 +758,12 @@ mod tests {
             axum::Router::new(),
             container,
             listener,
-            (MemoryStore::default(), false, Key::generate()),
+            ServeLayers {
+                session_store: MemoryStore::default(),
+                secure_cookie: false,
+                session_key: Key::generate(),
+                view_config: ViewConfig::default(),
+            },
             Some(middleware),
             async move {
                 let _ = shutdown_rx.await;

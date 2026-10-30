@@ -17,6 +17,12 @@ pub fn run() -> anyhow::Result<()> {
                 .context("watch dir")?;
         }
     }
+    let config_file = Path::new("gluon.toml");
+    if config_file.is_file() {
+        watcher
+            .watch(config_file, RecursiveMode::NonRecursive)
+            .context("watch gluon.toml")?;
+    }
 
     let mut child: Option<Child> = Some(spawn_app()?);
 
@@ -91,6 +97,11 @@ mod tests {
     #[test]
     fn restart_for_rs() {
         assert!(should_restart(&make_event(&["src/main.rs"])));
+    }
+
+    #[test]
+    fn restart_for_gluon_toml() {
+        assert!(should_restart(&make_event(&["gluon.toml"])));
     }
 
     #[test]

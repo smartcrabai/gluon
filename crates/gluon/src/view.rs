@@ -66,11 +66,11 @@ impl<P: Serialize> View<P> {
             ))))
         })?;
 
-        let config = jsxrs::RenderConfig {
-            base_dir: template.parent().map(std::path::Path::to_path_buf),
-            fragment,
-            ..jsxrs::RenderConfig::default()
-        };
+        let mut config = CURRENT_RENDER_CONFIG
+            .try_with(Clone::clone)
+            .unwrap_or_default();
+        config.base_dir = template.parent().map(std::path::Path::to_path_buf);
+        config.fragment = fragment;
 
         jsxrs::render_file(&template, &props, &config).map_err(|err| {
             AppError::Internal(Box::new(ViewError(format!(
@@ -88,6 +88,11 @@ tokio::task_local! {
     /// the surrounding task even when the handler returns `View::new(props)`
     /// without an explicit path.
     pub static CURRENT_TEMPLATE: Option<PathBuf>;
+}
+
+tokio::task_local! {
+    /// Render options provided by the Boot request middleware.
+    pub static CURRENT_RENDER_CONFIG: jsxrs::RenderConfig;
 }
 
 impl<P: Serialize> IntoResponse for View<P> {
@@ -139,6 +144,57 @@ mod tests {
     async fn body_string(response: Response) -> String {
         let bytes = to_bytes(response.into_body(), 64 * 1024).await.unwrap();
         String::from_utf8_lossy(&bytes).into_owned()
+    }
+
+    async fn render_with_config(template: PathBuf, config: jsxrs::RenderConfig) -> String {
+        CURRENT_TEMPLATE
+            .scope(
+                Some(template),
+                CURRENT_RENDER_CONFIG.scope(config, async {
+                    body_string(View::new(Greeting { greeting: "hello" }).into_response()).await
+                }),
+            )
+            .await
+    }
+
+    #[tokio::test]
+    async fn pretty_render_config_changes_document_formatting() {
+        let dir = tempdir().unwrap();
+        let template = write_min_page(dir.path(), MIN_PAGE);
+        let compact = render_with_config(template.clone(), jsxrs::RenderConfig::default()).await;
+        let pretty = render_with_config(
+            template,
+            jsxrs::RenderConfig {
+                pretty: true,
+                ..jsxrs::RenderConfig::default()
+            },
+        )
+        .await;
+
+        assert!(!compact.contains('\n'), "compact output: {compact}");
+        assert!(pretty.contains('\n'), "pretty output: {pretty}");
+    }
+
+    #[tokio::test]
+    async fn tailwind_render_config_injects_generated_css() {
+        let dir = tempdir().unwrap();
+        let template = write_min_page(
+            dir.path(),
+            r#"export default function Page(props) { return <main className="bg-blue-500 text-white p-4">{props.greeting}</main>; }"#,
+        );
+        let html = render_with_config(
+            template,
+            jsxrs::RenderConfig {
+                tailwind: true,
+                ..jsxrs::RenderConfig::default()
+            },
+        )
+        .await;
+
+        assert!(
+            html.contains("<style>"),
+            "generated stylesheet missing: {html}"
+        );
     }
 
     #[tokio::test]

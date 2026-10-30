@@ -3,8 +3,8 @@
 //! [`Sse`] configures Axum's event stream with keep-alive comments and marks
 //! responses to bypass buffering by reverse proxies that honor
 //! `X-Accel-Buffering: no`. For request-scoped TSX templates, each event is
-//! polled inside the `CURRENT_TEMPLATE` scope captured when the response is
-//! created.
+//! polled inside the `CURRENT_TEMPLATE` and `CURRENT_RENDER_CONFIG` scopes
+//! captured when the response is created.
 
 use std::error::Error;
 
@@ -13,7 +13,7 @@ use axum::response::{IntoResponse, Response, sse::Sse as AxumSse};
 use futures_util::{Stream, StreamExt, stream};
 use serde::Serialize;
 
-use crate::view::CURRENT_TEMPLATE;
+use crate::view::{CURRENT_RENDER_CONFIG, CURRENT_TEMPLATE};
 use crate::{Result, View};
 
 pub use axum::response::sse::{Event, KeepAlive};
@@ -53,10 +53,21 @@ where
 {
     fn into_response(self) -> Response {
         let template = CURRENT_TEMPLATE.try_with(Clone::clone).ok().flatten();
+        let render_config = CURRENT_RENDER_CONFIG.try_with(Clone::clone).ok();
         let stream = stream::unfold(Box::pin(self.stream), move |mut stream| {
             let template = template.clone();
+            let render_config = render_config.clone();
             async move {
-                let item = CURRENT_TEMPLATE.scope(template, stream.next()).await?;
+                let item = CURRENT_TEMPLATE
+                    .scope(template, async {
+                        match render_config {
+                            Some(config) => {
+                                CURRENT_RENDER_CONFIG.scope(config, stream.next()).await
+                            }
+                            None => stream.next().await,
+                        }
+                    })
+                    .await?;
                 Some((item, stream))
             }
         });
