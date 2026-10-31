@@ -2625,7 +2625,7 @@ dependencies = [
 [[package]]
 name = "jsxrs"
 version = "0.1.7"
-source = "git+https://github.com/smartcrabai/jsxrs?rev=9a60864069a2957f95b8ca3718921597154a8d1d#9a60864069a2957f95b8ca3718921597154a8d1d"
+source = "git+https://github.com/smartcrabai/jsxrs?rev=118b81e768f42d13df6ae905d90296ba8ae113be#118b81e768f42d13df6ae905d90296ba8ae113be"
 dependencies = [
  "bytes-str",
  "encre-css",
@@ -2642,7 +2642,7 @@ dependencies = [
 [[package]]
 name = "jsxrs-core"
 version = "0.1.7"
-source = "git+https://github.com/smartcrabai/jsxrs?rev=9a60864069a2957f95b8ca3718921597154a8d1d#9a60864069a2957f95b8ca3718921597154a8d1d"
+source = "git+https://github.com/smartcrabai/jsxrs?rev=118b81e768f42d13df6ae905d90296ba8ae113be#118b81e768f42d13df6ae905d90296ba8ae113be"
 dependencies = [
  "bytes-str",
  "serde_json",
@@ -2656,7 +2656,7 @@ dependencies = [
 [[package]]
 name = "jsxrs-macros"
 version = "0.1.7"
-source = "git+https://github.com/smartcrabai/jsxrs?rev=9a60864069a2957f95b8ca3718921597154a8d1d#9a60864069a2957f95b8ca3718921597154a8d1d"
+source = "git+https://github.com/smartcrabai/jsxrs?rev=118b81e768f42d13df6ae905d90296ba8ae113be#118b81e768f42d13df6ae905d90296ba8ae113be"
 dependencies = [
  "jsxrs-core",
  "proc-macro-crate",
