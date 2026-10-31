@@ -30,7 +30,7 @@ jsonwebtoken = { version = "=11.1.0", default-features = false, features = [
   "rust_crypto",
   "use_pem",
 ] }
-jsxrs = { git = "https://github.com/smartcrabai/jsxrs", rev = "fc03b87" }
+jsxrs = { git = "https://github.com/smartcrabai/jsxrs", rev = "9a60864069a2957f95b8ca3718921597154a8d1d" }
 lettre = { version = "0.11", default-features = false, features = [
   "builder",
   "smtp-transport",
