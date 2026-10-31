@@ -2625,7 +2625,8 @@ dependencies = [
 [[package]]
 name = "jsxrs"
 version = "0.1.7"
-source = "git+https://github.com/smartcrabai/jsxrs?rev=118b81e768f42d13df6ae905d90296ba8ae113be#118b81e768f42d13df6ae905d90296ba8ae113be"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2e0b07d6c0517ac057b5fac6c4cdd028132abe522fbab9af9f842a87326c711"
 dependencies = [
  "bytes-str",
  "encre-css",
@@ -2642,7 +2643,8 @@ dependencies = [
 [[package]]
 name = "jsxrs-core"
 version = "0.1.7"
-source = "git+https://github.com/smartcrabai/jsxrs?rev=118b81e768f42d13df6ae905d90296ba8ae113be#118b81e768f42d13df6ae905d90296ba8ae113be"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09c02f4d6a8101c011aacae37135356fd68a7fca4c4bfc71cb9417a132e60275"
 dependencies = [
  "bytes-str",
  "serde_json",
@@ -2656,7 +2658,8 @@ dependencies = [
 [[package]]
 name = "jsxrs-macros"
 version = "0.1.7"
-source = "git+https://github.com/smartcrabai/jsxrs?rev=118b81e768f42d13df6ae905d90296ba8ae113be#118b81e768f42d13df6ae905d90296ba8ae113be"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b66014150c99bbbe45670514098d7d02a2c3b7b7ae739213fd0d0229a4124882"
 dependencies = [
  "jsxrs-core",
  "proc-macro-crate",

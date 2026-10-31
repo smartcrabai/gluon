@@ -38,9 +38,7 @@ directories.
 `gluon dev` enables `GLUON_DEV_TEMPLATES=1` by default so TSX and public asset
 edits are read from the application source tree. An explicit environment value
 is preserved; set `GLUON_DEV_TEMPLATES=1` yourself when running the app directly.
-The default runtime remains embedded-only. The current JSX source-map API is
-provided by the pinned jsxrs Git revision; a jsxrs crates.io release is needed
-before gluon can replace that dependency pin.
+The default runtime remains embedded-only.
 ## Contributing
 
 Install the CLI from this checkout with:
