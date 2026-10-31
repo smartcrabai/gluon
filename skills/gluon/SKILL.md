@@ -40,7 +40,6 @@ gluon dev | gluon build | gluon run [--release] | gluon routes
 - `gluon-build` embeds every `app/**/*.tsx` template, supported `.jsx`/`.ts`/`.js` import sources, and every file under `public/`. Relative component imports resolve within the embedded source map; deployed binaries do not need those source directories. When `[view].tailwind = true`, it also generates one cache-busted stylesheet from embedded app sources and `[view].tailwind_content` globs; full documents link it, so fragment responses can use the same rules.
 - Tailwind discovers only complete class-name string literals in scanned files; interpolated or computed names are missed. Add external source globs such as `["web/src/**/*.ts"]` to `[view].tailwind_content`; each pattern needs an existing directory prefix below the project root. In `GLUON_DEV_TEMPLATES=1`, the stylesheet is regenerated from disk on request.
 - `gluon dev` defaults `GLUON_DEV_TEMPLATES=1` for live TSX and public asset reads and preserves an explicit environment value. For direct runs, set `GLUON_DEV_TEMPLATES=1` yourself; the normal runtime is embedded-only.
-- The current rendering API depends on the pinned jsxrs Git revision; a jsxrs crates.io release is required before gluon can replace that pin.
 - Boot's outer `ViewConfig` middleware scopes `CURRENT_RENDER_CONFIG`; generated page wrappers scope layout/template/source-map context, while route wrappers scope only their sibling template and source-map context.
 
 ## Authentication (opt-in)
