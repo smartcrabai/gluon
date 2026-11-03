@@ -187,7 +187,7 @@ impl Auth {
         let credential = webauthn
             .finish_passkey_registration(&response, &state)
             .map_err(|_| invalid())?;
-        let id = URL_SAFE_NO_PAD.encode(credential.cred_id().as_ref());
+        let id = URL_SAFE_NO_PAD.encode(credential.cred_id());
         let key = SavedKey {
             format: 1,
             credential,
@@ -316,7 +316,7 @@ impl Auth {
                         .identify_discoverable_authentication(&response)
                         .map_err(|_| invalid())?;
                     if handle != key.user_handle
-                        || identified_id != key.credential.cred_id().as_ref()
+                        || identified_id != key.credential.cred_id().as_slice()
                     {
                         return Err(invalid());
                     }
@@ -324,11 +324,7 @@ impl Auth {
                         DiscoverableAuthentication::deserialize(&ceremony.state)
                             .map_err(|_| internal())?;
                     webauthn
-                        .finish_discoverable_authentication(
-                            &response,
-                            state,
-                            &[DiscoverableKey::from(&key.credential)],
-                        )
+                        .finish_discoverable_authentication_v2(&response, state, &key.credential)
                         .map_err(|_| invalid())?
                 };
                 if !result.user_verified() {
