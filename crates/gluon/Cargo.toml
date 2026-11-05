@@ -19,7 +19,7 @@ name = "csrf_spec"
 base64.workspace = true
 cucumber = { version = "=0.23.0", features = ["output-junit"] }
 jsonwebtoken.workspace = true
-openssl = "=0.10.81"
+openssl = "=0.10.82"
 reqwest.workspace = true
 serde_cbor_2 = "=0.13.0"
 serial_test.workspace = true
