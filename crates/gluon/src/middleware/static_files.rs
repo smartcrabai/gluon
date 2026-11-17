@@ -129,17 +129,13 @@ fn runtime_tailwind_content(source_root: &FsPath) -> Option<Vec<String>> {
         .get("view")
         .and_then(|view| view.get("tailwind_content"))
         .and_then(toml::Value::as_array);
-    Some(
+    Some(patterns.map_or_default(|patterns| {
         patterns
-            .map(|patterns| {
-                patterns
-                    .iter()
-                    .filter_map(toml::Value::as_str)
-                    .map(str::to_owned)
-                    .collect()
-            })
-            .unwrap_or_default(),
-    )
+            .iter()
+            .filter_map(toml::Value::as_str)
+            .map(str::to_owned)
+            .collect()
+    }))
 }
 
 fn append_glob_sources(

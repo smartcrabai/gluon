@@ -27,7 +27,7 @@ hmac = "0.13"
 http = "1"
 insta = { version = "1", default-features = false }
 jsonwebtoken = { version = "=12.0.0", default-features = false, features = [
-  "rust_crypto",
+  "aws_lc_rs",
   "use_pem",
 ] }
 jsxrs = "0.1.7"
