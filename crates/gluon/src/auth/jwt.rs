@@ -134,18 +134,13 @@ impl Auth {
     /// Public-only key set. Retain old configured keys for the rotation overlap.
     #[must_use]
     pub fn jwks(&self) -> Value {
-        let keys: Vec<Value> = self
-            .config
-            .jwt
-            .as_ref()
-            .map(|config| {
-                config
-                    .keys
-                    .iter()
-                    .filter_map(|key| public_key(key).ok())
-                    .collect()
-            })
-            .unwrap_or_default();
+        let keys: Vec<Value> = self.config.jwt.as_ref().map_or_default(|config| {
+            config
+                .keys
+                .iter()
+                .filter_map(|key| public_key(key).ok())
+                .collect()
+        });
         json!({"keys":keys})
     }
 }
