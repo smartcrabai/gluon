@@ -195,7 +195,7 @@ async fn symmetric_algorithm_is_rejected_even_when_the_signature_is_valid() {
     let token = encode(
         &header,
         &valid_claims(&f),
-        &EncodingKey::from_secret(b"not-an-ed25519-key"),
+        &EncodingKey::from_secret(b"not-an-ed25519-key").unwrap(),
     )
     .unwrap();
     assert!(f.auth.verify_token(&token).is_err());
