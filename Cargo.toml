@@ -40,7 +40,7 @@ lettre = { version = "0.11", default-features = false, features = [
 ] }
 mime_guess = "2"
 minijinja = { version = "3", features = ["serde"] }
-notify = "8"
+notify = "9"
 oauth2 = { version = "5", default-features = false }
 openidconnect = { version = "4", default-features = false }
 opentelemetry = { version = "0.33", default-features = false, features = [
